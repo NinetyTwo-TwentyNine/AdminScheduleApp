@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#05080D">
+
+
+    <TextView
+        android:id="@+id/staySignedInTextView"
+        android:layout_width="230dp"
+        android:layout_height="23dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="80dp"
+        android:fontFamily="@font/roboto_medium"
+        android:text="Оставаться в аккаунте"
+        android:textColor="#FFFFFF"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView" />
+
+    <ImageView
+        android:id="@+id/icon_stay_signet"
+        android:layout_width="23dp"
+        android:layout_height="23dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toStartOf="@+id/logoutTrigger"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/icon_notification"
+        app:srcCompat="@drawable/icon_stay_signed" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/staySignedInCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="260dp"
+        android:thumb="@drawable/switch_custom_thumb"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enablePushesCheckBox"
+        app:track="@drawable/switch_custom_track" />
+
+
+    <TextView
+        android:id="@+id/textView1"
+        style="@style/MainText"
+        android:layout_width="wrap_content"
+        android:layout_height="46dp"
+        android:text="Настройки"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Spinner
+        android:id="@+id/selectGroupSpinner"
+        android:layout_width="385dp"
+        android:layout_height="62dp"
+        android:layout_marginTop="80dp"
+        android:background="@drawable/border_spinner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView1" />
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="130dp"
+        android:layout_height="23dp"
+        android:layout_marginTop="99dp"
+        android:layout_marginEnd="180dp"
+        android:fontFamily="@font/roboto_medium"
+        android:text="Уведомления"
+        android:textColor="#FFFFFF"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/selectGroupSpinner" />
+
+    <ImageView
+        android:id="@+id/icon_notification"
+        android:layout_width="23dp"
+        android:layout_height="23dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="102dp"
+        app:layout_constraintEnd_toStartOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/selectGroupSpinner"
+        app:srcCompat="@drawable/icon_notification" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/enablePushesCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="260dp"
+        android:layout_marginTop="90dp"
+        android:thumb="@drawable/switch_custom_thumb"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/selectGroupSpinner"
+        app:track="@drawable/switch_custom_track" />
+
+    <TextView
+        android:id="@+id/logoutTrigger"
+        android:layout_width="130dp"
+        android:layout_height="23dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="180dp"
+        android:fontFamily="@font/roboto_medium"
+        android:text="Выйти"
+        android:textColor="#FFFFFF"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/staySignedInTextView" />
+
+    <ImageView
+        android:id="@+id/icon_logout"
+        android:layout_width="23dp"
+        android:layout_height="23dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toStartOf="@+id/logoutTrigger"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/icon_stay_signet"
+        app:srcCompat="@drawable/icon_logout" />
+
+    <ImageView
+        android:id="@+id/icon_contact"
+        android:layout_width="23dp"
+        android:layout_height="23dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toStartOf="@+id/logoutTrigger"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/icon_logout"
+        app:srcCompat="@drawable/icon_contact" />
+
+    <TextView
+        android:id="@+id/contactUsTextView"
+        android:layout_width="180dp"
+        android:layout_height="23dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="130dp"
+        android:text="Связаться с нами"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/logoutTrigger" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

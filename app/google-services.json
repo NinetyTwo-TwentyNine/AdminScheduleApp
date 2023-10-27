@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "293616630042",
+    "project_id": "fcm-learn-72e92",
+    "storage_bucket": "fcm-learn-72e92.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:293616630042:android:886ecdad3a0f0e816f54a3",
+        "android_client_info": {
+          "package_name": "com.example.android.eggtimernotifications"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "293616630042-4gcn7ibl01udjoqh216gfh2gju6ftj7g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaZ-nQ3Jx549Txj15QX8232bCPI2L-K_k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "293616630042-4gcn7ibl01udjoqh216gfh2gju6ftj7g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:293616630042:android:65177c43b1ef86f36f54a3",
+        "android_client_info": {
+          "package_name": "com.example.scheduleapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "293616630042-4gcn7ibl01udjoqh216gfh2gju6ftj7g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaZ-nQ3Jx549Txj15QX8232bCPI2L-K_k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "293616630042-4gcn7ibl01udjoqh216gfh2gju6ftj7g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
