@@ -32,11 +32,10 @@ class FirebaseImplementation(
     }
 
     override fun sendResetMessage(email: String): Task<Void> {
-        something()
         return fAuth.sendPasswordResetEmail(email)
     }
 
-    fun something()
+    /*fun something()
     {
         fDatabase.getReference("FlatScheduleDetailed303/schedule_test1").setValue(null).addOnCompleteListener {
             if (it.isSuccessful) {
@@ -46,7 +45,7 @@ class FirebaseImplementation(
                 Log.d("UPLOAD_TEST", "data upload error: " + it.exception!!.message.toString())
             }
         }
-    }
+    }*/
 
     override fun signOut() {
         fAuth.signOut()
