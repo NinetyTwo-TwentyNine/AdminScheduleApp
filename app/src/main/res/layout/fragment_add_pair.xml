@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#05080D">
+
+
+    <TextView
+        android:id="@+id/date"
+        style="@style/TextSchedule"
+        android:layout_width="wrap_content"
+        android:layout_height="46dp"
+        android:layout_marginTop="10dp"
+        android:text="Дата"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/group"
+        style="@style/TextSchedule"
+        android:layout_width="wrap_content"
+        android:layout_height="46dp"
+        android:text="Группа"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/date" />
+
+    <TextView
+        android:id="@+id/pair"
+        style="@style/TextSchedule"
+        android:layout_width="wrap_content"
+        android:layout_height="46dp"
+        android:text="Номер пары"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/group" />
+
+    <TextView
+        android:id="@+id/subpairText"
+        android:layout_width="130dp"
+        android:layout_height="29dp"
+        android:layout_marginTop="39dp"
+        android:layout_marginEnd="230dp"
+        android:fontFamily="@font/roboto_medium"
+        android:text="Полупара"
+        android:textColor="#FFFFFF"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pair" />
+
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/subpairEnable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="300dp"
+        android:layout_marginTop="30dp"
+        android:thumb="@drawable/switch_custom_thumb"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pair"
+        app:track="@drawable/switch_custom_track" />
+
+    <TextView
+        android:id="@+id/optionalText"
+        android:layout_width="280dp"
+        android:layout_height="29dp"
+        android:layout_marginTop="21dp"
+        android:layout_marginEnd="80dp"
+        android:fontFamily="@font/roboto_medium"
+        android:text="Необязательные данные"
+        android:textColor="#FFFFFF"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subpairText" />
+
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/optionalEnable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="300dp"
+        android:thumb="@drawable/switch_custom_thumb"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subpairEnable"
+        app:track="@drawable/switch_custom_track" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/schedulesRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:scrollbars="vertical"
+        app:layoutManager="LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@+id/optionalText" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:indeterminate="true"
+        android:indeterminateDrawable="@drawable/progress_bar"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
