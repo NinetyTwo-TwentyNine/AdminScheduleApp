@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#05080D">
+    android:background="#05080D"
+    tools:context=".UI.AdminPanelFragment">
 
     <TextView
         android:id="@+id/textView1"

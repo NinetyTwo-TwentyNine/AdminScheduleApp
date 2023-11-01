@@ -6,10 +6,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.scheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
 import com.example.scheduleapp.data.AuthenticationStatus
+import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_CABINET_NAME
+import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_DISCIPLINE_NAME
+import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_GROUP_NAME
+import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_TEACHER_NAME
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_LIST
 import com.example.scheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
 import com.example.scheduleapp.data.Data_IntString
+import com.example.scheduleapp.data.Date
 import com.example.scheduleapp.data.DownloadStatus
 import com.example.scheduleapp.data.FlatScheduleDetailed
 import com.example.scheduleapp.models.FirebaseRepository
@@ -143,6 +148,20 @@ class MainActivityViewModel @Inject constructor(
         return groupNames
     }
 
+    fun getDayWithOffset(index: Int): Date {
+        var position = index - PAGE_COUNT/2
+        val c = Calendar.getInstance()
+
+        if (position != 0) {
+            c.add(Calendar.DATE, position)
+        }
+
+        val year = c.get(Calendar.YEAR)
+        val month = c.get(Calendar.MONTH) + 1
+        val day = c.get(Calendar.DAY_OF_MONTH)
+        return Date(year, month, day)
+    }
+
     fun getDayToTab(index: Int): String {
         val position = index - PAGE_COUNT/2
         val c = Calendar.getInstance()
@@ -152,7 +171,8 @@ class MainActivityViewModel @Inject constructor(
         }
 
         val weekDay = APP_CALENDER_DAY_OF_WEEK[c.get(Calendar.DAY_OF_WEEK) - 1]
-        val day = c.get(Calendar.DAY_OF_MONTH)
+        var day = c.get(Calendar.DAY_OF_MONTH).toString()
+        if (day.length < 2) { day += "0" }
 
         return "$weekDay${System.getProperty("line.separator")}$day"
     }
@@ -194,6 +214,16 @@ class MainActivityViewModel @Inject constructor(
             } else {
                 authState.value = AuthenticationStatus.Error(task.exception!!.message.toString())
             }
+        }
+    }
+
+    fun getParametersByName(name: String): ArrayList<Data_IntString> {
+        return when(name) {
+            APP_ADMIN_PARAMETERS_DISCIPLINE_NAME -> flatSchedule.lessonList
+            APP_ADMIN_PARAMETERS_TEACHER_NAME -> flatSchedule.teacherList
+            APP_ADMIN_PARAMETERS_GROUP_NAME -> flatSchedule.groupList
+            APP_ADMIN_PARAMETERS_CABINET_NAME -> flatSchedule.cabinetList
+            else -> arrayListOf()
         }
     }
 

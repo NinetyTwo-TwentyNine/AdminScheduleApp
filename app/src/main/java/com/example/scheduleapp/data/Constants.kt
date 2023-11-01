@@ -9,5 +9,13 @@ object Constants {
     const val APP_PREFERENCES_GROUP_REGISTER = "APP_PREFERENCES_GROUP_REGISTER"
     const val APP_BD_PATHS_SCHEDULE_LIST = "FlatScheduleDetailed"
     const val APP_BD_PATHS_GROUP_LIST = "FlatScheduleDetailed/groupList"
+    const val APP_ADMIN_EDIT_OPTIONS_OFF = "Edit mode off"
+    const val APP_ADMIN_EDIT_OPTIONS_ON = "Edit mode on"
+    const val APP_ADMIN_EDIT_OPTIONS_DELETE = "Delete"
+    const val APP_ADMIN_PARAMETERS_DISCIPLINE_NAME = "Discipline"
+    const val APP_ADMIN_PARAMETERS_TEACHER_NAME = "Teacher"
+    const val APP_ADMIN_PARAMETERS_GROUP_NAME = "Group"
+    const val APP_ADMIN_PARAMETERS_CABINET_NAME = "Cabinet"
     val APP_CALENDER_DAY_OF_WEEK = listOf("вс", "пн", "вт", "ср", "чт", "пт", "сб")
+    val APP_ADMIN_PARAMETERS_LIST = listOf(APP_ADMIN_PARAMETERS_DISCIPLINE_NAME, APP_ADMIN_PARAMETERS_TEACHER_NAME, APP_ADMIN_PARAMETERS_GROUP_NAME, APP_ADMIN_PARAMETERS_CABINET_NAME)
 }

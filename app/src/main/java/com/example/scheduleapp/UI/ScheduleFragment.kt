@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.scheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
 import com.example.scheduleapp.adapters.ScheduleRecyclerViewAdapter
 import com.example.scheduleapp.databinding.FragmentScheduleBinding
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
@@ -37,8 +38,8 @@ class ScheduleFragment() : Fragment() {
 
         if (index != null) {
             val flatSchedule = mainViewModel.getSchedule()
-            val currentGroup = scheduleViewModel.getGroupId(flatSchedule.groupList, scheduleViewModel.getGroup())
-            val currentDate = scheduleViewModel.getDayId(flatSchedule.dayList, index!!)
+            val currentGroup = scheduleViewModel.getGroupId(flatSchedule.groupList, mainViewModel.getGroupNames()[index!!])
+            val currentDate = scheduleViewModel.getDayId(flatSchedule.dayList, mainViewModel.getDayWithOffset(PAGE_COUNT/2))
             Log.d("TAG_FS", "currentGroup = ${currentGroup.toString()}, currentDay = ${currentDate.toString()}, index = ${index!!}")
             if (currentGroup != null && currentDate != null) {
                 val currentSchedule = scheduleViewModel.getScheduleByGroupAndDayDetailed(currentGroup, currentDate, flatSchedule)

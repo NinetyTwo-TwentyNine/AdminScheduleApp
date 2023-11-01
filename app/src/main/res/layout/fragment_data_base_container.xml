@@ -6,32 +6,18 @@
     android:background="@color/background_color_default"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/day_name"
-        android:layout_width="match_parent"
-        android:layout_height="62dp"
-        android:fontFamily="@font/roboto_light"
-        android:paddingStart="13dp"
-        android:paddingTop="9dp"
-        android:paddingBottom="9dp"
-        android:textColor="#FFFFFF"
-        android:textSize="15dp"
-        android:textAlignment="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#05080D"
-        app:tabGravity="center"
-        app:layout_constraintTop_toTopOf="@+id/day_name"
         app:tabIndicatorColor="#5265CE"
+        app:tabGravity="center"
         app:tabMode="scrollable"
+        app:layout_constraintTop_toTopOf="parent"
         app:tabSelectedTextColor="#5265CE"
         app:tabTextColor="#FFFFFF" />
-
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/fragmentViewPager2"

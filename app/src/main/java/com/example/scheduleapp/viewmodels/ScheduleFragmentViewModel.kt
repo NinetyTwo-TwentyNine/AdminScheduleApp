@@ -4,6 +4,7 @@ package com.example.scheduleapp.viewmodels
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.scheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
 import com.example.scheduleapp.data.*
 import com.example.scheduleapp.data.Date
 import com.example.scheduleapp.models.FirebaseRepository
@@ -16,20 +17,6 @@ class ScheduleFragmentViewModel @Inject constructor(
     private val rImplementation: FirebaseRepository, private val sPreferences: SharedPreferences
 ) : ViewModel() {
 
-    fun getDayWithOffset(index: Int): Date {
-        var position = index - 7
-        val c = Calendar.getInstance()
-
-        if (position != 0) {
-            c.add(Calendar.DATE, position)
-        }
-
-        val year = c.get(Calendar.YEAR)
-        val month = c.get(Calendar.MONTH) + 1
-        val day = c.get(Calendar.DAY_OF_MONTH)
-        return Date(year, month, day)
-    }
-
     fun getGroup(): String? {
         if (rImplementation.getCurrentUser() == null) {
             return null
@@ -41,8 +28,7 @@ class ScheduleFragmentViewModel @Inject constructor(
         return groupName
     }
 
-    fun getDayId(dayList: ArrayList<Data_IntDate>, index: Int): Int? {
-        val date = getDayWithOffset(index)
+    fun getDayId(dayList: ArrayList<Data_IntDate>, date: Date): Int? {
         for (item in dayList) {
             if (date == item.date) {
                 return item.id
@@ -207,5 +193,27 @@ class ScheduleFragmentViewModel @Inject constructor(
             }
         }
         return null
+    }
+
+    fun getPossibleId(currentList: ArrayList<Data_IntString>): Int {
+        val idArray: MutableList<Int> = arrayListOf()
+        var maxId = 0
+        var currentId: Int? = null
+        currentList.forEach {
+            idArray.add(it.id!!)
+            if (it.id!! > maxId) {
+                maxId = it.id!!
+            }
+        }
+        for (i in 0..maxId) {
+            if (!idArray.contains(i)) {
+                currentId = i
+                break
+            }
+        }
+        if (currentId == null) {
+            currentId = maxId + 1
+        }
+        return currentId
     }
 }

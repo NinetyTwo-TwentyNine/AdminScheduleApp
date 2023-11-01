@@ -7,6 +7,27 @@
 
 
     <fragment
+        android:id="@+id/adminPanelFragment"
+        android:name="com.example.scheduleapp.UI.AdminPanelFragment"
+        android:label="AdminPanelFragment"
+        tools:layout="@layout/fragment_admin_panel" >
+        <action
+            android:id="@+id/action_adminPanelFragment_to_dbFragmentContainer"
+            app:destination="@id/dbFragmentContainer" />
+        <action
+            android:id="@+id/action_adminPanelFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/dbFragmentContainer"
+        android:name="com.example.scheduleapp.UI.DataBaseFragmentContainer"
+        android:label="DataBaseFragmentContainer"
+        tools:layout="@layout/fragment_data_base_container" >
+        <action
+            android:id="@+id/action_dbFragmentContainer_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+    <fragment
         android:id="@+id/fragmentContainer"
         android:name="com.example.scheduleapp.UI.FragmentContainer"
         android:label="FragmentContainer"
@@ -26,10 +47,10 @@
             app:popUpToInclusive="true"
             app:destination="@id/loginFragment" />
         <action
-            android:id="@+id/action_settingsFragment_to_fragmentContainer"
+            android:id="@+id/action_settingsFragment_to_adminPanelFragment"
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="true"
-            app:destination="@id/fragmentContainer" />
+            app:destination="@id/adminPanelFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
@@ -47,8 +68,8 @@
             app:popUpToInclusive="true"
             app:destination="@id/resetFragment" />
         <action
-            android:id="@+id/action_loginFragment_to_fragmentContainer"
-            app:destination="@id/fragmentContainer"
+            android:id="@+id/action_loginFragment_to_adminPanelFragment"
+            app:destination="@id/adminPanelFragment"
             app:popUpTo="@id/loginFragment"
             app:popUpToInclusive="true"/>
     </fragment>

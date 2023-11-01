@@ -74,7 +74,7 @@ class LoginFragment : Fragment() {
                             viewModel.signOut()
                         } else {
                             requireView().findNavController()
-                                .navigate(LoginFragmentDirections.actionLoginFragmentToFragmentContainer())
+                                .navigate(LoginFragmentDirections.actionLoginFragmentToAdminPanelFragment())
                         }
                     }
                     initializeView()
@@ -97,7 +97,7 @@ class LoginFragment : Fragment() {
                     Toast.makeText(activity, "Logged in successfully", Toast.LENGTH_SHORT).show()
                     Log.d("TAG", "Successful login")
                     requireView().findNavController()
-                        .navigate(LoginFragmentDirections.actionLoginFragmentToFragmentContainer())
+                        .navigate(LoginFragmentDirections.actionLoginFragmentToAdminPanelFragment())
                 }
                 is AuthenticationStatus.Error -> {
                     setButtonVisibility()
