@@ -7,6 +7,13 @@
 
 
     <fragment
+        android:id="@+id/changeBasicScheduleFragment"
+        android:name="com.example.scheduleapp.UI.ChangeBasicScheduleFragment"
+        android:label="ChangeBasicScheduleFragment"
+        tools:layout="@layout/fragment_change_basic_schedule">
+    </fragment>
+
+    <fragment
         android:id="@+id/adminPanelFragment"
         android:name="com.example.scheduleapp.UI.AdminPanelFragment"
         android:label="AdminPanelFragment"
@@ -14,6 +21,9 @@
         <action
             android:id="@+id/action_adminPanelFragment_to_dbFragmentContainer"
             app:destination="@id/dbFragmentContainer" />
+        <action
+            android:id="@+id/action_adminPanelFragment_to_changeBasicScheduleFragment"
+            app:destination="@id/changeBasicScheduleFragment" />
         <action
             android:id="@+id/action_adminPanelFragment_to_loginFragment"
             app:destination="@id/loginFragment" />

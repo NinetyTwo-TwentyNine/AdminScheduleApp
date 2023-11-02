@@ -42,5 +42,9 @@ class AdminPanelFragment: Fragment() {
             requireView().findNavController()
                 .navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToDbFragmentContainer())
         }
+
+        binding.changingBasicSchedule.setOnClickListener{
+            requireView().findNavController().navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToChangeBasicScheduleFragment())
+        }
     }
 }
