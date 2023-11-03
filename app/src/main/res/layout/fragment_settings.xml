@@ -54,17 +54,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <Spinner
-        android:id="@+id/selectGroupSpinner"
-        android:layout_width="385dp"
-        android:layout_height="62dp"
-        android:layout_marginTop="80dp"
-        android:background="@drawable/border_spinner"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView1" />
-
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="130dp"
@@ -77,7 +66,7 @@
         android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/selectGroupSpinner" />
+        app:layout_constraintTop_toBottomOf="@+id/textView1" />
 
     <ImageView
         android:id="@+id/icon_notification"
@@ -87,7 +76,7 @@
         android:layout_marginTop="102dp"
         app:layout_constraintEnd_toStartOf="@+id/textView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/selectGroupSpinner"
+        app:layout_constraintTop_toBottomOf="@+id/textView1"
         app:srcCompat="@drawable/icon_notification" />
 
     <androidx.appcompat.widget.SwitchCompat
@@ -99,7 +88,7 @@
         android:thumb="@drawable/switch_custom_thumb"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/selectGroupSpinner"
+        app:layout_constraintTop_toBottomOf="@id/textView1"
         app:track="@drawable/switch_custom_track" />
 
     <TextView

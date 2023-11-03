@@ -21,3 +21,15 @@ sealed class DownloadStatus<out T> {
     object Progress: DownloadStatus<Nothing>()
 
 }
+
+sealed class UploadStatus {
+
+    object Success : UploadStatus()
+
+    data class Error(val message: String) : UploadStatus()
+
+    data class WeakProgress(val message: String): UploadStatus()
+
+    object Progress: UploadStatus()
+
+}

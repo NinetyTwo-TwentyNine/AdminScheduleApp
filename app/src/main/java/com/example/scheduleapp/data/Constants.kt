@@ -5,10 +5,11 @@ object Constants {
     const val APP_PREFERENCES = "APP_PREFERENCES"
     const val APP_PREFERENCES_STAY = "APP_PREFERENCES_STAY_BOOL"
     const val APP_PREFERENCES_PUSHES = "APP_PREFERENCES_PUSHES_BOOL"
-    const val APP_PREFERENCES_GROUP = "APP_PREFERENCES_GROUP"
-    const val APP_PREFERENCES_GROUP_REGISTER = "APP_PREFERENCES_GROUP_REGISTER"
     const val APP_BD_PATHS_SCHEDULE_LIST = "FlatScheduleDetailed"
-    const val APP_BD_PATHS_GROUP_LIST = "FlatScheduleDetailed/groupList"
+    const val APP_BD_PATHS_GROUP_LIST = "${APP_BD_PATHS_SCHEDULE_LIST}/groupList"
+    const val APP_BD_PATHS_TEACHER_LIST = "${APP_BD_PATHS_SCHEDULE_LIST}/teacherList"
+    const val APP_BD_PATHS_CABINET_LIST = "${APP_BD_PATHS_SCHEDULE_LIST}/cabinetList"
+    const val APP_BD_PATHS_DISCIPLINE_LIST = "${APP_BD_PATHS_SCHEDULE_LIST}/lessonList"
     const val APP_ADMIN_EDIT_OPTIONS_OFF = "Edit mode off"
     const val APP_ADMIN_EDIT_OPTIONS_ON = "Edit mode on"
     const val APP_ADMIN_EDIT_OPTIONS_DELETE = "Delete"
@@ -16,6 +17,9 @@ object Constants {
     const val APP_ADMIN_PARAMETERS_TEACHER_NAME = "Teacher"
     const val APP_ADMIN_PARAMETERS_GROUP_NAME = "Group"
     const val APP_ADMIN_PARAMETERS_CABINET_NAME = "Cabinet"
+    const val APP_WEAK_CONNECTION_WARNING = "Looks like there are some problems with connection..."
+    const val APP_ADMIN_SAVE_CHANGES_WARNING = "Are sure you want to save those changes?"
+    const val APP_ADMIN_ID_DELETION_WARNING = "Some of the IDs were deleted."
     val APP_CALENDER_DAY_OF_WEEK = listOf("вс", "пн", "вт", "ср", "чт", "пт", "сб")
     val APP_ADMIN_PARAMETERS_LIST = listOf(APP_ADMIN_PARAMETERS_DISCIPLINE_NAME, APP_ADMIN_PARAMETERS_TEACHER_NAME, APP_ADMIN_PARAMETERS_GROUP_NAME, APP_ADMIN_PARAMETERS_CABINET_NAME)
 }

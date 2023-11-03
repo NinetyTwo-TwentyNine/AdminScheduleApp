@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.example.scheduleapp.R
-import com.example.scheduleapp.data.Constants.APP_PREFERENCES_GROUP
 import com.example.scheduleapp.data.Constants.APP_PREFERENCES_PUSHES
 import com.example.scheduleapp.data.Constants.APP_PREFERENCES_STAY
 import com.example.scheduleapp.data.Data_IntString
@@ -48,6 +47,7 @@ class SettingsFragment : Fragment() {
             viewModel.editPreferences(APP_PREFERENCES_STAY, checked)
         }
 
+        /*
         binding.selectGroupSpinner.adapter = ArrayAdapter((activity as MainActivity), R.layout.spinner_item, viewModel.getGroupNames()).also { adapter ->
             adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         }
@@ -64,6 +64,7 @@ class SettingsFragment : Fragment() {
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
+        */
 
         binding.logoutTrigger.setOnClickListener {
             logOut()
@@ -79,8 +80,9 @@ class SettingsFragment : Fragment() {
             .navigate(SettingsFragmentDirections.actionSettingsFragmentToLoginFragment())
     }
 
+    /*
     private fun getGroupPreferencesId(): String {
         return APP_PREFERENCES_GROUP+"_"+viewModel.getUserEmail()
     }
-
+    */
 }

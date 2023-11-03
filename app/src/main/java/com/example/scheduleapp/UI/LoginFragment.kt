@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.example.scheduleapp.data.AuthenticationStatus
+import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
 import com.example.scheduleapp.data.Constants.APP_MIN_PASSWORD_LENGTH
 import com.example.scheduleapp.data.Constants.APP_PREFERENCES_STAY
 import com.example.scheduleapp.data.Data_IntString
@@ -41,12 +42,12 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initDownloadObservers()
-        viewModel.downloadGroupList()
+        viewModel.downloadParametersList(APP_BD_PATHS_GROUP_LIST)
     }
 
     private fun initDownloadObservers() {
         viewModel.resetDownloadState(true)
-        viewModel.groupsDownloadState.observe(viewLifecycleOwner) { downloadStatus ->
+        viewModel.parametersDownloadState.observe(viewLifecycleOwner) { downloadStatus ->
             when (downloadStatus) {
                 is DownloadStatus.Progress -> {
                     binding.progressBar.visibility = View.VISIBLE

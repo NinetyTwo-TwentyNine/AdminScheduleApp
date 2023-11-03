@@ -1,18 +1,21 @@
 package com.example.scheduleapp.UI
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.viewpager.widget.PagerAdapter
 import com.example.scheduleapp.adapters.AdminDBEditorAdapter
 import com.example.scheduleapp.adapters.MainScreenAdapter
 import com.example.scheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
 import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_LIST
 import com.example.scheduleapp.data.DownloadStatus
 import com.example.scheduleapp.data.FlatScheduleDetailed
+import com.example.scheduleapp.data.UploadStatus
 import com.example.scheduleapp.databinding.FragmentDataBaseContainerBinding
 import com.example.scheduleapp.databinding.FragmentDataBaseEditBinding
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
@@ -34,8 +37,8 @@ class DataBaseFragmentContainer : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initObservers()
-        viewModel.downloadSchedule()
+
+        setupViewPager2()
     }
 
     private fun setupViewPager2() {
@@ -52,37 +55,40 @@ class DataBaseFragmentContainer : Fragment() {
         }
     }
 
-    private fun initObservers() {
-        viewModel.resetDownloadState(false)
-        viewModel.scheduleDownloadState.observe(viewLifecycleOwner) { downloadStatus ->
+    fun setViewPagerEnabled(b: Boolean) {
+        binding.fragmentViewPager2.isUserInputEnabled = b
+    }
 
-            when (downloadStatus) {
-                is DownloadStatus.Progress -> {
-                    binding.progressBar.visibility = View.VISIBLE
+    /*
+    private fun initObservers() {
+        binding.fragmentViewPager2.isUserInputEnabled = false
+
+        viewModel.parametersDownloadState.observe(viewLifecycleOwner) { downloadStatus ->
+            Log.d("VIEW_PAGER_CHECKER", "")
+            Log.d("VIEW_PAGER_CHECKER", binding.fragmentViewPager2.isUserInputEnabled.toString())
+            binding.fragmentViewPager2.isUserInputEnabled = when (downloadStatus) {
+                is DownloadStatus.Progress -> false
+                is DownloadStatus.WeakProgress -> false
+                else -> when(viewModel.uploadState.value) {
+                    is UploadStatus.Progress -> false
+                    is UploadStatus.WeakProgress -> false
+                    else -> true
                 }
-                is DownloadStatus.WeakProgress -> {
-                    Toast.makeText(
-                        activity,
-                        downloadStatus.message,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                is DownloadStatus.Error -> {
-                    binding.progressBar.visibility = View.GONE
-                    Toast.makeText(
-                        activity,
-                        "Failed to download Schedule: ${downloadStatus.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                is DownloadStatus.Success<FlatScheduleDetailed> -> {
-                    binding.progressBar.visibility = View.GONE
-                    setupViewPager2()
-                }
-                else -> {
-                    throw IllegalStateException()
+            }
+        }
+        viewModel.uploadState.observe(viewLifecycleOwner) { uploadStatus ->
+            Log.d("VIEW_PAGER_CHECKER", "")
+            Log.d("VIEW_PAGER_CHECKER", binding.fragmentViewPager2.isUserInputEnabled.toString())
+            binding.fragmentViewPager2.isUserInputEnabled = when (uploadStatus) {
+                is UploadStatus.Progress -> false
+                is UploadStatus.WeakProgress -> false
+                else -> when(viewModel.parametersDownloadState.value) {
+                    is DownloadStatus.Progress -> false
+                    is DownloadStatus.WeakProgress -> false
+                    else -> true
                 }
             }
         }
     }
+    */
 }

@@ -4,6 +4,8 @@ import android.app.Activity
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
+import com.example.scheduleapp.data.Data_IntIntIntArrayArray
+import com.example.scheduleapp.data.Data_IntString
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
@@ -24,6 +26,12 @@ object Utils {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
         }
+    }
+
+    fun getDataIntStringArrayDeepCopy(origArr: ArrayList<Data_IntString>): ArrayList<Data_IntString> {
+        val newArr = arrayListOf<Data_IntString>()
+        origArr.forEach { newArr.add(Data_IntString(it.id, it.title)) }
+        return newArr
     }
 
     /**

@@ -36,6 +36,11 @@
         <action
             android:id="@+id/action_dbFragmentContainer_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_dbFragmentContainer_to_adminPanelFragment"
+            app:destination="@id/adminPanelFragment"
+            app:popUpTo="@id/adminPanelFragment"
+            app:popUpToInclusive="false"/>
     </fragment>
     <fragment
         android:id="@+id/fragmentContainer"

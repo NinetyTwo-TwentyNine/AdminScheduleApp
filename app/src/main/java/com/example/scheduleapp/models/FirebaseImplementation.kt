@@ -19,6 +19,10 @@ class FirebaseImplementation(
         return fDatabase.getReference(reference).get()
     }
 
+    override fun <T> uploadByReference(reference: String, info: T): Task<Void> {
+        return fDatabase.getReference(reference).setValue(info)
+    }
+
     override fun getCurrentUser(): FirebaseUser? {
         return fAuth.currentUser
     }

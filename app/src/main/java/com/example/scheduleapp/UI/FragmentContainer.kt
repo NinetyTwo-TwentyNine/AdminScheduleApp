@@ -12,7 +12,8 @@ import androidx.fragment.app.activityViewModels
 import com.example.scheduleapp.R
 import com.example.scheduleapp.adapters.MainScreenAdapter
 import com.example.scheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
-import com.example.scheduleapp.data.Constants.APP_PREFERENCES_GROUP
+import com.example.scheduleapp.data.Constants.APP_BD_PATHS_CABINET_LIST
+import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
 import com.example.scheduleapp.data.Date
 import com.example.scheduleapp.data.DownloadStatus
 import com.example.scheduleapp.data.FlatScheduleDetailed
@@ -53,7 +54,7 @@ class FragmentContainer : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun setupViewPager2() {
-        val groupArray = viewModel.getGroupNames()
+        val groupArray = viewModel.getParametersList(APP_BD_PATHS_GROUP_LIST)
 
         mainScreenAdapter = MainScreenAdapter(this, groupArray.size)
         binding.fragmentViewPager2.adapter = mainScreenAdapter
@@ -70,7 +71,7 @@ class FragmentContainer : Fragment() {
     }
 
     private fun initObservers() {
-        viewModel.resetDownloadState(false)
+        viewModel.resetDownloadState()
         viewModel.scheduleDownloadState.observe(viewLifecycleOwner) { downloadStatus ->
 
             when (downloadStatus) {

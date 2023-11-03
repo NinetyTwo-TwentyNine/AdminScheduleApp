@@ -11,12 +11,14 @@ import com.example.scheduleapp.models.FirebaseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 @HiltViewModel
 class ScheduleFragmentViewModel @Inject constructor(
     private val rImplementation: FirebaseRepository, private val sPreferences: SharedPreferences
 ) : ViewModel() {
 
+    /*
     fun getGroup(): String? {
         if (rImplementation.getCurrentUser() == null) {
             return null
@@ -27,6 +29,7 @@ class ScheduleFragmentViewModel @Inject constructor(
         )
         return groupName
     }
+    */
 
     fun getDayId(dayList: ArrayList<Data_IntDate>, date: Date): Int? {
         for (item in dayList) {
@@ -215,5 +218,35 @@ class ScheduleFragmentViewModel @Inject constructor(
             currentId = maxId + 1
         }
         return currentId
+    }
+
+    fun compareParametersLists(base: ArrayList<Data_IntString>, new: ArrayList<Data_IntString>): Pair<Boolean, Boolean> {
+        Log.d("SAVE_BUTTON_CHECKER", base.toString())
+        Log.d("SAVE_BUTTON_CHECKER", new.toString())
+        var same: Boolean = base.size == new.size
+        var base_ids = arrayListOf<Int>()
+        var new_ids = arrayListOf<Int>()
+        base.forEach { base_ids.add(it.id!!) }
+        new.forEach { new_ids.add(it.id!!) }
+
+        var missing_ids = false
+        for (id: Int in base_ids) {
+            if (!new_ids.contains(id)) {
+                missing_ids = true
+                same = false
+                break
+            }
+        }
+
+        if (same) {
+                for (i in 0 until base.size) {
+                if (base[i].title != new[i].title) {
+                    same = false
+                    break
+                }
+            }
+        }
+
+        return Pair(same, missing_ids)
     }
 }

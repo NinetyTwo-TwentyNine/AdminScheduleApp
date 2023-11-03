@@ -9,6 +9,8 @@ interface FirebaseRepository {
 
     fun downloadByReference(reference: String): Task<DataSnapshot>
 
+    fun <T> uploadByReference(reference: String, info: T): Task<Void>
+
     fun getCurrentUser(): FirebaseUser?
 
     fun sendResetMessage(email: String): Task<Void>
