@@ -221,8 +221,6 @@ class ScheduleFragmentViewModel @Inject constructor(
     }
 
     fun compareParametersLists(base: ArrayList<Data_IntString>, new: ArrayList<Data_IntString>): Pair<Boolean, Boolean> {
-        Log.d("SAVE_BUTTON_CHECKER", base.toString())
-        Log.d("SAVE_BUTTON_CHECKER", new.toString())
         var same: Boolean = base.size == new.size
         var base_ids = arrayListOf<Int>()
         var new_ids = arrayListOf<Int>()
@@ -239,7 +237,7 @@ class ScheduleFragmentViewModel @Inject constructor(
         }
 
         if (same) {
-                for (i in 0 until base.size) {
+            for (i in 0 until base.size) {
                 if (base[i].title != new[i].title) {
                     same = false
                     break

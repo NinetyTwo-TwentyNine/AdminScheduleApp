@@ -22,7 +22,6 @@ import com.example.scheduleapp.data.Date
 import com.example.scheduleapp.models.FirebaseRepository
 import com.example.scheduleapp.utils.Utils
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -44,7 +43,6 @@ class MainActivityViewModel @Inject constructor(
 
     private var flatSchedule = FlatScheduleDetailed()
 
-    private lateinit var timer: Timer
     private lateinit var listenerToRemove: OnCompleteListener<DataSnapshot>
 
     init {
@@ -113,23 +111,23 @@ class MainActivityViewModel @Inject constructor(
 
     fun downloadParametersList(reference: String) {
         parametersDownloadState.value = DownloadStatus.Progress
-        setDownloadTimeout(3000L, true)
+        val timer = setDownloadTimeout(5000L, true)
 
-        listenerToRemove = getDownloadListener(reference)
+        listenerToRemove = getDownloadListener(timer, reference)
         rImplementation.downloadByReference(reference)
             .addOnCompleteListener(listenerToRemove)
     }
 
     fun downloadSchedule() {
         scheduleDownloadState.value = DownloadStatus.Progress
-        setDownloadTimeout(8000L, false)
+        val timer = setDownloadTimeout(8000L, false)
 
-        listenerToRemove = getDownloadListener()
+        listenerToRemove = getDownloadListener(timer)
         rImplementation.downloadByReference(APP_BD_PATHS_SCHEDULE_LIST)
             .addOnCompleteListener(listenerToRemove)
     }
 
-    fun getDownloadListener(reference: String? = null): OnCompleteListener<DataSnapshot> {
+    fun getDownloadListener(timer: Timer, reference: String? = null): OnCompleteListener<DataSnapshot> {
         val listener = OnCompleteListener<DataSnapshot> { task ->
             timer.cancel()
             if (task.isSuccessful) {
@@ -172,37 +170,41 @@ class MainActivityViewModel @Inject constructor(
         return listener
     }
 
-    private fun setDownloadTimeout(time: Long, onlyParams: Boolean) {
-        timer = Timer()
-        val timerTask = object : TimerTask() {
-            override fun run() {
-                MainScope().launch {
-                    if (onlyParams) {
-                        parametersDownloadState.value = DownloadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING)
-                    } else {
-                        scheduleDownloadState.value = DownloadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING)
-                    }
+    private fun setDownloadTimeout(time: Long, onlyParams: Boolean): Timer {
+        return performTimerEvent(
+            {
+                if (onlyParams) {
+                    parametersDownloadState.value =
+                        DownloadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING)
+                } else {
+                    scheduleDownloadState.value =
+                        DownloadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING)
                 }
-            }
-        }
-        timer.schedule(timerTask, time)
+            }, time)
     }
 
-    private fun setUploadTimeout(time: Long, onlyParams: Boolean) {
-        timer = Timer()
+    private fun setUploadTimeout(time: Long, onlyParams: Boolean): Timer {
+        return performTimerEvent(
+            { uploadState.value = UploadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING) }, time
+        )
+    }
+
+    fun performTimerEvent(function: ()->Unit, time: Long): Timer {
+        val event_timer = Timer()
         val timerTask = object : TimerTask() {
             override fun run() {
                 MainScope().launch {
-                    uploadState.value = UploadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING)
+                    function()
                 }
             }
         }
-        timer.schedule(timerTask, time)
+        event_timer.schedule(timerTask, time)
+        return event_timer
     }
 
     fun <T> uploadData(reference: String, info: T) {
         uploadState.value = UploadStatus.Progress
-        setDownloadTimeout(5000L, false)
+        val timer = setUploadTimeout(5000L, false)
 
         rImplementation.uploadByReference(reference, info).addOnCompleteListener { task ->
             timer.cancel()

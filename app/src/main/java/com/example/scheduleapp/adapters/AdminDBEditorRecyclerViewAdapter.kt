@@ -1,29 +1,27 @@
 package com.example.scheduleapp.adapters
 
 import android.annotation.SuppressLint
+import android.opengl.Visibility
 import android.text.SpannableStringBuilder
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.scheduleapp.R
-import com.example.scheduleapp.data.Constants
 import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_OPTIONS_DELETE
 import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_OPTIONS_OFF
 import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_OPTIONS_ON
 import com.example.scheduleapp.data.Data_IntString
 import com.example.scheduleapp.databinding.BasicTextItemBinding
+import com.example.scheduleapp.utils.Utils
 
-class AdminDBEditorRecyclerViewAdapter(private var buttonCheck: (ArrayList<Int>) -> Unit,
-                                       private var deleteFunction: (Int) -> Unit,
-                                       private var editFunction: (Int, String) -> Unit
+class AdminDBEditorRecyclerViewAdapter(private var updateAddButton: (ArrayList<Int>) -> Unit,
+                                       private var updateSaveButton: () -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     val viewStates: ArrayList<Int> = ArrayList()
     private lateinit var binding: BasicTextItemBinding
@@ -50,7 +48,7 @@ class AdminDBEditorRecyclerViewAdapter(private var buttonCheck: (ArrayList<Int>)
                                 moreVertexSpinner.setSelection(1)
                                 Toast.makeText(moreVertexSpinner.context, "Can not save such a name.", Toast.LENGTH_SHORT).show()
                             } else {
-                                recycler.editFunction(item.id!!, title.text.toString())
+                                recycler.editFunction(adapterPosition, title.text.toString())
                                 title.inputType = 0
                                 recycler.removeValueFromViewStates(item.id!!)
                             }
@@ -60,10 +58,10 @@ class AdminDBEditorRecyclerViewAdapter(private var buttonCheck: (ArrayList<Int>)
                             recycler.addValueToViewStates(item.id!!)
                         }
                         if (position == 2) {
-                            recycler.deleteFunction(item.id!!)
+                            recycler.deleteFunction(adapterPosition, binding)
                             recycler.removeValueFromViewStates(item.id!!)
                         }
-                        recycler.buttonCheck(recycler.viewStates)
+                        recycler.updateAddButton(recycler.viewStates)
                     }
                     override fun onNothingSelected(parent: AdapterView<*>?) { }
                 }
@@ -85,6 +83,23 @@ class AdminDBEditorRecyclerViewAdapter(private var buttonCheck: (ArrayList<Int>)
         return differ.currentList.size
     }
 
+    private fun deleteFunction(pos: Int, binding: BasicTextItemBinding) {
+        val currentRecyclerList = ArrayList(differ.currentList)
+        currentRecyclerList.removeAt(pos)
+
+        completelyRemoveTheView(binding)
+        //notifyItemRemoved(pos)
+        differ.submitList(currentRecyclerList)
+        updateSaveButton()
+    }
+
+    private fun editFunction(pos: Int, title: String) {
+        val currentRecyclerList = ArrayList(differ.currentList)
+        currentRecyclerList[pos].title = title
+
+        differ.submitList(currentRecyclerList)
+        updateSaveButton()
+    }
 
     fun addValueToViewStates(id: Int) {
         if (!viewStates.contains(id)) {
@@ -96,6 +111,13 @@ class AdminDBEditorRecyclerViewAdapter(private var buttonCheck: (ArrayList<Int>)
         if (viewStates.contains(id)) {
             viewStates.remove(id)
         }
+    }
+
+    private fun completelyRemoveTheView(binding: BasicTextItemBinding) {
+        binding.moreVertexSpinner.isClickable = false
+        binding.title.isClickable = false
+        binding.root.isClickable = false
+        binding.root.visibility = View.GONE
     }
 
     fun checkForSimilarTitle(title: String, id: Int): Boolean {

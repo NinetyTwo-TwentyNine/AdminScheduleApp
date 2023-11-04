@@ -2,6 +2,7 @@ package com.example.scheduleapp.UI
 
 import android.R
 import android.content.Context.LAYOUT_INFLATER_SERVICE
+import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -13,22 +14,25 @@ import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.scheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
+import com.example.scheduleapp.data.*
 import com.example.scheduleapp.data.Constants.APP_ADMIN_ID_DELETION_WARNING
 import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_LIST
 import com.example.scheduleapp.data.Constants.APP_ADMIN_SAVE_CHANGES_WARNING
-import com.example.scheduleapp.data.Data_IntString
-import com.example.scheduleapp.data.DownloadStatus
-import com.example.scheduleapp.data.FlatScheduleDetailed
-import com.example.scheduleapp.data.UploadStatus
 import com.example.scheduleapp.databinding.BasicPopupWindowBinding
 import com.example.scheduleapp.databinding.FragmentDataBaseEditBinding
 import com.example.scheduleapp.utils.Utils
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class DataBaseEditFragment: Fragment() {
@@ -39,11 +43,9 @@ class DataBaseEditFragment: Fragment() {
     private val mainViewModel: MainActivityViewModel by activityViewModels()
     private val scheduleViewModel: ScheduleFragmentViewModel by activityViewModels()
 
-    private lateinit var buttonCheck: (ArrayList<Int>)->Unit
-    private lateinit var deleteOneView: (Int)->Unit
-    private lateinit var editOneView: (Int, String)->Unit
+    private lateinit var addButtonCheck: (ArrayList<Int>)->Unit
+    private lateinit var saveButtonCheck: ()->Unit
 
-    private lateinit var currentRecyclerList: ArrayList<Data_IntString>
     private lateinit var uploadRecyclerList: ArrayList<Data_IntString>
 
 
@@ -67,23 +69,29 @@ class DataBaseEditFragment: Fragment() {
 
     private fun setupView() {
         binding.addButton.setOnClickListener {
+            val currentRecyclerList = ArrayList(dbEditorRecyclerViewAdapter.differ.currentList)
             val currentId = scheduleViewModel.getPossibleId(currentRecyclerList)
-            currentRecyclerList.add(Data_IntString(currentId, ""))
-            setupRecyclerView()
+            currentRecyclerList.add(0, Data_IntString(currentId, ""))
+
+            //dbEditorRecyclerViewAdapter.notifyItemChanged(0)
+            dbEditorRecyclerViewAdapter.differ.submitList(currentRecyclerList)
+
+            mainViewModel.performTimerEvent(
+                {binding.parametersRecyclerView.scrollToPosition(0)}, 100L)
         }
 
-        currentRecyclerList = mainViewModel.getParametersByIndex(index!!)
         binding.saveButton.setOnClickListener {
             createPopupWindow()
             updateSaveButton(false)
         }
 
         setupFunctions()
-        dbEditorRecyclerViewAdapter = AdminDBEditorRecyclerViewAdapter(buttonCheck, deleteOneView, editOneView)
+        dbEditorRecyclerViewAdapter = AdminDBEditorRecyclerViewAdapter(addButtonCheck, saveButtonCheck)
         setupRecyclerView()
     }
 
     private fun setupRecyclerView() {
+        val currentRecyclerList = mainViewModel.getParametersByIndex(index!!)
         dbEditorRecyclerViewAdapter.differ.submitList(currentRecyclerList)
         binding.apply {
             parametersRecyclerView.apply {
@@ -94,33 +102,19 @@ class DataBaseEditFragment: Fragment() {
     }
 
     private fun setupFunctions() {
-        buttonCheck = {array ->
+        saveButtonCheck = {
+            updateSaveButton()
+        }
+
+        addButtonCheck = {array ->
             binding.addButton.isEnabled = array.isEmpty()
-            updateSaveButton()
-        }
-        deleteOneView = {id ->
-            for (e: Data_IntString in currentRecyclerList) {
-                if (e.id == id)  {
-                    currentRecyclerList.remove(e)
-                    break
-                }
-            }
-            setupRecyclerView()
-            updateSaveButton()
-        }
-        editOneView = {id, title ->
-            for (e: Data_IntString in currentRecyclerList) {
-                if (e.id == id)  {
-                    e.title = title
-                    break
-                }
-            }
-            //setupRecyclerView()
-            updateSaveButton()
+            saveButtonCheck()
         }
     }
 
     private fun createPopupWindow() {
+        val currentRecyclerList = ArrayList(dbEditorRecyclerViewAdapter.differ.currentList)
+
         popupBinding = BasicPopupWindowBinding.inflate(layoutInflater)
         val popupView: View = popupBinding.root
 
@@ -171,6 +165,7 @@ class DataBaseEditFragment: Fragment() {
             return
         }
 
+        val currentRecyclerList = ArrayList(dbEditorRecyclerViewAdapter.differ.currentList)
         val comparison = scheduleViewModel.compareParametersLists(mainViewModel.getParametersByIndex(index!!), currentRecyclerList)
         binding.saveButton.isEnabled = !comparison.first
     }
