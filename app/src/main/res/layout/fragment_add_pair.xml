@@ -51,19 +51,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/pair" />
 
-
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/subpairEnable"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="300dp"
-        android:layout_marginTop="30dp"
-        android:thumb="@drawable/switch_custom_thumb"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pair"
-        app:track="@drawable/switch_custom_track" />
-
     <TextView
         android:id="@+id/optionalText"
         android:layout_width="280dp"
@@ -78,6 +65,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/subpairText" />
 
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/subPairEnable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="300dp"
+        android:layout_marginTop="30dp"
+        android:thumb="@drawable/switch_custom_thumb"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pair"
+        app:track="@drawable/switch_custom_track" />
+
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/optionalEnable"
@@ -87,18 +86,24 @@
         android:thumb="@drawable/switch_custom_thumb"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/subpairEnable"
+        app:layout_constraintTop_toBottomOf="@+id/subPairEnable"
         app:track="@drawable/switch_custom_track" />
 
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/schedulesRecyclerView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:layout_marginTop="40dp"
-        android:scrollbars="vertical"
-        app:layoutManager="LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@+id/optionalText" />
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/optionalText">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/schedulesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            app:layoutManager="LinearLayoutManager" />
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
