@@ -21,7 +21,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:text="*Преподаватель 2" />
+            android:textColorHint="#999999"
+            android:hint="*Преподаватель 2" />
 
         <EditText
             android:id="@+id/teacherThird"
@@ -30,7 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="65dp"
             android:inputType="textPersonName"
-            android:text="*Преподаватель 3" />
+            android:textColorHint="#999999"
+            android:hint="*Преподаватель 3" />
 
         <EditText
             android:id="@+id/cabinetSecond"
@@ -39,7 +41,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="130dp"
             android:inputType="textPersonName"
-            android:text="*Кабинет 2" />
+            android:textColorHint="#999999"
+            android:hint="*Кабинет 2" />
 
         <EditText
             android:id="@+id/cabinetThird"
@@ -48,7 +51,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="195dp"
             android:inputType="textPersonName"
-            android:text="*Кабинет 3" />
+            android:textColorHint="#999999"
+            android:hint="*Кабинет 3" />
 
         <EditText
             android:id="@+id/subgroup"
@@ -57,7 +61,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="260dp"
             android:inputType="textPersonName"
-            android:text="*Подгруппа" />
+            android:textColorHint="#999999"
+            android:hint="*Подгруппа" />
 
     </androidx.cardview.widget.CardView>
 

@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.example.scheduleapp.adapters.AdminDBEditorAdapter
 import com.example.scheduleapp.adapters.MainScreenAdapter
 import com.example.scheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
@@ -53,42 +54,33 @@ class DataBaseFragmentContainer : Fragment() {
         for (i in APP_ADMIN_PARAMETERS_LIST.indices) {
             binding.tabLayout.getTabAt(i)?.text = APP_ADMIN_PARAMETERS_LIST[i]
         }
+
+        binding.fragmentViewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                updateViewPager()
+            }
+        })
     }
 
     fun setViewPagerEnabled(b: Boolean) {
         binding.fragmentViewPager2.isUserInputEnabled = b
     }
 
-    /*
-    private fun initObservers() {
-        binding.fragmentViewPager2.isUserInputEnabled = false
+    fun updateViewPager(b: Boolean? = null) {
+        if (b != null) {
+            setViewPagerEnabled(b)
+            return
+        }
 
-        viewModel.parametersDownloadState.observe(viewLifecycleOwner) { downloadStatus ->
-            Log.d("VIEW_PAGER_CHECKER", "")
-            Log.d("VIEW_PAGER_CHECKER", binding.fragmentViewPager2.isUserInputEnabled.toString())
-            binding.fragmentViewPager2.isUserInputEnabled = when (downloadStatus) {
+        setViewPagerEnabled(when(viewModel.uploadState.value) {
+            is UploadStatus.Progress -> false
+            is UploadStatus.WeakProgress -> false
+            else -> when(viewModel.parametersDownloadState.value) {
                 is DownloadStatus.Progress -> false
                 is DownloadStatus.WeakProgress -> false
-                else -> when(viewModel.uploadState.value) {
-                    is UploadStatus.Progress -> false
-                    is UploadStatus.WeakProgress -> false
-                    else -> true
-                }
+                else -> true
             }
-        }
-        viewModel.uploadState.observe(viewLifecycleOwner) { uploadStatus ->
-            Log.d("VIEW_PAGER_CHECKER", "")
-            Log.d("VIEW_PAGER_CHECKER", binding.fragmentViewPager2.isUserInputEnabled.toString())
-            binding.fragmentViewPager2.isUserInputEnabled = when (uploadStatus) {
-                is UploadStatus.Progress -> false
-                is UploadStatus.WeakProgress -> false
-                else -> when(viewModel.parametersDownloadState.value) {
-                    is DownloadStatus.Progress -> false
-                    is DownloadStatus.WeakProgress -> false
-                    else -> true
-                }
-            }
-        }
+        })
     }
-    */
 }

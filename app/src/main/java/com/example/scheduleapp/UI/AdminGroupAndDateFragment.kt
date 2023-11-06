@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.scheduleapp.R
 import com.example.scheduleapp.adapters.MainScreenAdapter
+import com.example.scheduleapp.data.Date
 import com.example.scheduleapp.databinding.FragmentAdminGroupAndDateBinding
 import com.example.scheduleapp.databinding.FragmentContainerBinding
 
@@ -28,5 +29,8 @@ class AdminGroupAndDateFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.dateToCreateScheduleDatePicker.minDate = -7L
+        binding.dateToCreateScheduleDatePicker.maxDate = 7L
     }
 }

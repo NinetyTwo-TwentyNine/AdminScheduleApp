@@ -8,6 +8,7 @@ import com.example.scheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
 import com.example.scheduleapp.data.*
 import com.example.scheduleapp.data.Date
 import com.example.scheduleapp.models.FirebaseRepository
+import com.example.scheduleapp.utils.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.*
 import javax.inject.Inject
@@ -198,26 +199,17 @@ class ScheduleFragmentViewModel @Inject constructor(
         return null
     }
 
-    fun getPossibleId(currentList: ArrayList<Data_IntString>): Int {
-        val idArray: MutableList<Int> = arrayListOf()
-        var maxId = 0
-        var currentId: Int? = null
-        currentList.forEach {
-            idArray.add(it.id!!)
-            if (it.id!! > maxId) {
-                maxId = it.id!!
+    fun getPossibleId(originalList: ArrayList<Data_IntString>): Int {
+        val currentList = Utils.getDataIntStringArrayDeepCopy(originalList)
+        currentList.sortBy { it.id!! }
+
+        var new_id = 0
+        for(e: Data_IntString in currentList){
+            if(new_id == e.id!!){
+                new_id += 1
             }
         }
-        for (i in 0..maxId) {
-            if (!idArray.contains(i)) {
-                currentId = i
-                break
-            }
-        }
-        if (currentId == null) {
-            currentId = maxId + 1
-        }
-        return currentId
+        return new_id
     }
 
     fun compareParametersLists(base: ArrayList<Data_IntString>, new: ArrayList<Data_IntString>): Pair<Boolean, Boolean> {

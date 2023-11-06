@@ -15,9 +15,9 @@ class AddPairFragment() : Fragment() {
     private val addPairRecyclerViewAdapter by lazy { AddPairRecyclerViewAdapter() }
     private val arrayOfPairs: ArrayList<AddPairRecyclerViewItem> = arrayListOf(
         AddPairRecyclerViewItem(id = 0, visibility = true),
-        AddPairRecyclerViewItem(type = true, id = 1),
+        AddPairRecyclerViewItem(type = 1, id = 1),
         AddPairRecyclerViewItem(id = 2),
-        AddPairRecyclerViewItem(type = true, id = 3)
+        AddPairRecyclerViewItem(type = 1, id = 3)
     )
 
     override fun onCreateView(
@@ -35,27 +35,19 @@ class AddPairFragment() : Fragment() {
                 adapter = addPairRecyclerViewAdapter
             }
         }
-        binding.apply {
-            if (subPairEnable.isChecked && !optionalEnable.isChecked) {
-                arrayOfPairs[1].visibility = true
-                arrayOfPairs[2].visibility = false
-                arrayOfPairs[3].visibility = false
-                updateRecyclerView()
-            } else if (!subPairEnable.isChecked && optionalEnable.isChecked) {
-                arrayOfPairs[1].visibility = false
-                arrayOfPairs[2].visibility = true
-                arrayOfPairs[3].visibility = false
-                updateRecyclerView()
-            } else if (!subPairEnable.isChecked && optionalEnable.isChecked) {
-                arrayOfPairs[1].visibility = true
-                arrayOfPairs[2].visibility = true
-                arrayOfPairs[3].visibility = true
-                updateRecyclerView()
-            }
-        }
+
+
+        updateRecyclerView()
+
+        binding.subPairEnable.setOnCheckedChangeListener { v, checked -> updateRecyclerView() }
+        binding.optionalEnable.setOnCheckedChangeListener { v, checked -> updateRecyclerView() }
     }
 
     fun updateRecyclerView() {
+        arrayOfPairs[1].visibility = binding.optionalEnable.isChecked
+        arrayOfPairs[2].visibility = binding.subPairEnable.isChecked
+        arrayOfPairs[3].visibility = binding.optionalEnable.isChecked && binding.subPairEnable.isChecked
+
         addPairRecyclerViewAdapter.differ.submitList(arrayOfPairs)
         binding.apply {
             schedulesRecyclerView.apply {

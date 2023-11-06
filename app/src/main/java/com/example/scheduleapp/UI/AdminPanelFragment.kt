@@ -38,13 +38,17 @@ class AdminPanelFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.ChangingBaseData.setOnClickListener {
+        binding.changingBaseData.setOnClickListener {
             requireView().findNavController()
                 .navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToDbFragmentContainer())
         }
 
         binding.changingBasicSchedule.setOnClickListener{
             requireView().findNavController().navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToChangeBasicScheduleFragment())
+        }
+
+        binding.creatingSchedule.setOnClickListener{
+            requireView().findNavController().navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToAddPairFragment())
         }
     }
 }

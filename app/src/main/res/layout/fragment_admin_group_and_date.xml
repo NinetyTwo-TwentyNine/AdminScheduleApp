@@ -4,60 +4,41 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UI.AdminGroupAndDateFragment">
-
-    <TextView
-        android:id="@+id/groupNumberTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Enter group number"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@id/groupNumberEditText"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.10" />
-
-    <EditText
-        android:id="@+id/groupNumberEditText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minWidth="300dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.40"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.15" />
+    tools:context=".UI.AdminGroupAndDateFragment"
+    android:background="#05080D">
 
     <TextView
         android:id="@+id/dateToCreateScheduleTextView"
+        style="@style/TextSchedule"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Enter date to set schedule"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@id/groupNumberEditText"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.25" />
+        app:layout_constraintVertical_bias="0.069" />
 
     <DatePicker
         android:id="@+id/dateToCreateScheduleDatePicker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/Button"
+        android:layout_width="290dp"
+        android:layout_height="255dp"
+        android:background="#888888"
         android:calendarViewShown="false"
         android:datePickerMode="spinner"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/groupNumberEditText"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@id/groupNumberEditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.43"></DatePicker>
+        app:layout_constraintVertical_bias="0.429" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/goBackButton"
         android:text="less--"
+        style="@style/Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -67,9 +48,10 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.98" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/goNextButton"
         android:text="--more"
+        style="@style/Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -1,15 +1,15 @@
 package com.example.scheduleapp.adapters
 
 class AddPairRecyclerViewItem(
-    val namePair: String = "Предмет",
-    val teacher: String = "Преподаватель",
-    val teacherSecond: String = "*Преподаватель 2",
-    val teacherThird: String = "*Преподаватель 3",
-    val cabinet: String = "Кабинет",
-    val cabinetSecond: String = "*Кабинет 2",
-    val cabinetThird: String = "*Кабинет 3",
-    val subGroup: String = "*Подгруппа",
-    val type: Boolean = false,
+    val namePair: String = "",
+    val teacher: String = "",
+    val teacherSecond: String = "",
+    val teacherThird: String = "",
+    val cabinet: String = "",
+    val cabinetSecond: String = "",
+    val cabinetThird: String = "",
+    val subGroup: String = "",
+    val type: Int = 0,
     val id: Int = 0,
     var visibility: Boolean = false
 )

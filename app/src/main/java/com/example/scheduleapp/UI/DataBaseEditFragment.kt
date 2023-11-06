@@ -77,7 +77,8 @@ class DataBaseEditFragment: Fragment() {
             dbEditorRecyclerViewAdapter.differ.submitList(currentRecyclerList)
 
             mainViewModel.performTimerEvent(
-                {binding.parametersRecyclerView.scrollToPosition(0)}, 100L)
+                {binding.parametersRecyclerView.scrollToPosition(0)},
+                50L)
         }
 
         binding.saveButton.setOnClickListener {
@@ -86,8 +87,23 @@ class DataBaseEditFragment: Fragment() {
         }
 
         setupFunctions()
-        dbEditorRecyclerViewAdapter = AdminDBEditorRecyclerViewAdapter(addButtonCheck, saveButtonCheck)
+        dbEditorRecyclerViewAdapter = AdminDBEditorRecyclerViewAdapter(addButtonCheck, saveButtonCheck, 2)
         setupRecyclerView()
+    }
+
+    private fun setupFunctions() {
+        saveButtonCheck = {
+            mainViewModel.performTimerEvent({
+                updateSaveButton()
+            }, 50L)
+        }
+
+        addButtonCheck = {array ->
+            mainViewModel.performTimerEvent({
+                binding.addButton.isEnabled = array.isEmpty()
+                updateSaveButton()
+            }, 50L)
+        }
     }
 
     private fun setupRecyclerView() {
@@ -98,17 +114,6 @@ class DataBaseEditFragment: Fragment() {
                 layoutManager = LinearLayoutManager(activity)
                 adapter = dbEditorRecyclerViewAdapter
             }
-        }
-    }
-
-    private fun setupFunctions() {
-        saveButtonCheck = {
-            updateSaveButton()
-        }
-
-        addButtonCheck = {array ->
-            binding.addButton.isEnabled = array.isEmpty()
-            saveButtonCheck()
         }
     }
 
@@ -129,11 +134,10 @@ class DataBaseEditFragment: Fragment() {
         val popupWindow = PopupWindow(popupView, width, height, true)
         popupBinding.popupText.text = text
         popupBinding.yesButton.setOnClickListener {
-            popupWindow.dismiss()
-            updateSaveButton(false)
             initUploadObservers()
             uploadRecyclerList = Utils.getDataIntStringArrayDeepCopy(currentRecyclerList)
             mainViewModel.uploadParameters(index!!, uploadRecyclerList)
+            popupWindow.dismiss()
         }
         popupBinding.noButton.setOnClickListener {
             popupWindow.dismiss()
@@ -170,28 +174,11 @@ class DataBaseEditFragment: Fragment() {
         binding.saveButton.isEnabled = !comparison.first
     }
 
-    private fun updateViewPager(b: Boolean? = null) {
-        if (b != null) {
-            (this.parentFragment as DataBaseFragmentContainer).setViewPagerEnabled(b)
-            return
-        }
-
-        (this.parentFragment as DataBaseFragmentContainer).setViewPagerEnabled(when(mainViewModel.uploadState.value) {
-            is UploadStatus.Progress -> false
-            is UploadStatus.WeakProgress -> false
-            else -> when(mainViewModel.parametersDownloadState.value) {
-                is DownloadStatus.Progress -> false
-                is DownloadStatus.WeakProgress -> false
-                else -> true
-            }
-        })
-    }
-
     private fun initUploadObservers() {
         mainViewModel.resetUploadState()
         mainViewModel.uploadState.observe(viewLifecycleOwner) { uploadStatus ->
+            (this.parentFragment as DataBaseFragmentContainer).updateViewPager()
 
-            updateViewPager()
             when (uploadStatus) {
                 is UploadStatus.Progress -> {
                     binding.progressBar.visibility = View.VISIBLE
@@ -229,12 +216,15 @@ class DataBaseEditFragment: Fragment() {
     private fun initDownloadObservers() {
         mainViewModel.resetDownloadState(true)
         mainViewModel.parametersDownloadState.observe(viewLifecycleOwner) { downloadStatus ->
+            when (downloadStatus) {
+                is DownloadStatus.Progress -> {}
+                is DownloadStatus.WeakProgress -> {}
+                else -> (this.parentFragment as DataBaseFragmentContainer).updateViewPager()
+            }
 
-            updateViewPager()
             when (downloadStatus) {
                 is DownloadStatus.Progress -> {
                     binding.progressBar.visibility = View.VISIBLE
-                    updateViewPager(true)
                 }
                 is DownloadStatus.WeakProgress -> {
                     Toast.makeText(
@@ -247,7 +237,7 @@ class DataBaseEditFragment: Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Failed to download Schedule: ${downloadStatus.message}",
+                        "Failed to download the Data: ${downloadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
                 }

@@ -21,7 +21,8 @@
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
             style="@style/EditTextInSchedule"
-            android:text="Предмет"/>
+            android:textColorHint="#999999"
+            android:hint="Предмет" />
 
         <EditText
             android:id="@+id/editTeacher"
@@ -29,7 +30,8 @@
             android:layout_height="wrap_content"
             style="@style/EditTextInSchedule"
             android:inputType="textPersonName"
-            android:text="Преподаватель"
+            android:hint="Преподаватель"
+            android:textColorHint="#999999"
             android:layout_marginTop="65dp"/>
 
         <EditText
@@ -38,7 +40,8 @@
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
             style="@style/EditTextInSchedule"
-            android:text="Кабинет"
+            android:textColorHint="#999999"
+            android:hint="Кабинет"
             android:layout_marginTop="130dp"/>
     </androidx.cardview.widget.CardView>
 

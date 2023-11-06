@@ -21,7 +21,8 @@ import com.example.scheduleapp.databinding.BasicTextItemBinding
 import com.example.scheduleapp.utils.Utils
 
 class AdminDBEditorRecyclerViewAdapter(private var updateAddButton: (ArrayList<Int>) -> Unit,
-                                       private var updateSaveButton: () -> Unit
+                                       private var updateSaveButton: () -> Unit,
+                                       private var minTextLength: Int
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     val viewStates: ArrayList<Int> = ArrayList()
     private lateinit var binding: BasicTextItemBinding
@@ -44,12 +45,12 @@ class AdminDBEditorRecyclerViewAdapter(private var updateAddButton: (ArrayList<I
                                 if (title.text.isEmpty()) {
                                     moreVertexSpinner.setSelection(1)
                                 }
-                            } else if ( title.text.toString().length <= 1 || recycler.checkForSimilarTitle(title.text.toString(), item.id!!) ) {
+                            } else if ( !recycler.checkTitleValidity(title.text.toString(), item.id!!) ) {
                                 moreVertexSpinner.setSelection(1)
                                 Toast.makeText(moreVertexSpinner.context, "Can not save such a name.", Toast.LENGTH_SHORT).show()
                             } else {
-                                recycler.editFunction(adapterPosition, title.text.toString())
                                 title.inputType = 0
+                                recycler.editFunction(adapterPosition, title.text.toString())
                                 recycler.removeValueFromViewStates(item.id!!)
                             }
                         }
@@ -120,14 +121,16 @@ class AdminDBEditorRecyclerViewAdapter(private var updateAddButton: (ArrayList<I
         binding.root.visibility = View.GONE
     }
 
-    fun checkForSimilarTitle(title: String, id: Int): Boolean {
-        val titleArray: ArrayList<String> = arrayListOf()
+    fun checkTitleValidity(title: String, id: Int): Boolean {
+        if (title.length < minTextLength) {
+            return false
+        }
         differ.currentList.forEach {
             if (it.title == title && it.id != id) {
-                return true
+                return false
             }
         }
-        return false
+        return true
     }
 
 

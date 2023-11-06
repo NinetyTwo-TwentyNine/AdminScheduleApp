@@ -20,7 +20,7 @@
 
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/ChangingBaseData"
+        android:id="@+id/changingBaseData"
         style="@style/Button"
         android:text="Изменение базовых данных"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,7 +34,7 @@
         android:text="Изменение базового расписания"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ChangingBaseData"
+        app:layout_constraintTop_toBottomOf="@+id/changingBaseData"
         android:layout_marginTop="20dp"/>
 
     <androidx.appcompat.widget.AppCompatButton

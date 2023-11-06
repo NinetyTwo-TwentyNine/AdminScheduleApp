@@ -54,19 +54,17 @@ class AddPairRecyclerViewAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (differ.currentList[position].type) special
-        else common
+        return differ.currentList[position].type
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if (viewType == common) {
-            binding =
-                ScheduleAddItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            binding = ScheduleAddItemBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false)
             return ItemViewHolder(binding)
         } else {
             bindingSpecial = ScheduleAddSpecialItemBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false
-            )
+                LayoutInflater.from(parent.context), parent, false)
             return SpecialItemViewHolder(bindingSpecial)
         }
     }
@@ -89,16 +87,15 @@ class AddPairRecyclerViewAdapter(
         override fun areContentsTheSame(
             oldItem: AddPairRecyclerViewItem, newItem: AddPairRecyclerViewItem
         ): Boolean {
-            return oldItem.id == newItem.id
+            return oldItem.equals(newItem)
         }
 
         override fun areItemsTheSame(
             oldItem: AddPairRecyclerViewItem, newItem: AddPairRecyclerViewItem
         ): Boolean {
-            return oldItem.teacher == newItem.teacherSecond
+            return oldItem.id == newItem.id
         }
     }
 
     val differ = AsyncListDiffer(this, differCallback)
-
 }
