@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.example.scheduleapp.R
 import com.example.scheduleapp.data.AuthenticationStatus
@@ -29,6 +30,7 @@ class RegistrationFragment : Fragment() {
     private val viewModel: MainActivityViewModel by activityViewModels()
     private lateinit var binding: FragmentRegistrationBinding
     private lateinit var setButtonVisibility: ()->Unit
+    private lateinit var currentAuthStatus: MutableLiveData<AuthenticationStatus>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,7 +50,7 @@ class RegistrationFragment : Fragment() {
         }
 
         setButtonVisibility = {
-            if (viewModel.authState.value != AuthenticationStatus.Progress) {
+            if (currentAuthStatus.value != AuthenticationStatus.Progress) {
                 binding.registerButton.isEnabled =
                     !(binding.userEmail.text.toString().isBlank() || binding.userPassword1.text.toString().isBlank() || binding.userPassword2.text.toString().isBlank())
             }
@@ -61,6 +63,7 @@ class RegistrationFragment : Fragment() {
         binding.registerButton.setOnClickListener {
             signUp()
         }
+
         initObservers()
     }
 
@@ -70,13 +73,13 @@ class RegistrationFragment : Fragment() {
         } else if (!binding.userPassword1.text.toString().equals(binding.userPassword2.text.toString())) {
             Toast.makeText(activity, "Your passwords don't match. Please confirm your password.", Toast.LENGTH_SHORT).show()
         } else {
-            viewModel.signIn(binding.userEmail.text.toString(), binding.userPassword1.text.toString(), true)
+            viewModel.signIn(currentAuthStatus, binding.userEmail.text.toString(), binding.userPassword1.text.toString(), true)
         }
     }
 
     private fun initObservers() {
-        viewModel.resetAuthState()
-        viewModel.authState.observe(viewLifecycleOwner) {authStatus->
+        currentAuthStatus = MutableLiveData()
+        currentAuthStatus.observe(viewLifecycleOwner) {authStatus->
             when (authStatus) {
                 is AuthenticationStatus.Success -> {
                     setButtonVisibility()

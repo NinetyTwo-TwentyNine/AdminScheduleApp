@@ -7,7 +7,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
         android:layout_width="390dp"
-        android:layout_height="344dp"
+        android:layout_height="380dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="9dp"
         android:layout_marginEnd="20dp"
@@ -15,54 +15,55 @@
         app:cardBackgroundColor="#292B30"
         app:cardCornerRadius="13dp">
 
-        <EditText
+        <Spinner
             android:id="@+id/teacherSecond"
-            style="@style/EditTextInSchedule"
+            android:background="@drawable/border_spinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:textColorHint="#999999"
-            android:hint="*Преподаватель 2" />
+            android:layout_height="45dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="15dp"
+            android:textColor="#999999"
+            android:text="*Преподаватель 2" />
 
-        <EditText
+        <Spinner
             android:id="@+id/teacherThird"
-            style="@style/EditTextInSchedule"
+            android:background="@drawable/border_spinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="65dp"
-            android:inputType="textPersonName"
-            android:textColorHint="#999999"
-            android:hint="*Преподаватель 3" />
+            android:layout_height="45dp"
+            android:layout_marginTop="85dp"
+            android:layout_marginHorizontal="15dp"
+            android:textColor="#999999"
+            android:text="*Преподаватель 3" />
 
-        <EditText
+        <Spinner
             android:id="@+id/cabinetSecond"
-            style="@style/EditTextInSchedule"
+            android:background="@drawable/border_spinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="130dp"
-            android:inputType="textPersonName"
-            android:textColorHint="#999999"
-            android:hint="*Кабинет 2" />
+            android:layout_height="45dp"
+            android:layout_marginTop="160dp"
+            android:layout_marginHorizontal="15dp"
+            android:textColor="#999999"
+            android:text="*Кабинет 2" />
 
-        <EditText
+        <Spinner
             android:id="@+id/cabinetThird"
-            style="@style/EditTextInSchedule"
+            android:background="@drawable/border_spinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="195dp"
-            android:inputType="textPersonName"
-            android:textColorHint="#999999"
-            android:hint="*Кабинет 3" />
+            android:layout_height="45dp"
+            android:layout_marginTop="235dp"
+            android:layout_marginHorizontal="15dp"
+            android:textColor="#999999"
+            android:text="*Кабинет 3" />
 
-        <EditText
+        <Spinner
             android:id="@+id/subgroup"
-            style="@style/EditTextInSchedule"
+            android:background="@drawable/border_spinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="260dp"
-            android:inputType="textPersonName"
-            android:textColorHint="#999999"
-            android:hint="*Подгруппа" />
+            android:layout_height="45dp"
+            android:layout_marginTop="310dp"
+            android:layout_marginHorizontal="15dp"
+            android:textColor="#999999"
+            android:text="*Подгруппа" />
 
     </androidx.cardview.widget.CardView>
 

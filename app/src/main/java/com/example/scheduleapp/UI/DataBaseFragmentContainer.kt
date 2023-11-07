@@ -55,15 +55,15 @@ class DataBaseFragmentContainer : Fragment() {
             binding.tabLayout.getTabAt(i)?.text = APP_ADMIN_PARAMETERS_LIST[i]
         }
 
-        binding.fragmentViewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        /*binding.fragmentViewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 updateViewPager()
             }
-        })
+        })*/
     }
 
-    fun setViewPagerEnabled(b: Boolean) {
+    /*fun setViewPagerEnabled(b: Boolean) {
         binding.fragmentViewPager2.isUserInputEnabled = b
     }
 
@@ -82,5 +82,5 @@ class DataBaseFragmentContainer : Fragment() {
                 else -> true
             }
         })
-    }
+    }*/
 }

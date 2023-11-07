@@ -5,25 +5,21 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.scheduleapp.R
-import com.example.scheduleapp.adapters.MainScreenAdapter
-import com.example.scheduleapp.data.Date
-import com.example.scheduleapp.databinding.FragmentAdminGroupAndDateBinding
-import com.example.scheduleapp.databinding.FragmentContainerBinding
+import com.example.scheduleapp.databinding.FragmentChooseDateBinding
 
 /**
  * Main admin screen to choose group and date to set schedule.
  */
-class AdminGroupAndDateFragment : Fragment() {
+class ChooseDateFragment : Fragment() {
 
-    private lateinit var binding: FragmentAdminGroupAndDateBinding
+    private lateinit var binding: FragmentChooseDateBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
 
-        binding = FragmentAdminGroupAndDateBinding.inflate(layoutInflater)
+        binding = FragmentChooseDateBinding.inflate(layoutInflater)
         return binding.root
     }
 

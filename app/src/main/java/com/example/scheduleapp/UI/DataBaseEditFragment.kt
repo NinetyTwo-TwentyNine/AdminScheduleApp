@@ -1,37 +1,27 @@
 package com.example.scheduleapp.UI
 
-import android.R
-import android.content.Context.LAYOUT_INFLATER_SERVICE
-import android.opengl.Visibility
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.scheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
 import com.example.scheduleapp.data.*
 import com.example.scheduleapp.data.Constants.APP_ADMIN_ID_DELETION_WARNING
-import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_LIST
 import com.example.scheduleapp.data.Constants.APP_ADMIN_SAVE_CHANGES_WARNING
 import com.example.scheduleapp.databinding.BasicPopupWindowBinding
 import com.example.scheduleapp.databinding.FragmentDataBaseEditBinding
 import com.example.scheduleapp.utils.Utils
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -47,6 +37,8 @@ class DataBaseEditFragment: Fragment() {
     private lateinit var saveButtonCheck: ()->Unit
 
     private lateinit var uploadRecyclerList: ArrayList<Data_IntString>
+    private lateinit var currentDownloadStatus: MutableLiveData<DownloadStatus<ArrayList<Data_IntString>>>
+    private lateinit var currentUploadStatus: MutableLiveData<UploadStatus>
 
 
     override fun onCreateView(
@@ -63,7 +55,7 @@ class DataBaseEditFragment: Fragment() {
 
         if (index != null) {
             initDownloadObservers()
-            mainViewModel.downloadParametersList(mainViewModel.getReferenceByIndex(index!!))
+            mainViewModel.downloadParametersList(currentDownloadStatus, mainViewModel.getReferenceByIndex(index!!))
         }
     }
 
@@ -89,6 +81,7 @@ class DataBaseEditFragment: Fragment() {
         setupFunctions()
         dbEditorRecyclerViewAdapter = AdminDBEditorRecyclerViewAdapter(addButtonCheck, saveButtonCheck, 2)
         setupRecyclerView()
+        initUploadObservers()
     }
 
     private fun setupFunctions() {
@@ -134,9 +127,8 @@ class DataBaseEditFragment: Fragment() {
         val popupWindow = PopupWindow(popupView, width, height, true)
         popupBinding.popupText.text = text
         popupBinding.yesButton.setOnClickListener {
-            initUploadObservers()
             uploadRecyclerList = Utils.getDataIntStringArrayDeepCopy(currentRecyclerList)
-            mainViewModel.uploadParameters(index!!, uploadRecyclerList)
+            mainViewModel.uploadParameters(currentUploadStatus, index!!, uploadRecyclerList)
             popupWindow.dismiss()
         }
         popupBinding.noButton.setOnClickListener {
@@ -155,7 +147,7 @@ class DataBaseEditFragment: Fragment() {
             return
         }
 
-        val unacceptableUploadState = when (mainViewModel.uploadState.value) {
+        val unacceptableUploadState = when (currentUploadStatus.value) {
             is UploadStatus.Progress -> {
                 true
             }
@@ -175,9 +167,9 @@ class DataBaseEditFragment: Fragment() {
     }
 
     private fun initUploadObservers() {
-        mainViewModel.resetUploadState()
-        mainViewModel.uploadState.observe(viewLifecycleOwner) { uploadStatus ->
-            (this.parentFragment as DataBaseFragmentContainer).updateViewPager()
+        currentUploadStatus = MutableLiveData()
+        currentUploadStatus.observe(viewLifecycleOwner) { uploadStatus ->
+            //(this.parentFragment as DataBaseFragmentContainer).updateViewPager()
 
             when (uploadStatus) {
                 is UploadStatus.Progress -> {
@@ -214,13 +206,13 @@ class DataBaseEditFragment: Fragment() {
     }
 
     private fun initDownloadObservers() {
-        mainViewModel.resetDownloadState(true)
-        mainViewModel.parametersDownloadState.observe(viewLifecycleOwner) { downloadStatus ->
-            when (downloadStatus) {
+        currentDownloadStatus = MutableLiveData()
+        currentDownloadStatus.observe(viewLifecycleOwner) { downloadStatus ->
+            /*when (downloadStatus) {
                 is DownloadStatus.Progress -> {}
                 is DownloadStatus.WeakProgress -> {}
                 else -> (this.parentFragment as DataBaseFragmentContainer).updateViewPager()
-            }
+            }*/
 
             when (downloadStatus) {
                 is DownloadStatus.Progress -> {
@@ -235,6 +227,7 @@ class DataBaseEditFragment: Fragment() {
                 }
                 is DownloadStatus.Error -> {
                     binding.progressBar.visibility = View.GONE
+                    currentDownloadStatus.removeObservers(viewLifecycleOwner)
                     Toast.makeText(
                         activity,
                         "Failed to download the Data: ${downloadStatus.message}",
@@ -243,6 +236,7 @@ class DataBaseEditFragment: Fragment() {
                 }
                 is DownloadStatus.Success<ArrayList<Data_IntString>> -> {
                     binding.progressBar.visibility = View.GONE
+                    currentDownloadStatus.removeObservers(viewLifecycleOwner)
                     setupView()
                 }
                 else -> {

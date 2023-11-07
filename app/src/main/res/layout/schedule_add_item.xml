@@ -11,38 +11,39 @@
         android:layout_marginTop="9dp"
         android:layout_marginBottom="9dp"
         android:layout_width="390dp"
-        android:layout_height="206dp"
+        android:layout_height="240dp"
         app:cardBackgroundColor="#292B30"
         app:cardCornerRadius="13dp">
 
-        <EditText
+        <Spinner
             android:id="@+id/editPair"
+            android:background="@drawable/border_spinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            style="@style/EditTextInSchedule"
-            android:textColorHint="#999999"
-            android:hint="Предмет" />
+            android:layout_height="45dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="15dp"
+            android:text="Предмет"
+            android:textColor="#999999" />
 
-        <EditText
+        <Spinner
             android:id="@+id/editTeacher"
+            android:background="@drawable/border_spinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/EditTextInSchedule"
-            android:inputType="textPersonName"
-            android:hint="Преподаватель"
-            android:textColorHint="#999999"
-            android:layout_marginTop="65dp"/>
+            android:layout_height="45dp"
+            android:text="Преподаватель"
+            android:textColor="#999999"
+            android:layout_marginTop="85dp"
+            android:layout_marginHorizontal="15dp" />
 
-        <EditText
+        <Spinner
             android:id="@+id/editCabinet"
+            android:background="@drawable/border_spinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            style="@style/EditTextInSchedule"
-            android:textColorHint="#999999"
-            android:hint="Кабинет"
-            android:layout_marginTop="130dp"/>
+            android:layout_height="45dp"
+            android:textColor="#999999"
+            android:text="Кабинет"
+            android:layout_marginTop="160dp"
+            android:layout_marginHorizontal="15dp"/>
     </androidx.cardview.widget.CardView>
 
 

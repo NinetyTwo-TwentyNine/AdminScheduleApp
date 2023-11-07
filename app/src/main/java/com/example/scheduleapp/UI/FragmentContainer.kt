@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import com.example.scheduleapp.R
 import com.example.scheduleapp.adapters.MainScreenAdapter
 import com.example.scheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
@@ -28,6 +29,7 @@ class FragmentContainer : Fragment() {
     private val viewModel: MainActivityViewModel by activityViewModels()
     private lateinit var mainScreenAdapter: MainScreenAdapter
     private lateinit var binding: FragmentContainerBinding
+    private lateinit var currentDownloadStatus: MutableLiveData<DownloadStatus<FlatScheduleDetailed>>
 
 
     override fun onCreateView(
@@ -41,15 +43,7 @@ class FragmentContainer : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObservers()
-        viewModel.downloadSchedule()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        /*(activity as MainActivity).title = viewModel.getPreference(
-            APP_PREFERENCES_GROUP + "_" + viewModel.getUserEmail(),
-            resources.getString(R.string.app_name)
-        )*/
+        viewModel.downloadSchedule(currentDownloadStatus)
     }
 
     @SuppressLint("SetTextI18n")
@@ -71,8 +65,8 @@ class FragmentContainer : Fragment() {
     }
 
     private fun initObservers() {
-        viewModel.resetDownloadState()
-        viewModel.scheduleDownloadState.observe(viewLifecycleOwner) { downloadStatus ->
+        currentDownloadStatus = MutableLiveData()
+        currentDownloadStatus.observe(viewLifecycleOwner) { downloadStatus ->
 
             when (downloadStatus) {
                 is DownloadStatus.Progress -> {
@@ -87,6 +81,7 @@ class FragmentContainer : Fragment() {
                 }
                 is DownloadStatus.Error -> {
                     binding.progressBar.visibility = View.GONE
+                    currentDownloadStatus.removeObservers(viewLifecycleOwner)
                     Toast.makeText(
                         activity,
                         "Failed to download Schedule: ${downloadStatus.message}",
@@ -95,6 +90,7 @@ class FragmentContainer : Fragment() {
                 }
                 is DownloadStatus.Success<FlatScheduleDetailed> -> {
                     binding.progressBar.visibility = View.GONE
+                    currentDownloadStatus.removeObservers(viewLifecycleOwner)
                     setupViewPager2()
                 }
                 else -> {

@@ -36,14 +36,7 @@ class MainActivityViewModel @Inject constructor(
     private val rImplementation: FirebaseRepository,
     private val sPreferences: SharedPreferences
 ) : ViewModel() {
-    var authState: MutableLiveData<AuthenticationStatus> = MutableLiveData()
-    var parametersDownloadState: MutableLiveData<DownloadStatus<ArrayList<Data_IntString>>> = MutableLiveData()
-    var scheduleDownloadState: MutableLiveData<DownloadStatus<FlatScheduleDetailed>> = MutableLiveData()
-    var uploadState: MutableLiveData<UploadStatus> = MutableLiveData()
-
     private var flatSchedule = FlatScheduleDetailed()
-
-    private lateinit var listenerToRemove: OnCompleteListener<DataSnapshot>
 
     init {
         Log.d("TAG", "Created a view model for the outer app segment successfully.")
@@ -93,41 +86,25 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun resetAuthState() {
-        authState = MutableLiveData()
-    }
-
-    fun resetDownloadState(onlyParams: Boolean = false) {
-        if (onlyParams) {
-            parametersDownloadState = MutableLiveData()
-        } else {
-            scheduleDownloadState = MutableLiveData()
-        }
-    }
-
-    fun resetUploadState() {
-        uploadState = MutableLiveData()
-    }
-
-    fun downloadParametersList(reference: String) {
+    fun downloadParametersList(parametersDownloadState: MutableLiveData<DownloadStatus<ArrayList<Data_IntString>>>, reference: String) {
         parametersDownloadState.value = DownloadStatus.Progress
-        val timer = setDownloadTimeout(5000L, true)
+        val timer = setDownloadTimeout(parametersDownloadState, 5000L, true)
 
-        listenerToRemove = getDownloadListener(timer, reference)
+        val listener = getParametersDownloadListener(parametersDownloadState, timer, reference)
         rImplementation.downloadByReference(reference)
-            .addOnCompleteListener(listenerToRemove)
+            .addOnCompleteListener(listener)
     }
 
-    fun downloadSchedule() {
+    fun downloadSchedule(scheduleDownloadState: MutableLiveData<DownloadStatus<FlatScheduleDetailed>>) {
         scheduleDownloadState.value = DownloadStatus.Progress
-        val timer = setDownloadTimeout(8000L, false)
+        val timer = setDownloadTimeout(scheduleDownloadState, 8000L, false)
 
-        listenerToRemove = getDownloadListener(timer)
+        val listener = getScheduleDownloadListener(scheduleDownloadState, timer)
         rImplementation.downloadByReference(APP_BD_PATHS_SCHEDULE_LIST)
-            .addOnCompleteListener(listenerToRemove)
+            .addOnCompleteListener(listener)
     }
 
-    fun getDownloadListener(timer: Timer, reference: String? = null): OnCompleteListener<DataSnapshot> {
+    private fun <T> getDownloadListener(downloadState: MutableLiveData<DownloadStatus<T>>, timer: Timer, reference: String? = null): OnCompleteListener<DataSnapshot> {
         val listener = OnCompleteListener<DataSnapshot> { task ->
             timer.cancel()
             if (task.isSuccessful) {
@@ -141,49 +118,55 @@ class MainActivityViewModel @Inject constructor(
                             object : TypeToken<ArrayList<Data_IntString>>() {}.type
                         )
                         updateParametersByReference(reference, table)
-                        parametersDownloadState.value = DownloadStatus.Success(table)
+                        downloadState.value = (DownloadStatus.Success(table) as DownloadStatus.Success<T>)
                     } else {
                         flatSchedule = Gson().fromJson(
                             task.result.value.toString(),
                             FlatScheduleDetailed::class.java
                         )
-                        scheduleDownloadState.value = DownloadStatus.Success(flatSchedule)
+                        downloadState.value = (DownloadStatus.Success(flatSchedule) as DownloadStatus.Success<T>)
                     }
                     Log.d("TAG", "Successfully read and converted the data.")
                 } catch (e: Exception) {
                     if (reference != null) {
-                        parametersDownloadState.value = DownloadStatus.Error(e.message.toString())
+                        downloadState.value = DownloadStatus.Error(e.message.toString())
                     } else {
-                        scheduleDownloadState.value = DownloadStatus.Error(e.message.toString())
+                        downloadState.value = DownloadStatus.Error(e.message.toString())
                     }
                     Log.d("TAG", "Failed to convert the data: ${e.message}")
                 }
             } else {
                 if (reference != null) {
-                    parametersDownloadState.value = DownloadStatus.Error("Connection or network error.")
+                    downloadState.value = DownloadStatus.Error("Connection or network error.")
                 } else {
-                    scheduleDownloadState.value = DownloadStatus.Error("Connection or network error.")
+                    downloadState.value = DownloadStatus.Error("Connection or network error.")
                 }
                 Log.d("TAG", "Failed to download data from the database.")
             }
         }
         return listener
     }
+    private fun getParametersDownloadListener(downloadState: MutableLiveData<DownloadStatus<ArrayList<Data_IntString>>>, timer: Timer, reference: String): OnCompleteListener<DataSnapshot> {
+        return getDownloadListener(downloadState, timer, reference)
+    }
+    private fun getScheduleDownloadListener(downloadState: MutableLiveData<DownloadStatus<FlatScheduleDetailed>>, timer: Timer): OnCompleteListener<DataSnapshot> {
+        return getDownloadListener(downloadState, timer)
+    }
 
-    private fun setDownloadTimeout(time: Long, onlyParams: Boolean): Timer {
+    private fun <T> setDownloadTimeout(downloadStatus: MutableLiveData<DownloadStatus<T>>, time: Long, onlyParams: Boolean): Timer {
         return performTimerEvent(
             {
                 if (onlyParams) {
-                    parametersDownloadState.value =
+                    downloadStatus.value =
                         DownloadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING)
                 } else {
-                    scheduleDownloadState.value =
+                    downloadStatus.value =
                         DownloadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING)
                 }
             }, time)
     }
 
-    private fun setUploadTimeout(time: Long, onlyParams: Boolean): Timer {
+    private fun setUploadTimeout(uploadState: MutableLiveData<UploadStatus>, time: Long, onlyParams: Boolean): Timer {
         return performTimerEvent(
             { uploadState.value = UploadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING) }, time
         )
@@ -202,22 +185,22 @@ class MainActivityViewModel @Inject constructor(
         return event_timer
     }
 
-    fun <T> uploadData(reference: String, info: T) {
+    fun <T> uploadData(uploadState: MutableLiveData<UploadStatus>, reference: String, info: T) {
         uploadState.value = UploadStatus.Progress
-        val timer = setUploadTimeout(5000L, false)
+        val timer = setUploadTimeout(uploadState, 5000L, false)
 
         rImplementation.uploadByReference(reference, info).addOnCompleteListener { task ->
             timer.cancel()
             if (task.isSuccessful) {
                 uploadState.value = UploadStatus.Success
             } else {
-                authState.value = AuthenticationStatus.Error(task.exception!!.message.toString())
+                uploadState.value = UploadStatus.Error(task.exception!!.message.toString())
             }
         }
     }
 
-    fun uploadParameters(index: Int, paramsArr: ArrayList<Data_IntString>) {
-        uploadData(getReferenceByIndex(index), paramsArr)
+    fun uploadParameters(uploadState: MutableLiveData<UploadStatus>, index: Int, paramsArr: ArrayList<Data_IntString>) {
+        uploadData(uploadState, getReferenceByIndex(index), paramsArr)
     }
 
     fun getSchedule(): FlatScheduleDetailed {
@@ -273,7 +256,7 @@ class MainActivityViewModel @Inject constructor(
         return rImplementation.getCurrentUser()!!.email
     }
 
-    fun signIn(email: String, password: String, newAccount: Boolean) {
+    fun signIn(authState: MutableLiveData<AuthenticationStatus>, email: String, password: String, newAccount: Boolean) {
         authState.value = AuthenticationStatus.Progress
         rImplementation.signIn(email, password, newAccount).addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -288,7 +271,7 @@ class MainActivityViewModel @Inject constructor(
         rImplementation.signOut()
     }
 
-    fun sendResetMessage(email: String) {
+    fun sendResetMessage(authState: MutableLiveData<AuthenticationStatus>, email: String) {
         authState.value = AuthenticationStatus.Progress
         rImplementation.sendResetMessage(email).addOnCompleteListener { task ->
             if (task.isSuccessful) {

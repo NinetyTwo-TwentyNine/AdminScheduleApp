@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.example.scheduleapp.data.AuthenticationStatus
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
@@ -18,6 +19,7 @@ import com.example.scheduleapp.data.Constants.APP_MIN_PASSWORD_LENGTH
 import com.example.scheduleapp.data.Constants.APP_PREFERENCES_STAY
 import com.example.scheduleapp.data.Data_IntString
 import com.example.scheduleapp.data.DownloadStatus
+import com.example.scheduleapp.data.UploadStatus
 import com.example.scheduleapp.databinding.FragmentLoginBinding
 import com.example.scheduleapp.utils.Utils.getBlankStringsChecker
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
@@ -28,6 +30,8 @@ class LoginFragment : Fragment() {
     private val viewModel: MainActivityViewModel by activityViewModels()
     private lateinit var binding: FragmentLoginBinding
     private lateinit var setButtonVisibility: ()->Unit
+    private lateinit var currentAuthStatus: MutableLiveData<AuthenticationStatus>
+    private lateinit var currentDownloadStatus: MutableLiveData<DownloadStatus<ArrayList<Data_IntString>>>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,12 +46,12 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initDownloadObservers()
-        viewModel.downloadParametersList(APP_BD_PATHS_GROUP_LIST)
+        viewModel.downloadParametersList(currentDownloadStatus, APP_BD_PATHS_GROUP_LIST)
     }
 
     private fun initDownloadObservers() {
-        viewModel.resetDownloadState(true)
-        viewModel.parametersDownloadState.observe(viewLifecycleOwner) { downloadStatus ->
+        currentDownloadStatus = MutableLiveData()
+        currentDownloadStatus.observe(viewLifecycleOwner) { downloadStatus ->
             when (downloadStatus) {
                 is DownloadStatus.Progress -> {
                     binding.progressBar.visibility = View.VISIBLE
@@ -61,6 +65,7 @@ class LoginFragment : Fragment() {
                 }
                 is DownloadStatus.Error -> {
                     binding.progressBar.visibility = View.GONE
+                    currentDownloadStatus.removeObservers(viewLifecycleOwner)
                     Toast.makeText(
                         activity,
                         "Failed to download data from DB: ${downloadStatus.message}",
@@ -69,6 +74,7 @@ class LoginFragment : Fragment() {
                 }
                 is DownloadStatus.Success<ArrayList<Data_IntString>> -> {
                     binding.progressBar.visibility = View.GONE
+                    currentDownloadStatus.removeObservers(viewLifecycleOwner)
 
                     if (viewModel.isUserSingedIn()) {
                         if (!viewModel.getPreference(APP_PREFERENCES_STAY, false)) {
@@ -89,8 +95,8 @@ class LoginFragment : Fragment() {
     }
 
     private fun initAuthObservers() {
-        viewModel.resetAuthState()
-        viewModel.authState.observe(viewLifecycleOwner) {authStatus->
+        currentAuthStatus = MutableLiveData()
+        currentAuthStatus.observe(viewLifecycleOwner) {authStatus->
             when (authStatus) {
                 is AuthenticationStatus.Success -> {
                     setButtonVisibility()
@@ -125,7 +131,7 @@ class LoginFragment : Fragment() {
         }
 
         setButtonVisibility = {
-            if (viewModel.authState.value != AuthenticationStatus.Progress) {
+            if (currentAuthStatus.value != AuthenticationStatus.Progress) {
                 binding.loginButton.isEnabled =
                     !(binding.userEmail.text.toString().isBlank() || binding.userPassword.text.toString().isBlank())
                             && binding.userPassword.text.toString().count() >= APP_MIN_PASSWORD_LENGTH
@@ -138,7 +144,7 @@ class LoginFragment : Fragment() {
         binding.userPassword.addTextChangedListener(getBlankStringsChecker(binding.userPassword, setButtonVisibility))
 
         binding.loginButton.setOnClickListener {
-            viewModel.signIn(binding.userEmail.text.toString(), binding.userPassword.text.toString(), false)
+            viewModel.signIn(currentAuthStatus, binding.userEmail.text.toString(), binding.userPassword.text.toString(), false)
         }
     }
 }

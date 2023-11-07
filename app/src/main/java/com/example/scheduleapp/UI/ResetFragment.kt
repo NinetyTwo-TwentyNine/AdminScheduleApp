@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.example.scheduleapp.data.AuthenticationStatus
 import com.example.scheduleapp.databinding.FragmentResetBinding
@@ -24,6 +25,7 @@ class ResetFragment : Fragment() {
     private val viewModel: MainActivityViewModel by activityViewModels()
     private lateinit var binding: FragmentResetBinding
     private lateinit var setButtonVisibility: ()->Unit
+    private lateinit var currentAuthStatus: MutableLiveData<AuthenticationStatus>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,21 +45,22 @@ class ResetFragment : Fragment() {
         }
 
         setButtonVisibility = {
-            if (viewModel.authState.value != AuthenticationStatus.Progress) {
+            if (currentAuthStatus.value != AuthenticationStatus.Progress) {
                 binding.resetButton.isEnabled = !binding.userEmail.text.toString().isBlank()
             }
         }
         binding.userEmail.addTextChangedListener(getBlankStringsChecker(binding.userEmail, setButtonVisibility))
 
         binding.resetButton.setOnClickListener {
-            viewModel.sendResetMessage(binding.userEmail.text.toString())
+            viewModel.sendResetMessage(currentAuthStatus, binding.userEmail.text.toString())
         }
+
         initObservers()
     }
 
     private fun initObservers() {
-        viewModel.resetAuthState()
-        viewModel.authState.observe(viewLifecycleOwner) {authStatus->
+        currentAuthStatus = MutableLiveData()
+        currentAuthStatus.observe(viewLifecycleOwner) {authStatus->
             when (authStatus) {
                 is AuthenticationStatus.Success -> {
                     setButtonVisibility()

@@ -20,9 +20,6 @@
         <action
             android:id="@+id/action_adminPanelFragment_to_addPairFragment"
             app:destination="@id/addPairFragment" />
-        <action
-            android:id="@+id/action_adminPanelFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
     </fragment>
 
     <fragment
@@ -35,9 +32,7 @@
             app:destination="@id/settingsFragment" />
         <action
             android:id="@+id/action_addPairFragment_to_adminPanelFragment"
-            app:destination="@id/adminPanelFragment"
-            app:popUpTo="@id/adminPanelFragment"
-            app:popUpToInclusive="false"/>
+            app:destination="@id/adminPanelFragment" />
     </fragment>
 
     <fragment
@@ -50,9 +45,7 @@
             app:destination="@id/settingsFragment" />
         <action
             android:id="@+id/action_changeBasicScheduleFragment_to_adminPanelFragment"
-            app:destination="@id/adminPanelFragment"
-            app:popUpTo="@id/adminPanelFragment"
-            app:popUpToInclusive="false"/>
+            app:destination="@id/adminPanelFragment" />
     </fragment>
 
     <fragment
@@ -65,9 +58,7 @@
             app:destination="@id/settingsFragment" />
         <action
             android:id="@+id/action_dbFragmentContainer_to_adminPanelFragment"
-            app:destination="@id/adminPanelFragment"
-            app:popUpTo="@id/adminPanelFragment"
-            app:popUpToInclusive="false"/>
+            app:destination="@id/adminPanelFragment" />
     </fragment>
 
     <fragment

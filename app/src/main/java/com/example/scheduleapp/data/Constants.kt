@@ -1,5 +1,7 @@
 package com.example.scheduleapp.data
 
+import com.example.scheduleapp.adapters.AddPairRecyclerViewItem
+
 object Constants {
     const val APP_MIN_PASSWORD_LENGTH = 8
     const val APP_PREFERENCES = "APP_PREFERENCES"
@@ -22,4 +24,10 @@ object Constants {
     const val APP_ADMIN_ID_DELETION_WARNING = "Some of the IDs were deleted."
     val APP_CALENDER_DAY_OF_WEEK = listOf("вс", "пн", "вт", "ср", "чт", "пт", "сб")
     val APP_ADMIN_PARAMETERS_LIST = listOf(APP_ADMIN_PARAMETERS_DISCIPLINE_NAME, APP_ADMIN_PARAMETERS_TEACHER_NAME, APP_ADMIN_PARAMETERS_GROUP_NAME, APP_ADMIN_PARAMETERS_CABINET_NAME)
+    val APP_ADMIN_EDIT_PAIR_ARRAY = listOf(
+        AddPairRecyclerViewItem(id = 0, visibility = true),
+        AddPairRecyclerViewItem(type = 1, id = 1),
+        AddPairRecyclerViewItem(id = 2),
+        AddPairRecyclerViewItem(type = 1, id = 3)
+    )
 }
