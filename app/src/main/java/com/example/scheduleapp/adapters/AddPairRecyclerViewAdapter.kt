@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Spinner
+import android.widget.TextView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -31,62 +33,19 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
         fun setData(data: AddPairRecyclerViewItem) {
             binding.apply {
                 if (data.visibility) {
-                    editPair.adapter = ArrayAdapter((editPair.context), R.layout.spinner_item, recycler.disciplineList).also { adapter ->
-                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+                    recycler.setupSpinner(editPair, editPairDefaultText, recycler.disciplineList, data.namePair) { pos: Int ->
+                        data.namePair = editPair.getItemAtPosition(pos).toString()
+                        recycler.editFunction(adapterPosition, data)
                     }
-                    for (i in 0 until editPair.adapter.count) {
-                        if (editPair.getItemAtPosition(i).toString() == data.namePair) {
-                            editPair.setSelection(i)
-                            break
-                        }
+                    recycler.setupSpinner(editCabinet, editCabinetDefaultText, recycler.cabinetList, data.cabinet) { pos: Int ->
+                        data.cabinet = editCabinet.getItemAtPosition(pos).toString()
+                        recycler.editFunction(adapterPosition, data)
                     }
-                    editPair.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            if (editPair.getItemAtPosition(position).toString() != recycler.differ.currentList[adapterPosition].namePair) {
-                                data.namePair = editPair.getItemAtPosition(position).toString()
-                                recycler.editFunction(adapterPosition, data)
-                            }
-                        }
-                        override fun onNothingSelected(parent: AdapterView<*>?) {}
+                    recycler.setupSpinner(editTeacher, editTeacherDefaultText, recycler.teacherList, data.teacher) { pos: Int ->
+                        data.teacher = editTeacher.getItemAtPosition(pos).toString()
+                        recycler.editFunction(adapterPosition, data)
                     }
 
-                    editCabinet.adapter = ArrayAdapter((editCabinet.context), R.layout.spinner_item, recycler.cabinetList).also { adapter ->
-                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
-                    }
-                    for (i in 0 until editCabinet.adapter.count) {
-                        if (editCabinet.getItemAtPosition(i).toString() == data.cabinet) {
-                            editCabinet.setSelection(i)
-                            break
-                        }
-                    }
-                    editCabinet.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            if (editCabinet.getItemAtPosition(position).toString() != recycler.differ.currentList[adapterPosition].cabinet) {
-                                data.cabinet = editCabinet.getItemAtPosition(position).toString()
-                                recycler.editFunction(adapterPosition, data)
-                            }
-                        }
-                        override fun onNothingSelected(parent: AdapterView<*>?) {}
-                    }
-
-                    editTeacher.adapter = ArrayAdapter((editTeacher.context), R.layout.spinner_item, recycler.teacherList).also { adapter ->
-                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
-                    }
-                    for (i in 0 until editTeacher.adapter.count) {
-                        if (editTeacher.getItemAtPosition(i).toString() == data.namePair) {
-                            editTeacher.setSelection(i)
-                            break
-                        }
-                    }
-                    editTeacher.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            if (editTeacher.getItemAtPosition(position).toString() != recycler.differ.currentList[adapterPosition].teacher) {
-                                data.teacher = editTeacher.getItemAtPosition(position).toString()
-                                recycler.editFunction(adapterPosition, data)
-                            }
-                        }
-                        override fun onNothingSelected(parent: AdapterView<*>?) {}
-                    }
                     cardView.visibility = View.VISIBLE
                 } else {
                     cardView.visibility = View.GONE
@@ -100,89 +59,27 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
         fun setSpecialData(data: AddPairRecyclerViewItem) {
             binding.apply {
                 if (data.visibility) {
-                    cabinetSecond.adapter = ArrayAdapter((cabinetSecond.context), R.layout.spinner_item, ArrayList(recycler.cabinetList)).also { adapter ->
-                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+                    recycler.setupSpinner(cabinetSecond, cabinetSecondDefaultText, recycler.cabinetList, data.cabinetSecond) { pos: Int ->
+                        data.cabinetSecond = cabinetSecond.getItemAtPosition(pos).toString()
+                        recycler.editFunction(adapterPosition, data)
                     }
-                    cabinetThird.adapter = ArrayAdapter((cabinetThird.context), R.layout.spinner_item, ArrayList(recycler.cabinetList)).also { adapter ->
-                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
-                    }
-                    for (i in 0 until recycler.cabinetList.count()) {
-                        if (cabinetSecond.getItemAtPosition(i).toString() == data.cabinetSecond) {
-                            cabinetSecond.setSelection(i)
-                        }
-                        if (cabinetThird.getItemAtPosition(i).toString() == data.cabinetThird) {
-                            cabinetThird.setSelection(i)
-                        }
-                    }
-                    cabinetSecond.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            if (cabinetSecond.getItemAtPosition(position).toString() != recycler.differ.currentList[adapterPosition].cabinetSecond) {
-                                data.cabinetSecond = cabinetSecond.getItemAtPosition(position).toString()
-                                recycler.editFunction(adapterPosition, data)
-                            }
-                        }
-                        override fun onNothingSelected(parent: AdapterView<*>?) {}
-                    }
-                    cabinetThird.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            if (cabinetThird.getItemAtPosition(position).toString() != recycler.differ.currentList[adapterPosition].cabinetThird) {
-                                data.cabinetThird = cabinetThird.getItemAtPosition(position).toString()
-                                recycler.editFunction(adapterPosition, data)
-                            }
-                        }
-                        override fun onNothingSelected(parent: AdapterView<*>?) {}
+                    recycler.setupSpinner(cabinetThird, cabinetThirdDefaultText, recycler.cabinetList, data.cabinetThird) { pos: Int ->
+                        data.cabinetThird = cabinetThird.getItemAtPosition(pos).toString()
+                        recycler.editFunction(adapterPosition, data)
                     }
 
-                    teacherSecond.adapter = ArrayAdapter((teacherSecond.context), R.layout.spinner_item, recycler.teacherList).also { adapter ->
-                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+                    recycler.setupSpinner(teacherSecond, teacherSecondDefaultText, recycler.teacherList, data.teacherSecond) { pos: Int ->
+                        data.teacherSecond = teacherSecond.getItemAtPosition(pos).toString()
+                        recycler.editFunction(adapterPosition, data)
                     }
-                    teacherThird.adapter = ArrayAdapter((teacherThird.context), R.layout.spinner_item, recycler.teacherList).also { adapter ->
-                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
-                    }
-                    for (i in 0 until recycler.teacherList.count()) {
-                        if (teacherSecond.getItemAtPosition(i).toString() == data.teacherSecond) {
-                            teacherSecond.setSelection(i)
-                        }
-                        if (teacherThird.getItemAtPosition(i).toString() == data.teacherThird) {
-                            teacherThird.setSelection(i)
-                        }
-                    }
-                    teacherSecond.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            if (teacherSecond.getItemAtPosition(position).toString() != recycler.differ.currentList[adapterPosition].teacherSecond) {
-                                data.teacherSecond = teacherSecond.getItemAtPosition(position).toString()
-                                recycler.editFunction(adapterPosition, data)
-                            }
-                        }
-                        override fun onNothingSelected(parent: AdapterView<*>?) {}
-                    }
-                    teacherThird.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            if (teacherThird.getItemAtPosition(position).toString() != recycler.differ.currentList[adapterPosition].teacherThird) {
-                                data.teacherThird = teacherThird.getItemAtPosition(position).toString()
-                                recycler.editFunction(adapterPosition, data)
-                            }
-                        }
-                        override fun onNothingSelected(parent: AdapterView<*>?) {}
+                    recycler.setupSpinner(teacherThird, teacherThirdDefaultText, recycler.teacherList, data.teacherThird) { pos: Int ->
+                        data.teacherThird = teacherThird.getItemAtPosition(pos).toString()
+                        recycler.editFunction(adapterPosition, data)
                     }
 
-                    subgroup.adapter = ArrayAdapter((subgroup.context), R.layout.spinner_item, arrayListOf("1", "2")).also { adapter ->
-                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
-                    }
-                    for (i in 0 until subgroup.adapter.count) {
-                        if (subgroup.getItemAtPosition(i).toString() == data.subGroup) {
-                            subgroup.setSelection(i)
-                            break
-                        }
-                    }
-                    subgroup.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            if (subgroup.getItemAtPosition(position).toString() != recycler.differ.currentList[adapterPosition].subGroup) {
-                                data.subGroup = subgroup.getItemAtPosition(position).toString()
-                                recycler.editFunction(adapterPosition, data)
-                            }
-                        }
-                        override fun onNothingSelected(parent: AdapterView<*>?) {}
+                    recycler.setupSpinner(subgroup, subgroupDefaultText, arrayListOf("1", "2"), data.subGroup) { pos: Int ->
+                        data.subGroup = subgroup.getItemAtPosition(pos).toString()
+                        recycler.editFunction(adapterPosition, data)
                     }
 
                     cardView.visibility = View.VISIBLE
@@ -221,6 +118,33 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
 
     override fun getItemCount(): Int {
         return differ.currentList.size
+    }
+
+    fun setupSpinner(spinner: Spinner, defaultText: TextView, choices: ArrayList<String>, stringToChange: String, editItem: (Int)->Unit) {
+        if (!choices.contains("")) {
+            choices.add(0, "")
+        }
+        spinner.adapter = ArrayAdapter((spinner.context), R.layout.spinner_item, choices).also { adapter ->
+            adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+        }
+        spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                defaultText.visibility = when(spinner.getItemAtPosition(position).toString().isEmpty()) {
+                    true -> View.VISIBLE
+                    false -> View.GONE
+                }
+                if (spinner.getItemAtPosition(position).toString() != stringToChange) {
+                    editItem(position)
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+        for (i in 0 until choices.count()) {
+            if (spinner.getItemAtPosition(i).toString() == stringToChange) {
+                spinner.setSelection(i)
+                break
+            }
+        }
     }
 
     private fun editFunction(pos: Int, data: AddPairRecyclerViewItem) {

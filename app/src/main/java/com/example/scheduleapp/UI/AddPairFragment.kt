@@ -57,7 +57,7 @@ class AddPairFragment() : Fragment() {
         arrayOfPairs[2].visibility = binding.subPairEnable.isChecked
         arrayOfPairs[3].visibility = binding.optionalEnable.isChecked && binding.subPairEnable.isChecked
 
-        for (i in 0 until arrayOfPairs.size) {
+        for (i in 1 until arrayOfPairs.size) {
             if (!arrayOfPairs[i].visibility) {
                 arrayOfPairs[i] = APP_ADMIN_EDIT_PAIR_ARRAY[i]
             }
