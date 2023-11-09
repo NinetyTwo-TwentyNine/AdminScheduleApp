@@ -4,15 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UI.ChooseDateFragment"
-    android:background="#05080D">
+    android:background="#05080D"
+    tools:context=".UI.ChooseDateFragment">
 
     <TextView
         android:id="@+id/dateToCreateScheduleTextView"
         style="@style/TextSchedule"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enter date to set schedule"
+        android:text="Введите дату"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -22,25 +22,25 @@
 
     <DatePicker
         android:id="@+id/dateToCreateScheduleDatePicker"
-        style="@style/Button"
         android:layout_width="290dp"
         android:layout_height="255dp"
-        android:background="#888888"
+        android:background="#FFFFFF"
         android:calendarViewShown="false"
         android:datePickerMode="spinner"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
+
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.429" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/goBackButton"
-        android:text="less--"
         style="@style/Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="less--"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.05"
@@ -50,16 +50,14 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/goNextButton"
-        android:text="--more"
         style="@style/Button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:text="Дальше"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.95"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.98" />
+        app:layout_constraintVertical_bias="0.774" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
