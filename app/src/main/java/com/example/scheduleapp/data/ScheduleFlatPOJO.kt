@@ -1,16 +1,19 @@
 package com.example.scheduleapp.data
 
 data class FlatScheduleDetailed (
-    var cabinetList    : ArrayList<Data_IntString>    = arrayListOf(),
-    var groupList      : ArrayList<Data_IntString>      = arrayListOf(),
-    var lessonList     : ArrayList<Data_IntString>     = arrayListOf(),
-    var teacherList    : ArrayList<Data_IntString>    = arrayListOf(),
-    var dayList        : ArrayList<Data_IntDate>        = arrayListOf(),
     var scheduleDay   : ArrayList<Data_IntArray>   = arrayListOf(),
     var scheduleGroup : ArrayList<Data_IntArray> = arrayListOf(),
     var scheduleLesson : ArrayList<Data_IntIntIntArrayArray> = arrayListOf(),
     var cabinetLesson  : ArrayList<Data_IntIntIntArrayArray>  = arrayListOf(),
     var teacherLesson  : ArrayList<Data_IntIntIntArrayArray>  = arrayListOf()
+)
+
+data class FlatScheduleParameters (
+    var cabinetList    : ArrayList<Data_IntString>    = arrayListOf(),
+    var groupList      : ArrayList<Data_IntString>      = arrayListOf(),
+    var lessonList     : ArrayList<Data_IntString>     = arrayListOf(),
+    var teacherList    : ArrayList<Data_IntString>    = arrayListOf(),
+    var dayList        : ArrayList<Data_IntDate>        = arrayListOf()
 )
 
 data class Data_IntString (

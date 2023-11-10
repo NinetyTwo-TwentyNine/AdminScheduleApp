@@ -13,13 +13,11 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
-import com.example.scheduleapp.data.AuthenticationStatus
+import com.example.scheduleapp.data.*
+import com.example.scheduleapp.data.Constants.APP_BD_PATHS_BASE_PARAMETERS
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
 import com.example.scheduleapp.data.Constants.APP_MIN_PASSWORD_LENGTH
 import com.example.scheduleapp.data.Constants.APP_PREFERENCES_STAY
-import com.example.scheduleapp.data.Data_IntString
-import com.example.scheduleapp.data.DownloadStatus
-import com.example.scheduleapp.data.UploadStatus
 import com.example.scheduleapp.databinding.FragmentLoginBinding
 import com.example.scheduleapp.utils.Utils.getBlankStringsChecker
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
@@ -31,7 +29,7 @@ class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
     private lateinit var setButtonVisibility: ()->Unit
     private lateinit var currentAuthStatus: MutableLiveData<AuthenticationStatus>
-    private lateinit var currentDownloadStatus: MutableLiveData<DownloadStatus<ArrayList<Data_IntString>>>
+    private lateinit var currentDownloadStatus: MutableLiveData<DownloadStatus<FlatScheduleParameters>>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,7 +44,7 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initDownloadObservers()
-        viewModel.downloadParametersList(currentDownloadStatus, APP_BD_PATHS_GROUP_LIST)
+        viewModel.downloadParametersList(currentDownloadStatus)
     }
 
     private fun initDownloadObservers() {
@@ -72,7 +70,7 @@ class LoginFragment : Fragment() {
                         Toast.LENGTH_LONG
                     ).show()
                 }
-                is DownloadStatus.Success<ArrayList<Data_IntString>> -> {
+                is DownloadStatus.Success<FlatScheduleParameters> -> {
                     binding.progressBar.visibility = View.GONE
                     currentDownloadStatus.removeObservers(viewLifecycleOwner)
 

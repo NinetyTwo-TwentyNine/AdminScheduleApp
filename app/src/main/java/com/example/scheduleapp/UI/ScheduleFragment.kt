@@ -39,11 +39,12 @@ class ScheduleFragment() : Fragment() {
 
         if (index != null) {
             val flatSchedule = mainViewModel.getSchedule()
-            val currentGroup = scheduleViewModel.getGroupId(flatSchedule.groupList, mainViewModel.getParametersList(APP_BD_PATHS_GROUP_LIST)[index!!])
-            val currentDate = scheduleViewModel.getDayId(flatSchedule.dayList, mainViewModel.getDayWithOffset(PAGE_COUNT/2))
+            val scheduleParams = mainViewModel.getParameters()
+            val currentGroup = scheduleViewModel.getGroupId(scheduleParams.groupList, mainViewModel.getParametersList(APP_BD_PATHS_GROUP_LIST)[index!!])
+            val currentDate = scheduleViewModel.getDayId(scheduleParams.dayList, mainViewModel.getDayWithOffset(mainViewModel.getChosenDate()))
             Log.d("TAG_FS", "currentGroup = ${currentGroup.toString()}, currentDay = ${currentDate.toString()}, index = ${index!!}")
             if (currentGroup != null && currentDate != null) {
-                val currentSchedule = scheduleViewModel.getScheduleByGroupAndDayDetailed(currentGroup, currentDate, flatSchedule)
+                val currentSchedule = scheduleViewModel.getScheduleByGroupAndDayDetailed(currentGroup, currentDate, flatSchedule, scheduleParams)
                 if (currentSchedule != null) {
                     scheduleRecyclerViewAdapter.differ.submitList(currentSchedule)
                     binding.apply {

@@ -61,7 +61,7 @@ class FragmentContainer : Fragment() {
         for (i in 0 until groupArray.size) {
             binding.tabLayout.getTabAt(i)?.text = groupArray[i]
         }
-        binding.dayName.text = viewModel.getDayToTab(PAGE_COUNT/2)
+        binding.dayName.text = viewModel.getDayToTab(viewModel.getChosenDate())
     }
 
     private fun initObservers() {

@@ -23,4 +23,8 @@ data class ScheduleDetailed (
     var discipline2 : String? = null,
     var cabinet2    : String?    = null,
     var teacher2    : String? = null,
+
+    var discipline3 : String? = null,
+    var cabinet3    : String?    = null,
+    var teacher3    : String? = null
 )

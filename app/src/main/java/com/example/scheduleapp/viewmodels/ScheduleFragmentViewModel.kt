@@ -54,13 +54,13 @@ class ScheduleFragmentViewModel @Inject constructor(
     }
 
     fun getScheduleByGroupAndDayDetailed(
-        groupId: Int, dayId: Int, schedule: FlatScheduleDetailed
+        groupId: Int, dayId: Int, schedule: FlatScheduleDetailed, parameters: FlatScheduleParameters
     ): ArrayList<Schedule>? {
         val resArray = arrayListOf<Schedule>()
 
         val result: ArrayList<ScheduleDetailed> = arrayListOf()
         for (i in 1..14) {
-            result.add(ScheduleDetailed(lessonNum = i, "-", "-", "-", "-", "-", "-"))
+            result.add(ScheduleDetailed(lessonNum = i, "-", "-", "-", "-", "-", "-", "-", "-", "-"))
         }
 
         var scheduleId: Int? = null
@@ -98,13 +98,19 @@ class ScheduleFragmentViewModel @Inject constructor(
                 if (item.subGroups.contains(1)) {
                     for (subPair in item.subPairs) {
                         result[(item.pairNum!! - 1) * 2 + (subPair - 1)].cabinet1 =
-                            getById(item.specialId!!, schedule.cabinetList)!!.title
+                            getById(item.specialId!!, parameters.cabinetList)!!.title!!
                     }
                 }
                 if (item.subGroups.contains(2)) {
                     for (subPair in item.subPairs) {
                         result[(item.pairNum!! - 1) * 2 + (subPair - 1)].cabinet2 =
-                            getById(item.specialId!!, schedule.cabinetList)!!.title
+                            getById(item.specialId!!, parameters.cabinetList)!!.title!!
+                    }
+                }
+                if (item.subGroups.contains(3)) {
+                    for (subPair in item.subPairs) {
+                        result[(item.pairNum!! - 1) * 2 + (subPair - 1)].cabinet3 =
+                            getById(item.specialId!!, parameters.cabinetList)!!.title!!
                     }
                 }
             }
@@ -114,13 +120,19 @@ class ScheduleFragmentViewModel @Inject constructor(
                 if (item.subGroups.contains(1)) {
                     for (subPair in item.subPairs) {
                         result[(item.pairNum!! - 1) * 2 + (subPair - 1)].discipline1 =
-                            getById(item.specialId!!, schedule.lessonList)!!.title
+                            getById(item.specialId!!, parameters.lessonList)!!.title!!
                     }
                 }
                 if (item.subGroups.contains(2)) {
                     for (subPair in item.subPairs) {
                         result[(item.pairNum!! - 1) * 2 + (subPair - 1)].discipline2 =
-                            getById(item.specialId!!, schedule.lessonList)!!.title
+                            getById(item.specialId!!, parameters.lessonList)!!.title!!
+                    }
+                }
+                if (item.subGroups.contains(3)) {
+                    for (subPair in item.subPairs) {
+                        result[(item.pairNum!! - 1) * 2 + (subPair - 1)].discipline3 =
+                            getById(item.specialId!!, parameters.lessonList)!!.title!!
                     }
                 }
             }
@@ -130,13 +142,19 @@ class ScheduleFragmentViewModel @Inject constructor(
                 if (item.subGroups.contains(1)) {
                     for (subPair in item.subPairs) {
                         result[(item.pairNum!! - 1) * 2 + (subPair - 1)].teacher1 =
-                            getById(item.specialId!!, schedule.teacherList)!!.title
+                            getById(item.specialId!!, parameters.teacherList)!!.title!!
                     }
                 }
                 if (item.subGroups.contains(2)) {
                     for (subPair in item.subPairs) {
                         result[(item.pairNum!! - 1) * 2 + (subPair - 1)].teacher2 =
-                            getById(item.specialId!!, schedule.teacherList)!!.title
+                            getById(item.specialId!!, parameters.teacherList)!!.title!!
+                    }
+                }
+                if (item.subGroups.contains(3)) {
+                    for (subPair in item.subPairs) {
+                        result[(item.pairNum!! - 1) * 2 + (subPair - 1)].teacher3 =
+                            getById(item.specialId!!, parameters.teacherList)!!.title!!
                     }
                 }
             }
@@ -156,28 +174,27 @@ class ScheduleFragmentViewModel @Inject constructor(
 
         scheduleObject.lessonNum = scheduleDetailed.lessonNum
 
-        if (scheduleDetailed.discipline1 == scheduleDetailed.discipline2) {
-            scheduleObject.discipline = scheduleDetailed.discipline1
-        } else {
-            scheduleObject.discipline =
-                scheduleDetailed.discipline1 + System.getProperty("line.separator") + scheduleDetailed.discipline2
-        }
-
-        if (scheduleDetailed.cabinet1 == scheduleDetailed.cabinet2) {
-            scheduleObject.cabinet = scheduleDetailed.cabinet1
-        } else {
-            scheduleObject.cabinet =
-                scheduleDetailed.cabinet1 + System.getProperty("line.separator") + scheduleDetailed.cabinet2
-        }
-
-        if (scheduleDetailed.teacher1 == scheduleDetailed.teacher2) {
-            scheduleObject.teacher = scheduleDetailed.teacher1
-        } else {
-            scheduleObject.teacher =
-                scheduleDetailed.teacher1 + System.getProperty("line.separator") + scheduleDetailed.teacher2
-        }
+        scheduleObject.discipline = compareStringParams(scheduleDetailed.discipline1!!, scheduleDetailed.discipline2!!, scheduleDetailed.discipline3!!)
+        scheduleObject.cabinet = compareStringParams(scheduleDetailed.cabinet1!!, scheduleDetailed.cabinet2!!, scheduleDetailed.cabinet3!!)
+        scheduleObject.teacher = compareStringParams(scheduleDetailed.teacher1!!, scheduleDetailed.teacher2!!, scheduleDetailed.teacher3!!)
 
         return scheduleObject
+    }
+
+    private fun compareStringParams(param1: String, param2: String, param3: String): String {
+        return if (param3 != "-") {
+            if (param1 != param2 || param2 != param3 || param1 != param3) {
+                param1 + System.getProperty("line.separator") + param2 + System.getProperty("line.separator") + param3
+            } else {
+                param1
+            }
+        } else {
+            if (param1 != param2) {
+                param1 + System.getProperty("line.separator") + param2
+            } else {
+                param1
+            }
+        }
     }
 
 
@@ -214,8 +231,8 @@ class ScheduleFragmentViewModel @Inject constructor(
 
     fun compareParametersLists(base: ArrayList<Data_IntString>, new: ArrayList<Data_IntString>): Pair<Boolean, Boolean> {
         var same: Boolean = base.size == new.size
-        var base_ids = arrayListOf<Int>()
-        var new_ids = arrayListOf<Int>()
+        val base_ids = arrayListOf<Int>()
+        val new_ids = arrayListOf<Int>()
         base.forEach { base_ids.add(it.id!!) }
         new.forEach { new_ids.add(it.id!!) }
 

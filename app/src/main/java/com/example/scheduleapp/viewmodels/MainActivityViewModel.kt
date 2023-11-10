@@ -11,10 +11,11 @@ import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_DISCIPLINE_NA
 import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_GROUP_NAME
 import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_LIST
 import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_TEACHER_NAME
+import com.example.scheduleapp.data.Constants.APP_BD_PATHS_BASE_PARAMETERS
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_CABINET_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_DISCIPLINE_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
-import com.example.scheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_LIST
+import com.example.scheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_CURRENT
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_TEACHER_LIST
 import com.example.scheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
 import com.example.scheduleapp.data.Constants.APP_WEAK_CONNECTION_WARNING
@@ -36,7 +37,9 @@ class MainActivityViewModel @Inject constructor(
     private val rImplementation: FirebaseRepository,
     private val sPreferences: SharedPreferences
 ) : ViewModel() {
-    private var flatSchedule = FlatScheduleDetailed()
+    private var flatScheduleDetailed = FlatScheduleDetailed()
+    private var flatScheduleParameters = FlatScheduleParameters()
+    private var chosenDateIndex = PAGE_COUNT/2
 
     init {
         Log.d("TAG", "Created a view model for the outer app segment successfully.")
@@ -48,16 +51,16 @@ class MainActivityViewModel @Inject constructor(
             APP_ADMIN_PARAMETERS_TEACHER_NAME -> APP_BD_PATHS_TEACHER_LIST
             APP_ADMIN_PARAMETERS_GROUP_NAME -> APP_BD_PATHS_GROUP_LIST
             APP_ADMIN_PARAMETERS_CABINET_NAME -> APP_BD_PATHS_CABINET_LIST
-            else -> APP_BD_PATHS_SCHEDULE_LIST
+            else -> {throw(IllegalStateException("Specific reference not found."))}
         }
     }
 
     fun getParametersByReference(reference: String, link: Boolean = false): ArrayList<Data_IntString> {
         val table = when(reference) {
-            APP_BD_PATHS_DISCIPLINE_LIST -> flatSchedule.lessonList
-            APP_BD_PATHS_TEACHER_LIST -> flatSchedule.teacherList
-            APP_BD_PATHS_GROUP_LIST -> flatSchedule.groupList
-            APP_BD_PATHS_CABINET_LIST -> flatSchedule.cabinetList
+            APP_BD_PATHS_DISCIPLINE_LIST -> flatScheduleParameters.lessonList
+            APP_BD_PATHS_TEACHER_LIST -> flatScheduleParameters.teacherList
+            APP_BD_PATHS_GROUP_LIST -> flatScheduleParameters.groupList
+            APP_BD_PATHS_CABINET_LIST -> flatScheduleParameters.cabinetList
             else -> arrayListOf()
         }
 
@@ -86,25 +89,30 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun downloadParametersList(parametersDownloadState: MutableLiveData<DownloadStatus<ArrayList<Data_IntString>>>, reference: String) {
+    fun <T> downloadParametersList(parametersDownloadState: MutableLiveData<DownloadStatus<T>>, reference: String? = null) {
         parametersDownloadState.value = DownloadStatus.Progress
-        val timer = setDownloadTimeout(parametersDownloadState, 5000L, true)
+        val timer = setDownloadTimeout(parametersDownloadState, 5000L)
 
         val listener = getParametersDownloadListener(parametersDownloadState, timer, reference)
-        rImplementation.downloadByReference(reference)
-            .addOnCompleteListener(listener)
+        if (reference == null) {
+            rImplementation.downloadByReference(APP_BD_PATHS_BASE_PARAMETERS)
+                .addOnCompleteListener(listener)
+        } else {
+            rImplementation.downloadByReference(reference)
+                .addOnCompleteListener(listener)
+        }
     }
 
     fun downloadSchedule(scheduleDownloadState: MutableLiveData<DownloadStatus<FlatScheduleDetailed>>) {
         scheduleDownloadState.value = DownloadStatus.Progress
-        val timer = setDownloadTimeout(scheduleDownloadState, 8000L, false)
+        val timer = setDownloadTimeout(scheduleDownloadState, 8000L)
 
         val listener = getScheduleDownloadListener(scheduleDownloadState, timer)
-        rImplementation.downloadByReference(APP_BD_PATHS_SCHEDULE_LIST)
+        rImplementation.downloadByReference(APP_BD_PATHS_SCHEDULE_CURRENT)
             .addOnCompleteListener(listener)
     }
 
-    private fun <T> getDownloadListener(downloadState: MutableLiveData<DownloadStatus<T>>, timer: Timer, reference: String? = null): OnCompleteListener<DataSnapshot> {
+    private fun <T> getDownloadListener(downloadState: MutableLiveData<DownloadStatus<T>>, timer: Timer, parameters: Boolean, reference: String? = null): OnCompleteListener<DataSnapshot> {
         val listener = OnCompleteListener<DataSnapshot> { task ->
             timer.cancel()
             if (task.isSuccessful) {
@@ -119,51 +127,41 @@ class MainActivityViewModel @Inject constructor(
                         )
                         updateParametersByReference(reference, table)
                         downloadState.value = (DownloadStatus.Success(table) as DownloadStatus.Success<T>)
+                    } else if (parameters) {
+                        flatScheduleParameters = Gson().fromJson(
+                            task.result.value.toString(),
+                            FlatScheduleParameters::class.java
+                        )
+                        downloadState.value = (DownloadStatus.Success(flatScheduleParameters) as DownloadStatus.Success<T>)
                     } else {
-                        flatSchedule = Gson().fromJson(
+                        flatScheduleDetailed = Gson().fromJson(
                             task.result.value.toString(),
                             FlatScheduleDetailed::class.java
                         )
-                        downloadState.value = (DownloadStatus.Success(flatSchedule) as DownloadStatus.Success<T>)
+                        downloadState.value = (DownloadStatus.Success(flatScheduleDetailed) as DownloadStatus.Success<T>)
                     }
                     Log.d("TAG", "Successfully read and converted the data.")
                 } catch (e: Exception) {
-                    if (reference != null) {
-                        downloadState.value = DownloadStatus.Error(e.message.toString())
-                    } else {
-                        downloadState.value = DownloadStatus.Error(e.message.toString())
-                    }
+                    downloadState.value = DownloadStatus.Error(e.message.toString())
                     Log.d("TAG", "Failed to convert the data: ${e.message}")
                 }
             } else {
-                if (reference != null) {
-                    downloadState.value = DownloadStatus.Error("Connection or network error.")
-                } else {
-                    downloadState.value = DownloadStatus.Error("Connection or network error.")
-                }
+                downloadState.value = DownloadStatus.Error("Connection or network error.")
                 Log.d("TAG", "Failed to download data from the database.")
             }
         }
         return listener
     }
-    private fun getParametersDownloadListener(downloadState: MutableLiveData<DownloadStatus<ArrayList<Data_IntString>>>, timer: Timer, reference: String): OnCompleteListener<DataSnapshot> {
-        return getDownloadListener(downloadState, timer, reference)
+    private fun <T> getParametersDownloadListener(downloadState: MutableLiveData<DownloadStatus<T>>, timer: Timer, reference: String? = null): OnCompleteListener<DataSnapshot> {
+        return getDownloadListener(downloadState, timer, true, reference)
     }
     private fun getScheduleDownloadListener(downloadState: MutableLiveData<DownloadStatus<FlatScheduleDetailed>>, timer: Timer): OnCompleteListener<DataSnapshot> {
-        return getDownloadListener(downloadState, timer)
+        return getDownloadListener(downloadState, timer, false)
     }
 
-    private fun <T> setDownloadTimeout(downloadStatus: MutableLiveData<DownloadStatus<T>>, time: Long, onlyParams: Boolean): Timer {
+    private fun <T> setDownloadTimeout(downloadStatus: MutableLiveData<DownloadStatus<T>>, time: Long): Timer {
         return performTimerEvent(
-            {
-                if (onlyParams) {
-                    downloadStatus.value =
-                        DownloadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING)
-                } else {
-                    downloadStatus.value =
-                        DownloadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING)
-                }
-            }, time)
+            { downloadStatus.value = DownloadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING) }, time)
     }
 
     private fun setUploadTimeout(uploadState: MutableLiveData<UploadStatus>, time: Long, onlyParams: Boolean): Timer {
@@ -204,7 +202,11 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun getSchedule(): FlatScheduleDetailed {
-        return flatSchedule
+        return flatScheduleDetailed
+    }
+
+    fun getParameters(): FlatScheduleParameters {
+        return flatScheduleParameters
     }
 
     fun getParametersList(reference: String): ArrayList<String> {
@@ -298,5 +300,24 @@ class MainActivityViewModel @Inject constructor(
         } else {
             return (sPreferences.getString(preference, (defValue as String)) as T)
         }
+    }
+
+    fun getChosenDate(): Int {
+        return chosenDateIndex
+    }
+
+    fun chooseDate(date: Date) {
+        var index = -1
+        for (i in 0 until PAGE_COUNT) {
+            if (getDayWithOffset(i).equals(date)) {
+                index = i
+                break
+            }
+        }
+
+        if (index == -1) {
+            throw(Exception("Failed to calculate chosen date's index."))
+        }
+        chosenDateIndex = index
     }
 }

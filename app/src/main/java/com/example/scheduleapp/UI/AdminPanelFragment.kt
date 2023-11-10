@@ -48,7 +48,7 @@ class AdminPanelFragment: Fragment() {
         }
 
         binding.creatingSchedule.setOnClickListener{
-            requireView().findNavController().navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToAddPairFragment())
+            requireView().findNavController().navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToChooseDateFragment())
         }
     }
 }

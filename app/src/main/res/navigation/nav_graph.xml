@@ -18,7 +18,36 @@
             android:id="@+id/action_adminPanelFragment_to_changeBasicScheduleFragment"
             app:destination="@id/changeBasicScheduleFragment" />
         <action
-            android:id="@+id/action_adminPanelFragment_to_addPairFragment"
+            android:id="@+id/action_adminPanelFragment_to_chooseDateFragment"
+            app:destination="@id/chooseDateFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/chooseDateFragment"
+        android:name="com.example.scheduleapp.UI.ChooseDateFragment"
+        android:label="ChooseDateFragment"
+        tools:layout="@layout/fragment_choose_date" >
+        <action
+            android:id="@+id/action_chooseDateFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_chooseDateFragment_to_adminPanelFragment"
+            app:destination="@id/adminPanelFragment" />
+        <action
+            android:id="@+id/action_chooseDateFragment_to_fragmentContainer"
+            app:destination="@id/fragmentContainer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragmentContainer"
+        android:name="com.example.scheduleapp.UI.FragmentContainer"
+        android:label="FragmentContainer"
+        tools:layout="@layout/fragment_container" >
+        <action
+            android:id="@+id/action_fragmentContainer_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_fragmentContainer_to_addPairFragment"
             app:destination="@id/addPairFragment" />
     </fragment>
 
@@ -35,6 +64,7 @@
             app:destination="@id/adminPanelFragment" />
     </fragment>
 
+
     <fragment
         android:id="@+id/changeBasicScheduleFragment"
         android:name="com.example.scheduleapp.UI.ChangeBasicScheduleFragment"
@@ -46,6 +76,9 @@
         <action
             android:id="@+id/action_changeBasicScheduleFragment_to_adminPanelFragment"
             app:destination="@id/adminPanelFragment" />
+        <action
+            android:id="@+id/action_changeBasicScheduleFragment_to_fragmentContainer"
+            app:destination="@id/fragmentContainer" />
     </fragment>
 
     <fragment
@@ -59,16 +92,6 @@
         <action
             android:id="@+id/action_dbFragmentContainer_to_adminPanelFragment"
             app:destination="@id/adminPanelFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragmentContainer"
-        android:name="com.example.scheduleapp.UI.FragmentContainer"
-        android:label="FragmentContainer"
-        tools:layout="@layout/fragment_container" >
-        <action
-            android:id="@+id/action_fragmentContainer_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
     </fragment>
 
     <fragment
