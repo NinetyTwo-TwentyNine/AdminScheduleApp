@@ -13,29 +13,30 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.scheduleapp.R
-import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_OPTIONS_DELETE
-import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_OPTIONS_OFF
-import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_OPTIONS_ON
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_DELETE
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_OFF
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_ON
 import com.example.scheduleapp.data.Data_IntString
 import com.example.scheduleapp.databinding.BasicTextItemBinding
 import com.example.scheduleapp.utils.Utils
 
-class AdminDBEditorRecyclerViewAdapter(private var updateAddButton: (ArrayList<Int>) -> Unit,
-                                       private var updateSaveButton: () -> Unit,
-                                       private var minTextLength: Int
+class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<Int>) -> Unit,
+                                       private val updateSaveButton: () -> Unit,
+                                       private val minTextLength: Int
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     val viewStates: ArrayList<Int> = ArrayList()
     private lateinit var binding: BasicTextItemBinding
 
-    class ItemViewHolder(private val binding: BasicTextItemBinding, context: AdminDBEditorRecyclerViewAdapter) :
+    class ItemViewHolder(private val binding: BasicTextItemBinding,
+                         private val recycler: AdminDBEditorRecyclerViewAdapter
+    ) :
         RecyclerView.ViewHolder(binding.root) {
-        private val recycler: AdminDBEditorRecyclerViewAdapter = context
         fun setupView(item: Data_IntString) {
             binding.apply {
                 title.text = SpannableStringBuilder(item.title)
                 title.inputType = 0
 
-                moreVertexSpinner.adapter = ArrayAdapter(moreVertexSpinner.context, R.layout.spinner_item, arrayListOf(APP_ADMIN_EDIT_OPTIONS_OFF, APP_ADMIN_EDIT_OPTIONS_ON, APP_ADMIN_EDIT_OPTIONS_DELETE)).also { adapter ->
+                moreVertexSpinner.adapter = ArrayAdapter(moreVertexSpinner.context, R.layout.spinner_item, arrayListOf(APP_ADMIN_TABLE_EDIT_OPTIONS_OFF, APP_ADMIN_TABLE_EDIT_OPTIONS_ON, APP_ADMIN_TABLE_EDIT_OPTIONS_DELETE)).also { adapter ->
                     adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                 }
                 moreVertexSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {

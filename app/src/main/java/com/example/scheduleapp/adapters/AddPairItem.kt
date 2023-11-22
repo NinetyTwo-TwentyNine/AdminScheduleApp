@@ -1,7 +1,7 @@
 package com.example.scheduleapp.adapters
 
-class AddPairRecyclerViewItem(
-    var namePair: String = "",
+class AddPairItem(
+    var pairName: String = "",
     var teacher: String = "",
     var teacherSecond: String = "",
     var teacherThird: String = "",

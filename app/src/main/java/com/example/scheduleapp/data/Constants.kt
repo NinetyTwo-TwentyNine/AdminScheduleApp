@@ -1,6 +1,6 @@
 package com.example.scheduleapp.data
 
-import com.example.scheduleapp.adapters.AddPairRecyclerViewItem
+import com.example.scheduleapp.adapters.AddPairItem
 
 object Constants {
     const val APP_MIN_PASSWORD_LENGTH = 8
@@ -15,9 +15,11 @@ object Constants {
     const val APP_BD_PATHS_TEACHER_LIST = "${APP_BD_PATHS_BASE_PARAMETERS}/teacherList"
     const val APP_BD_PATHS_CABINET_LIST = "${APP_BD_PATHS_BASE_PARAMETERS}/cabinetList"
     const val APP_BD_PATHS_DISCIPLINE_LIST = "${APP_BD_PATHS_BASE_PARAMETERS}/lessonList"
-    const val APP_ADMIN_EDIT_OPTIONS_OFF = "Edit mode off"
-    const val APP_ADMIN_EDIT_OPTIONS_ON = "Edit mode on"
-    const val APP_ADMIN_EDIT_OPTIONS_DELETE = "Delete"
+    const val APP_ADMIN_TABLE_EDIT_OPTIONS_OFF = "Edit mode off"
+    const val APP_ADMIN_TABLE_EDIT_OPTIONS_ON = "Edit mode on"
+    const val APP_ADMIN_TABLE_EDIT_OPTIONS_DELETE = "Delete"
+    const val APP_ADMIN_SCHEDULE_ITEM_EDIT_OPTIONS_CLEAR = "Clear"
+    const val APP_ADMIN_SCHEDULE_ITEM_EDIT_OPTIONS_TWEAK = "Edit"
     const val APP_ADMIN_PARAMETERS_DISCIPLINE_NAME = "Discipline"
     const val APP_ADMIN_PARAMETERS_TEACHER_NAME = "Teacher"
     const val APP_ADMIN_PARAMETERS_GROUP_NAME = "Group"
@@ -28,9 +30,9 @@ object Constants {
     val APP_CALENDER_DAY_OF_WEEK = listOf("вс", "пн", "вт", "ср", "чт", "пт", "сб")
     val APP_ADMIN_PARAMETERS_LIST = listOf(APP_ADMIN_PARAMETERS_DISCIPLINE_NAME, APP_ADMIN_PARAMETERS_TEACHER_NAME, APP_ADMIN_PARAMETERS_GROUP_NAME, APP_ADMIN_PARAMETERS_CABINET_NAME)
     val APP_ADMIN_EDIT_PAIR_ARRAY = listOf(
-        AddPairRecyclerViewItem(id = 0, visibility = true),
-        AddPairRecyclerViewItem(type = 1, id = 1),
-        AddPairRecyclerViewItem(id = 2),
-        AddPairRecyclerViewItem(type = 1, id = 3)
+        AddPairItem(id = 0, visibility = true),
+        AddPairItem(type = 1, id = 1),
+        AddPairItem(id = 2),
+        AddPairItem(type = 1, id = 3)
     )
 }

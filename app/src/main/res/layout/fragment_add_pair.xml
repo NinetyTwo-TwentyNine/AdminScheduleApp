@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#05080D">
@@ -89,13 +90,34 @@
         app:layout_constraintTop_toBottomOf="@+id/subPairEnable"
         app:track="@drawable/switch_custom_track" />
 
+    <TextView
+        android:id="@+id/saveButton"
+        style="@style/Button"
+        android:layout_width="360dp"
+        android:layout_height="69dp"
+        android:layout_marginTop="8dp"
+        android:enabled="false"
+        android:fontFamily="@font/roboto_light"
+        android:gravity="center"
+        android:paddingStart="13dp"
+        android:paddingTop="19dp"
+        android:paddingBottom="19dp"
+        android:text="Save changes"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/optionalText" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:layout_marginTop="40dp"
         app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/optionalText">
+        app:layout_constraintTop_toBottomOf="@+id/saveButton">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/schedulesRecyclerView"

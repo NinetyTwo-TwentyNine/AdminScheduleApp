@@ -16,15 +16,15 @@ data class Schedule (
 data class ScheduleDetailed (
     var lessonNum  : Int?    = null,
 
-    var discipline1 : String? = null,
-    var cabinet1    : String?    = null,
-    var teacher1    : String? = null,
+    var discipline1 : String? = "-",
+    var cabinet1    : String?    = "-",
+    var teacher1    : String? = "-",
 
-    var discipline2 : String? = null,
-    var cabinet2    : String?    = null,
-    var teacher2    : String? = null,
+    var discipline2 : String? = "-",
+    var cabinet2    : String?    = "-",
+    var teacher2    : String? = "-",
 
-    var discipline3 : String? = null,
-    var cabinet3    : String?    = null,
-    var teacher3    : String? = null
+    var discipline3 : String? = "-",
+    var cabinet3    : String?    = "-",
+    var teacher3    : String? = "-"
 )

@@ -1,7 +1,5 @@
 package com.example.scheduleapp.adapters
 
-import android.text.SpannableStringBuilder
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,28 +11,27 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.scheduleapp.R
-import com.example.scheduleapp.data.Data_IntString
 import com.example.scheduleapp.databinding.ScheduleAddItemBinding
 import com.example.scheduleapp.databinding.ScheduleAddSpecialItemBinding
 
+const val COMMON = 0
+const val SPECIAL = 1
+
 class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
                                  private val teacherList: ArrayList<String>,
-                                 private val cabinetList: ArrayList<String>
+                                 private val cabinetList: ArrayList<String>,
+                                 private val updateFunc: ()->Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
     private lateinit var binding: ScheduleAddItemBinding
     private lateinit var bindingSpecial: ScheduleAddSpecialItemBinding
 
-    val common = 0
-    val special = 1
-
     class ItemViewHolder(private val binding: ScheduleAddItemBinding, private val recycler: AddPairRecyclerViewAdapter) :
         RecyclerView.ViewHolder(binding.root) {
-        fun setData(data: AddPairRecyclerViewItem) {
+        fun setData(data: AddPairItem) {
             binding.apply {
                 if (data.visibility) {
-                    recycler.setupSpinner(editPair, editPairDefaultText, recycler.disciplineList, data.namePair) { pos: Int ->
-                        data.namePair = editPair.getItemAtPosition(pos).toString()
+                    recycler.setupSpinner(editPair, editPairDefaultText, recycler.disciplineList, data.pairName) { pos: Int ->
+                        data.pairName = editPair.getItemAtPosition(pos).toString()
                         recycler.editFunction(adapterPosition, data)
                     }
                     recycler.setupSpinner(editCabinet, editCabinetDefaultText, recycler.cabinetList, data.cabinet) { pos: Int ->
@@ -56,7 +53,7 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
 
     class SpecialItemViewHolder(private val binding: ScheduleAddSpecialItemBinding, private val recycler: AddPairRecyclerViewAdapter) :
         RecyclerView.ViewHolder(binding.root) {
-        fun setSpecialData(data: AddPairRecyclerViewItem) {
+        fun setSpecialData(data: AddPairItem) {
             binding.apply {
                 if (data.visibility) {
                     recycler.setupSpinner(cabinetSecond, cabinetSecondDefaultText, recycler.cabinetList, data.cabinetSecond) { pos: Int ->
@@ -77,7 +74,7 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
                         recycler.editFunction(adapterPosition, data)
                     }
 
-                    recycler.setupSpinner(subgroup, subgroupDefaultText, arrayListOf("1", "2"), data.subGroup) { pos: Int ->
+                    recycler.setupSpinner(subgroup, subgroupDefaultText, arrayListOf("1", "2", "3"), data.subGroup) { pos: Int ->
                         data.subGroup = subgroup.getItemAtPosition(pos).toString()
                         recycler.editFunction(adapterPosition, data)
                     }
@@ -95,7 +92,7 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        if (viewType == common) {
+        if (viewType == COMMON) {
             binding = ScheduleAddItemBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false)
             return ItemViewHolder(binding, this)
@@ -107,7 +104,7 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (getItemViewType(position) == common) {
+        if (getItemViewType(position) == COMMON) {
             (holder as ItemViewHolder).setData(differ.currentList[position])
             holder.setIsRecyclable(false)
         } else {
@@ -136,6 +133,7 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
                 if (spinner.getItemAtPosition(position).toString() != stringToChange) {
                     editItem(position)
                 }
+                updateFunc()
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
@@ -147,22 +145,22 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
         }
     }
 
-    private fun editFunction(pos: Int, data: AddPairRecyclerViewItem) {
+    private fun editFunction(pos: Int, data: AddPairItem) {
         val currentRecyclerList = ArrayList(differ.currentList)
         currentRecyclerList[pos] = data
 
         differ.submitList(currentRecyclerList)
     }
 
-    val differCallback = object : DiffUtil.ItemCallback<AddPairRecyclerViewItem>() {
+    val differCallback = object : DiffUtil.ItemCallback<AddPairItem>() {
         override fun areContentsTheSame(
-            oldItem: AddPairRecyclerViewItem, newItem: AddPairRecyclerViewItem
+            oldItem: AddPairItem, newItem: AddPairItem
         ): Boolean {
             return oldItem.equals(newItem)
         }
 
         override fun areItemsTheSame(
-            oldItem: AddPairRecyclerViewItem, newItem: AddPairRecyclerViewItem
+            oldItem: AddPairItem, newItem: AddPairItem
         ): Boolean {
             return oldItem.id == newItem.id
         }
