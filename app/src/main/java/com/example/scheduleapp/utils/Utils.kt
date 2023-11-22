@@ -2,10 +2,10 @@ package com.example.scheduleapp.utils
 
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.widget.EditText
 import com.example.scheduleapp.adapters.AddPairItem
 import com.example.scheduleapp.data.*
+import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_PAIR_ARRAY
 
 object Utils {
 
@@ -33,6 +33,43 @@ object Utils {
         val newArr = arrayListOf<AddPairItem>()
         origArr.forEach { newArr.add(AddPairItem(it.pairName, it.teacher, it.teacherSecond, it.teacherThird, it.cabinet, it.cabinetSecond, it.cabinetThird, it.subGroup, it.type, it.id, it.visibility)) }
         return newArr
+    }
+
+    fun getById(id: Int, array: ArrayList<Data_IntString>): Data_IntString? {
+        for (item in array) {
+            if (item.id == id) {
+                return item
+            }
+        }
+        return null
+    }
+    fun getById(id: Int, array: ArrayList<Data_IntArray>): Data_IntArray? {
+        for (item in array) {
+            if (item.specialId == id) {
+                return item
+            }
+        }
+        return null
+    }
+
+    fun getItemId(dayList: ArrayList<Data_IntDate>, date: Date): Int? {
+        for (item in dayList) {
+            if (date == item.date) {
+                return item.id
+            }
+        }
+        return null
+    }
+    fun getItemId(itemList: ArrayList<Data_IntString>, itemName: String?): Int? {
+        if (itemName == null) {
+            return null
+        }
+        for (item in itemList) {
+            if (itemName == item.title) {
+                return item.id
+            }
+        }
+        throw(IllegalStateException("No item ID was found, some part of the DB is probably missing or incorrect (${itemName})."))
     }
 
     fun moveDataFromScheduleToArray(schedule: FlatScheduleDetailed, parameters: FlatScheduleParameters, scheduleId: Int, detArray: ArrayList<ScheduleDetailed>) {
@@ -104,7 +141,7 @@ object Utils {
         }
     }
 
-    private fun convertScheduleDetailedToPairOfAddPairItem(subPair: ScheduleDetailed, item: Pair<AddPairItem, AddPairItem>) {
+    private fun convertScheduleDetailedToPairOfAddPairItem(subPair: ScheduleDetailed, items: Pair<AddPairItem, AddPairItem>) {
         val subGroup1Empty = (subPair.teacher1 == "-" && subPair.cabinet1 == "-" && subPair.discipline1 == "-")
         if (subPair.teacher1 == "-") subPair.teacher1 = ""; if (subPair.cabinet1 == "-") subPair.cabinet1 = ""; if (subPair.discipline1 == "-") subPair.discipline1 = ""
 
@@ -114,52 +151,60 @@ object Utils {
         val subGroup3Empty = (subPair.teacher3 == "-" && subPair.cabinet3 == "-" && subPair.discipline3 == "-")
         if (subPair.teacher3 == "-") subPair.teacher3 = ""; if (subPair.cabinet3 == "-") subPair.cabinet3 = ""; if (subPair.discipline3 == "-") subPair.discipline3 = ""
 
-        item.first.teacher = subPair.teacher1!!
-        item.first.pairName = subPair.discipline1!!
-        item.first.cabinet = subPair.cabinet1!!
+        items.first.teacher = subPair.teacher1!!
+        items.first.pairName = subPair.discipline1!!
+        items.first.cabinet = subPair.cabinet1!!
 
         if (!subGroup1Empty || !subGroup2Empty || !subGroup3Empty) {
             if (!subGroup1Empty && subGroup2Empty && subGroup3Empty) {
-                item.second.visibility = true
-                item.second.subGroup = "1"
+                items.second.visibility = true
+                items.second.subGroup = "1"
             } else if (subGroup1Empty && !subGroup2Empty && subGroup3Empty) {
-                item.second.visibility = true
-                item.second.subGroup = "2"
-                item.first.teacher = subPair.teacher2!!
-                item.first.pairName = subPair.discipline2!!
-                item.first.cabinet = subPair.cabinet2!!
+                items.second.visibility = true
+                items.second.subGroup = "2"
+                items.first.teacher = subPair.teacher2!!
+                items.first.pairName = subPair.discipline2!!
+                items.first.cabinet = subPair.cabinet2!!
             } else if (subGroup1Empty && subGroup2Empty && !subGroup3Empty) {
-                item.second.visibility = true
-                item.second.subGroup = "3"
-                item.first.teacher = subPair.teacher3!!
-                item.first.pairName = subPair.discipline3!!
-                item.first.cabinet = subPair.cabinet3!!
-            } else if ((subPair.teacher1 != subPair.teacher2 || subPair.cabinet1 != subPair.cabinet2 || subPair.discipline1 != subPair.discipline2) ||
-                ((subPair.teacher1 != subPair.teacher3 && subPair.teacher3 != "-") || (subPair.cabinet1 != subPair.cabinet3 && subPair.cabinet3 != "-") || (subPair.discipline1 != subPair.discipline3 && subPair.discipline3 != "-"))
+                items.second.visibility = true
+                items.second.subGroup = "3"
+                items.first.teacher = subPair.teacher3!!
+                items.first.pairName = subPair.discipline3!!
+                items.first.cabinet = subPair.cabinet3!!
+            } else if ( (!subGroup2Empty && (subPair.teacher1 != subPair.teacher2 || subPair.cabinet1 != subPair.cabinet2 || subPair.discipline1 != subPair.discipline2)) ||
+                (!subGroup3Empty && (subPair.teacher1 != subPair.teacher3 || subPair.cabinet1 != subPair.cabinet3 || subPair.discipline1 != subPair.discipline3))
             ) {
-                item.second.visibility = true
-                item.second.teacherSecond = subPair.teacher2!!
-                item.second.cabinetSecond = subPair.cabinet2!!
-                item.second.teacherThird = subPair.teacher3!!
-                item.second.cabinetThird = subPair.cabinet3!!
+                items.second.visibility = true
+                items.second.teacherSecond = subPair.teacher2!!
+                items.second.cabinetSecond = subPair.cabinet2!!
+                items.second.teacherThird = subPair.teacher3!!
+                items.second.cabinetThird = subPair.cabinet3!!
             }
         }
 
-        if (item.second.visibility || !subGroup1Empty) {
-            item.first.visibility = true
+        if (items.second.visibility || !subGroup1Empty) {
+            items.first.visibility = true
         }
     }
     fun convertPairToArrayOfAddPairItem(pair: Pair<ScheduleDetailed, ScheduleDetailed>): ArrayList<AddPairItem> {
         val subPair1 = pair.first
         val subPair2 = pair.second
-        val item = getAddPairItemArrayDeepCopy(ArrayList(Constants.APP_ADMIN_EDIT_PAIR_ARRAY))
+        val items = ArrayList(APP_ADMIN_EDIT_PAIR_ARRAY)
 
-        convertScheduleDetailedToPairOfAddPairItem(subPair1, Pair(item[0], item[1]))
         if (!checkIfScheduleDetailedEquals(subPair1, subPair2)) {
-            convertScheduleDetailedToPairOfAddPairItem(subPair2, Pair(item[2], item[3]))
+            convertScheduleDetailedToPairOfAddPairItem(subPair1, Pair(items[0], items[1]))
+            convertScheduleDetailedToPairOfAddPairItem(subPair2, Pair(items[2], items[3]))
+        } else {
+            convertScheduleDetailedToPairOfAddPairItem(subPair1, Pair(items[0], items[1]))
         }
 
-        return item
+        //Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "")
+        //Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "Are they the same? ${checkIfScheduleDetailedEquals(subPair1, subPair2)}")
+        //Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "visibility1 = ${item[1].visibility}")
+        //Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "visibility2 = ${item[2].visibility}")
+        //Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "visibility3 = ${item[3].visibility}")
+
+        return items
     }
 
     private fun convertPairOfAddPairItemToScheduleDetailed(item: Pair<AddPairItem, AddPairItem>, subPair: ScheduleDetailed) {
@@ -219,23 +264,6 @@ object Utils {
         } else {
             convertPairOfAddPairItemToScheduleDetailed(Pair(addPairItem[0], addPairItem[1]), subPair2)
         }
-    }
-
-    fun getById(id: Int, array: ArrayList<Data_IntString>): Data_IntString? {
-        for (item in array) {
-            if (item.id == id) {
-                return item
-            }
-        }
-        return null
-    }
-    fun getById(id: Int, array: ArrayList<Data_IntArray>): Data_IntArray? {
-        for (item in array) {
-            if (item.specialId == id) {
-                return item
-            }
-        }
-        return null
     }
 
     fun removeScheduleItemById(flatSchedule: FlatScheduleDetailed, scheduleId: Int, pairNum: Int, canRemoveScheduleId: Boolean) {
@@ -321,13 +349,14 @@ object Utils {
     private fun unifyScheduleArray(scheduleItemArray: ArrayList<Data_IntIntIntArrayArray>) {
         val arrayToRemove: ArrayList<Data_IntIntIntArrayArray> = arrayListOf()
 
-        var shouldContinue = true
         var currentIndex = 0
-        while (shouldContinue) {
-            shouldContinue = false
-            for (i: Int in (currentIndex+1) until scheduleItemArray.size) {
-                if (scheduleItemArray[i].specialId == scheduleItemArray[currentIndex].specialId) {
-                    shouldContinue = true
+        while (currentIndex < scheduleItemArray.size) {
+            for (i: Int in 0 until scheduleItemArray.size) {
+                if (scheduleItemArray[i].specialId == scheduleItemArray[currentIndex].specialId && currentIndex != i) {
+
+                    //Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "")
+                    //Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "Current-subp = ${scheduleItemArray[currentIndex].subPairs}, i-subp = ${scheduleItemArray[i].subPairs}")
+                    //Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "Are they the same? ${scheduleItemArray[currentIndex].subPairs == scheduleItemArray[i].subPairs}")
 
                     if (scheduleItemArray[currentIndex].subPairs == scheduleItemArray[i].subPairs) {
                         scheduleItemArray[i].subGroups.forEach {
@@ -336,6 +365,11 @@ object Utils {
                             }
                         }
                     }
+
+                    //Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "")
+                    //Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "Current-subg = ${scheduleItemArray[currentIndex].subGroups}, i-subg = ${scheduleItemArray[i].subGroups}")
+                    //Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "Are they the same? ${scheduleItemArray[currentIndex].subGroups == scheduleItemArray[i].subGroups}")
+
                     if (scheduleItemArray[currentIndex].subGroups == scheduleItemArray[i].subGroups) {
                         scheduleItemArray[i].subPairs.forEach {
                             if (!scheduleItemArray[currentIndex].subPairs.contains(it)) {
@@ -352,6 +386,9 @@ object Utils {
                 }
             }
             arrayToRemove.forEach {
+                if (scheduleItemArray.indexOf(it) < currentIndex) {
+                    currentIndex--
+                }
                 scheduleItemArray.remove(it)
             }
             arrayToRemove.clear()
@@ -436,32 +473,11 @@ object Utils {
         cabinetArray.forEach { flatSchedule.cabinetLesson.add(it) }
     }
 
-
-    fun getItemId(dayList: ArrayList<Data_IntDate>, date: Date): Int? {
-        for (item in dayList) {
-            if (date == item.date) {
-                return item.id
-            }
-        }
-        return null
-    }
-    fun getItemId(itemList: ArrayList<Data_IntString>, itemName: String?): Int? {
-        if (itemName == null) {
-            return null
-        }
-        for (item in itemList) {
-            if (itemName == item.title) {
-                return item.id
-            }
-        }
-        throw(IllegalStateException("No item ID was found, some part of the DB is probably missing or incorrect (${itemName})."))
-    }
-
     private fun checkIfAddPairItemsAreEqual(addPairItem1: AddPairItem, addPairItem2: AddPairItem): Boolean {
+        //Log.d("ADMIN_ADDPAIR_COMPARISON_CHECKER", "")
+        //Log.d("ADMIN_ADDPAIR_COMPARISON_CHECKER", "First AddPairItem:" + System.lineSeparator() + "(visibility = ${addPairItem1.visibility}, pairName = ${addPairItem1.pairName}, teacher = ${addPairItem1.teacher}, teacherSecond = ${addPairItem1.teacherSecond}, teacherThird = ${addPairItem1.teacherThird}, cabinet = ${addPairItem1.cabinet}, cabinetSecond = ${addPairItem1.cabinetSecond}, cabinetThird = ${addPairItem1.cabinetThird}, subGroup = ${addPairItem1.subGroup})")
+        //Log.d("ADMIN_ADDPAIR_COMPARISON_CHECKER", "Second AddPairItem:" + System.lineSeparator() + "(visibility = ${addPairItem2.visibility}, pairName = ${addPairItem2.pairName}, teacher = ${addPairItem2.teacher}, teacherSecond = ${addPairItem2.teacherSecond}, teacherThird = ${addPairItem2.teacherThird}, cabinet = ${addPairItem2.cabinet}, cabinetSecond = ${addPairItem2.cabinetSecond}, cabinetThird = ${addPairItem2.cabinetThird}, subGroup = ${addPairItem2.subGroup})")
 
-        Log.d("ADMIN_ADDPAIR_COMPARISON_CHECKER", "")
-        Log.d("ADMIN_ADDPAIR_COMPARISON_CHECKER", "First AddPairItem:" + System.lineSeparator() + "(visibility = ${addPairItem1.visibility}, pairName = ${addPairItem1.pairName}, teacher = ${addPairItem1.teacher}, teacherSecond = ${addPairItem1.teacherSecond}, teacherThird = ${addPairItem1.teacherThird}, cabinet = ${addPairItem1.cabinet}, cabinetSecond = ${addPairItem1.cabinetSecond}, cabinetThird = ${addPairItem1.cabinetThird}, subGroup = ${addPairItem1.subGroup})")
-        Log.d("ADMIN_ADDPAIR_COMPARISON_CHECKER", "Second AddPairItem:" + System.lineSeparator() + "(visibility = ${addPairItem2.visibility}, pairName = ${addPairItem2.pairName}, teacher = ${addPairItem2.teacher}, teacherSecond = ${addPairItem2.teacherSecond}, teacherThird = ${addPairItem2.teacherThird}, cabinet = ${addPairItem2.cabinet}, cabinetSecond = ${addPairItem2.cabinetSecond}, cabinetThird = ${addPairItem2.cabinetThird}, subGroup = ${addPairItem2.subGroup})")
         return (//addPairItem1.visibility == addPairItem2.visibility &&
                 addPairItem1.pairName == addPairItem2.pairName &&
                 addPairItem1.teacher == addPairItem2.teacher &&
@@ -478,7 +494,7 @@ object Utils {
                 return false
             }
         }
-        return true;
+        return true
     }
     private fun checkIfScheduleDetailedEquals(schedule1: ScheduleDetailed, schedule2: ScheduleDetailed): Boolean {
         return (//schedule1.lessonNum == schedule2.lessonNum &&

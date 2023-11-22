@@ -78,6 +78,7 @@ class AddPairFragment() : Fragment() {
 
     private fun updateRecyclerView() {
         val addPairArray = ArrayList(addPairRecyclerViewAdapter.differ.currentList)
+        val defaultArray = ArrayList(APP_ADMIN_EDIT_PAIR_ARRAY)
 
         addPairArray[1].visibility = binding.optionalEnable.isChecked
         addPairArray[2].visibility = binding.subPairEnable.isChecked
@@ -85,7 +86,7 @@ class AddPairFragment() : Fragment() {
 
         for (i in 1 until addPairArray.size) {
             if (!addPairArray[i].visibility) {
-                addPairArray[i] = APP_ADMIN_EDIT_PAIR_ARRAY[i]
+                addPairArray[i] = defaultArray[i]
             }
         }
 

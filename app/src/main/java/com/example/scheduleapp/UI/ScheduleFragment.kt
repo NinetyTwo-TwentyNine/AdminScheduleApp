@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.scheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
 import com.example.scheduleapp.adapters.ScheduleRecyclerViewAdapter
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
+import com.example.scheduleapp.data.Schedule
 import com.example.scheduleapp.databinding.FragmentScheduleBinding
 import com.example.scheduleapp.utils.Utils.getItemId
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
@@ -58,16 +59,24 @@ class ScheduleFragment() : Fragment() {
             clearButtonFunction = {number ->
                 scheduleViewModel.removeScheduleItem(scheduleParams, currentDate, currentGroup, number)
                 currentSchedule = scheduleViewModel.getScheduleByGroupAndDay(currentGroupId, currentDateId, scheduleParams)
-                scheduleRecyclerViewAdapter.differ.submitList(currentSchedule)
+                setupRecyclerView(currentSchedule)
+
+                mainViewModel.performTimerEvent(
+                    {binding.schedulesRecyclerView.scrollToPosition(number + 1)},
+                50L)
             }
 
-            scheduleRecyclerViewAdapter = ScheduleRecyclerViewAdapter(editButtonFunction, clearButtonFunction)
-            scheduleRecyclerViewAdapter.differ.submitList(currentSchedule)
-            binding.apply {
-                schedulesRecyclerView.apply {
-                    layoutManager = LinearLayoutManager(activity)
-                    adapter = scheduleRecyclerViewAdapter
-                }
+            setupRecyclerView(currentSchedule)
+        }
+    }
+
+    private fun setupRecyclerView(currentSchedule: ArrayList<Schedule>) {
+        scheduleRecyclerViewAdapter = ScheduleRecyclerViewAdapter(editButtonFunction, clearButtonFunction)
+        scheduleRecyclerViewAdapter.differ.submitList(currentSchedule)
+        binding.apply {
+            schedulesRecyclerView.apply {
+                layoutManager = LinearLayoutManager(activity)
+                adapter = scheduleRecyclerViewAdapter
             }
         }
     }

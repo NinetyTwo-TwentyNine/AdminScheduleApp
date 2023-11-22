@@ -1,6 +1,7 @@
 package com.example.scheduleapp.data
 
 import com.example.scheduleapp.adapters.AddPairItem
+import com.example.scheduleapp.utils.Utils.getAddPairItemArrayDeepCopy
 
 object Constants {
     const val APP_MIN_PASSWORD_LENGTH = 8
@@ -29,10 +30,14 @@ object Constants {
     const val APP_ADMIN_ID_DELETION_WARNING = "Some of the IDs were deleted."
     val APP_CALENDER_DAY_OF_WEEK = listOf("вс", "пн", "вт", "ср", "чт", "пт", "сб")
     val APP_ADMIN_PARAMETERS_LIST = listOf(APP_ADMIN_PARAMETERS_DISCIPLINE_NAME, APP_ADMIN_PARAMETERS_TEACHER_NAME, APP_ADMIN_PARAMETERS_GROUP_NAME, APP_ADMIN_PARAMETERS_CABINET_NAME)
+
     val APP_ADMIN_EDIT_PAIR_ARRAY = listOf(
         AddPairItem(id = 0, visibility = true),
         AddPairItem(type = 1, id = 1),
         AddPairItem(id = 2),
         AddPairItem(type = 1, id = 3)
     )
+    get() {
+        return getAddPairItemArrayDeepCopy(ArrayList(field))
+    }
 }
