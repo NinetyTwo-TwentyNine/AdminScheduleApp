@@ -2,19 +2,28 @@ package com.example.scheduleapp.UI
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupWindow
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.example.scheduleapp.adapters.MainScreenAdapter
+import com.example.scheduleapp.data.Constants.APP_ADMIN_RESET_CHANGES_WARNING
+import com.example.scheduleapp.data.Constants.APP_ADMIN_SAVE_CHANGES_WARNING
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
 import com.example.scheduleapp.data.DownloadStatus
 import com.example.scheduleapp.data.FlatScheduleDetailed
+import com.example.scheduleapp.data.UploadStatus
+import com.example.scheduleapp.databinding.BasicPopupWindowBinding
 import com.example.scheduleapp.databinding.FragmentContainerBinding
+import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleDetailedEquals
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
 import com.google.android.material.tabs.TabLayoutMediator
@@ -26,7 +35,9 @@ class FragmentContainer : Fragment() {
     private val scheduleViewModel: ScheduleFragmentViewModel by activityViewModels()
     private lateinit var mainScreenAdapter: MainScreenAdapter
     private lateinit var binding: FragmentContainerBinding
+    private lateinit var popupBinding: BasicPopupWindowBinding
     private lateinit var currentDownloadStatus: MutableLiveData<DownloadStatus<FlatScheduleDetailed>>
+    private lateinit var currentUploadStatus: MutableLiveData<UploadStatus>
 
 
     override fun onCreateView(
@@ -40,10 +51,22 @@ class FragmentContainer : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (scheduleViewModel.getSavedSchedule() == null) {
-            initObservers()
+            initDownloadObservers()
             mainViewModel.downloadSchedule(currentDownloadStatus)
         } else {
             setupViewPager2()
+        }
+
+        binding.saveButton.setOnClickListener {
+            createPopupWindow(APP_ADMIN_SAVE_CHANGES_WARNING, true) {
+                mainViewModel.uploadCurrentSchedule(currentUploadStatus, scheduleViewModel.getSavedSchedule()!!) }
+        }
+        binding.resetButton.setOnClickListener {
+            createPopupWindow(APP_ADMIN_RESET_CHANGES_WARNING) {
+                scheduleViewModel.saveSchedule(mainViewModel.getSchedule())
+                mainViewModel.performTimerEvent(
+                    { setupViewPager2() },
+                    50L) }
         }
     }
 
@@ -63,9 +86,38 @@ class FragmentContainer : Fragment() {
             binding.tabLayout.getTabAt(i)?.text = groupArray[i]
         }
         binding.dayName.text = mainViewModel.getDayToTab(mainViewModel.getChosenDate())
+
+        initUploadObservers()
     }
 
-    private fun initObservers() {
+    private fun createPopupWindow(warning: String, alwaysDisableButtons: Boolean = false, yesFunc: ()->Unit) {
+        updateResetAndSaveButtons(false)
+        popupBinding = BasicPopupWindowBinding.inflate(layoutInflater)
+        val popupView: View = popupBinding.root
+
+        val width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+        val height = ConstraintLayout.LayoutParams.WRAP_CONTENT
+
+        val popupWindow = PopupWindow(popupView, width, height, true)
+        popupBinding.popupText.text = warning
+        popupBinding.yesButton.setOnClickListener {
+            yesFunc()
+            popupWindow.dismiss()
+            if (alwaysDisableButtons) {
+                updateResetAndSaveButtons(false)
+            }
+        }
+        popupBinding.noButton.setOnClickListener {
+            popupWindow.dismiss()
+        }
+        popupWindow.showAtLocation(this.view, Gravity.CENTER, 0, 0)
+
+        popupWindow.setOnDismissListener {
+            updateResetAndSaveButtons()
+        }
+    }
+
+    private fun initDownloadObservers() {
         currentDownloadStatus = MutableLiveData()
         currentDownloadStatus.observe(viewLifecycleOwner) { downloadStatus ->
 
@@ -102,8 +154,60 @@ class FragmentContainer : Fragment() {
         }
     }
 
+    private fun initUploadObservers() {
+        currentUploadStatus = MutableLiveData()
+        currentUploadStatus.observe(viewLifecycleOwner) { uploadStatus ->
+            when (uploadStatus) {
+                is UploadStatus.Progress -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                }
+                is UploadStatus.WeakProgress -> {
+                    Toast.makeText(
+                        activity,
+                        uploadStatus.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                is UploadStatus.Error -> {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(
+                        activity,
+                        "Failed to upload the Data: ${uploadStatus.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    updateResetAndSaveButtons()
+                }
+                is UploadStatus.Success -> {
+                    binding.progressBar.visibility = View.GONE
+                    mainViewModel.updateSchedule(scheduleViewModel.getSavedSchedule()!!)
+                    Toast.makeText(
+                        activity,
+                        "Succeeded in uploading the Data.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    updateResetAndSaveButtons()
+                }
+            }
+        }
+    }
+
     fun moveToAddPairFragment() {
         requireView().findNavController()
             .navigate(FragmentContainerDirections.actionFragmentContainerToAddPairFragment())
+    }
+
+    fun updateResetAndSaveButtons(forcedBool: Boolean? = null) {
+        Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "")
+
+        val comparisonResult: Boolean
+        if (forcedBool == null) {
+            comparisonResult = checkIfFlatScheduleDetailedEquals(mainViewModel.getSchedule(), scheduleViewModel.getSavedSchedule()!!)
+        } else {
+            comparisonResult = !forcedBool
+            Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "Forced boolean = $forcedBool")
+        }
+        Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "Are they the same? $comparisonResult.")
+        binding.saveButton.isEnabled = !comparisonResult
+        binding.resetButton.isEnabled = !comparisonResult
     }
 }

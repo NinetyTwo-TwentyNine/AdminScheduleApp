@@ -3,7 +3,7 @@ package com.example.scheduleapp.utils
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
-import com.example.scheduleapp.adapters.AddPairItem
+import com.example.scheduleapp.data.AddPairItem
 import com.example.scheduleapp.data.*
 import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_PAIR_ARRAY
 
@@ -23,16 +23,56 @@ object Utils {
         }
     }
 
-    fun getDataIntStringArrayDeepCopy(origArr: ArrayList<Data_IntString>): ArrayList<Data_IntString> {
+    fun getArrayOfDataIntStringDeepCopy(origArr: ArrayList<Data_IntString>): ArrayList<Data_IntString> {
         val newArr = arrayListOf<Data_IntString>()
-        origArr.forEach { newArr.add(Data_IntString(it.id, it.title)) }
+        origArr.forEach { newArr.add(
+            Data_IntString(it.id, it.title)) }
         return newArr
     }
 
-    fun getAddPairItemArrayDeepCopy(origArr: ArrayList<AddPairItem>): ArrayList<AddPairItem> {
-        val newArr = arrayListOf<AddPairItem>()
-        origArr.forEach { newArr.add(AddPairItem(it.pairName, it.teacher, it.teacherSecond, it.teacherThird, it.cabinet, it.cabinetSecond, it.cabinetThird, it.subGroup, it.type, it.id, it.visibility)) }
+    fun getArrayOfDataIntArrayDeepCopy(origArr: ArrayList<Data_IntArray>): ArrayList<Data_IntArray> {
+        val newArr = arrayListOf<Data_IntArray>()
+        origArr.forEach { newArr.add(
+            Data_IntArray(it.specialId, (it.scheduleId.clone() as ArrayList<Int>) )) }
         return newArr
+    }
+
+    fun getArrayOfDataIntIntIntArrayArrayDeepCopy(origArr: ArrayList<Data_IntIntIntArrayArray>): ArrayList<Data_IntIntIntArrayArray> {
+        val newArr = arrayListOf<Data_IntIntIntArrayArray>()
+        origArr.forEach { newArr.add(Data_IntIntIntArrayArray(
+            scheduleId = it.scheduleId,
+            pairNum = it.pairNum,
+            subPairs = (it.subPairs.clone() as ArrayList<Int>),
+            subGroups = (it.subGroups.clone() as ArrayList<Int>),
+            specialId = it.specialId)) }
+        return newArr
+    }
+
+    fun getArrayOfAddPairItemDeepCopy(origArr: ArrayList<AddPairItem>): ArrayList<AddPairItem> {
+        val newArr = arrayListOf<AddPairItem>()
+        origArr.forEach { newArr.add(AddPairItem(
+            pairName = it.pairName,
+            teacher = it.teacher,
+            teacherSecond = it.teacherSecond,
+            teacherThird = it.teacherThird,
+            cabinet = it.cabinet,
+            cabinetSecond = it.cabinetSecond,
+            cabinetThird = it.cabinetThird,
+            subGroup = it.subGroup,
+            type = it.type,
+            id = it.id,
+            visibility = it.visibility)) }
+        return newArr
+    }
+
+    fun getFlatScheduleDetailedDeepCopy(origSchedule: FlatScheduleDetailed): FlatScheduleDetailed {
+        val newSchedule = FlatScheduleDetailed(
+            scheduleDay = getArrayOfDataIntArrayDeepCopy(origSchedule.scheduleDay),
+            scheduleGroup = getArrayOfDataIntArrayDeepCopy(origSchedule.scheduleGroup),
+            scheduleLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.scheduleLesson),
+            cabinetLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.cabinetLesson),
+            teacherLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.teacherLesson))
+        return newSchedule
     }
 
     fun getById(id: Int, array: ArrayList<Data_IntString>): Data_IntString? {
@@ -191,7 +231,7 @@ object Utils {
         val subPair2 = pair.second
         val items = ArrayList(APP_ADMIN_EDIT_PAIR_ARRAY)
 
-        if (!checkIfScheduleDetailedEquals(subPair1, subPair2)) {
+        if (!subPair1.actuallyEquals(subPair2)) {
             convertScheduleDetailedToPairOfAddPairItem(subPair1, Pair(items[0], items[1]))
             convertScheduleDetailedToPairOfAddPairItem(subPair2, Pair(items[2], items[3]))
         } else {
@@ -473,39 +513,21 @@ object Utils {
         cabinetArray.forEach { flatSchedule.cabinetLesson.add(it) }
     }
 
-    private fun checkIfAddPairItemsAreEqual(addPairItem1: AddPairItem, addPairItem2: AddPairItem): Boolean {
-        //Log.d("ADMIN_ADDPAIR_COMPARISON_CHECKER", "")
-        //Log.d("ADMIN_ADDPAIR_COMPARISON_CHECKER", "First AddPairItem:" + System.lineSeparator() + "(visibility = ${addPairItem1.visibility}, pairName = ${addPairItem1.pairName}, teacher = ${addPairItem1.teacher}, teacherSecond = ${addPairItem1.teacherSecond}, teacherThird = ${addPairItem1.teacherThird}, cabinet = ${addPairItem1.cabinet}, cabinetSecond = ${addPairItem1.cabinetSecond}, cabinetThird = ${addPairItem1.cabinetThird}, subGroup = ${addPairItem1.subGroup})")
-        //Log.d("ADMIN_ADDPAIR_COMPARISON_CHECKER", "Second AddPairItem:" + System.lineSeparator() + "(visibility = ${addPairItem2.visibility}, pairName = ${addPairItem2.pairName}, teacher = ${addPairItem2.teacher}, teacherSecond = ${addPairItem2.teacherSecond}, teacherThird = ${addPairItem2.teacherThird}, cabinet = ${addPairItem2.cabinet}, cabinetSecond = ${addPairItem2.cabinetSecond}, cabinetThird = ${addPairItem2.cabinetThird}, subGroup = ${addPairItem2.subGroup})")
-
-        return (//addPairItem1.visibility == addPairItem2.visibility &&
-                addPairItem1.pairName == addPairItem2.pairName &&
-                addPairItem1.teacher == addPairItem2.teacher &&
-                addPairItem1.teacherSecond == addPairItem2.teacherSecond &&
-                addPairItem1.teacherThird == addPairItem2.teacherThird &&
-                addPairItem1.cabinet == addPairItem2.cabinet &&
-                addPairItem1.cabinetSecond == addPairItem2.cabinetSecond &&
-                addPairItem1.cabinetThird == addPairItem2.cabinetThird &&
-                addPairItem1.subGroup == addPairItem2.subGroup)
-    }
-    fun checkIfAddPairItemArraysAreEqual(addPairArray1: ArrayList<AddPairItem>, addPairArray2: ArrayList<AddPairItem>): Boolean {
-        for (i: Int in 0 until addPairArray1.size) {
-            if (!checkIfAddPairItemsAreEqual(addPairArray1[i], addPairArray2[i])) {
+    fun <T> checkIfItemArraysAreEqual(itemArray1: ArrayList<T>, itemArray2: ArrayList<T>): Boolean {
+        if (itemArray1.size != itemArray2.size) {return false}
+        for (i: Int in 0 until itemArray1.size) {
+            if (!(itemArray1[i]!!.actuallyEquals(itemArray2[i] as Any))) {
                 return false
             }
         }
         return true
     }
-    private fun checkIfScheduleDetailedEquals(schedule1: ScheduleDetailed, schedule2: ScheduleDetailed): Boolean {
-        return (//schedule1.lessonNum == schedule2.lessonNum &&
-                schedule1.discipline1 == schedule2.discipline1 &&
-                schedule1.teacher1 == schedule2.teacher1 &&
-                schedule1.cabinet1 == schedule2.cabinet1 &&
-                schedule1.discipline2 == schedule2.discipline2 &&
-                schedule1.teacher2 == schedule2.teacher2 &&
-                schedule1.cabinet2 == schedule2.cabinet2 &&
-                schedule1.discipline3 == schedule2.discipline3 &&
-                schedule1.teacher3 == schedule2.teacher3 &&
-                schedule1.cabinet3 == schedule2.cabinet3)
+
+    fun checkIfFlatScheduleDetailedEquals(flatSchedule1: FlatScheduleDetailed, flatSchedule2: FlatScheduleDetailed): Boolean {
+        return (checkIfItemArraysAreEqual(flatSchedule1.scheduleLesson, flatSchedule2.scheduleLesson) &&
+                checkIfItemArraysAreEqual(flatSchedule1.teacherLesson, flatSchedule2.teacherLesson) &&
+                checkIfItemArraysAreEqual(flatSchedule1.cabinetLesson, flatSchedule2.cabinetLesson) &&
+                checkIfItemArraysAreEqual(flatSchedule1.scheduleDay, flatSchedule2.scheduleDay) &&
+                checkIfItemArraysAreEqual(flatSchedule1.scheduleGroup, flatSchedule2.scheduleGroup))
     }
 }

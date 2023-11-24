@@ -16,9 +16,9 @@ import com.example.scheduleapp.data.Constants.APP_BD_PATHS_DISCIPLINE_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_TEACHER_LIST
 import com.example.scheduleapp.data.ScheduleDetailed
 import com.example.scheduleapp.databinding.FragmentAddPairBinding
-import com.example.scheduleapp.utils.Utils.checkIfAddPairItemArraysAreEqual
+import com.example.scheduleapp.utils.Utils.checkIfItemArraysAreEqual
 import com.example.scheduleapp.utils.Utils.convertArrayOfAddPairItemToPair
-import com.example.scheduleapp.utils.Utils.getAddPairItemArrayDeepCopy
+import com.example.scheduleapp.utils.Utils.getArrayOfAddPairItemDeepCopy
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
 
@@ -63,7 +63,7 @@ class AddPairFragment() : Fragment() {
             mainViewModel.getParametersList(APP_BD_PATHS_CABINET_LIST)
         ) { mainViewModel.performTimerEvent({ updateSaveButton() }, 50L) }
 
-        val addPairArray = getAddPairItemArrayDeepCopy(scheduleViewModel.getChosenScheduleItem()!!)
+        val addPairArray = getArrayOfAddPairItemDeepCopy(scheduleViewModel.getChosenScheduleItem()!!)
         addPairRecyclerViewAdapter.differ.submitList(addPairArray)
         binding.apply {
             schedulesRecyclerView.apply {
@@ -136,12 +136,12 @@ class AddPairFragment() : Fragment() {
 
         Log.d("ADMIN_PAIR_FORMAT_CHECKER", "Base array: " + System.lineSeparator() + scheduleViewModel.getChosenScheduleItem().toString())
         Log.d("ADMIN_PAIR_FORMAT_CHECKER", "Current array: " + System.lineSeparator() + addPairArray.toString())
-        binding.saveButton.isEnabled = !checkIfAddPairItemArraysAreEqual(addPairArray, scheduleViewModel.getChosenScheduleItem()!!)
+        binding.saveButton.isEnabled = !checkIfItemArraysAreEqual(addPairArray, scheduleViewModel.getChosenScheduleItem()!!)
         Log.d("ADMIN_PAIR_FORMAT_CHECKER", "Are they the same? ${!binding.saveButton.isEnabled}.")
     }
 
     override fun onDestroyView() {
-        if (scheduleViewModel.chosenScheduleIsNew!!) {
+        if (scheduleViewModel.chosenScheduleIdIsNew!!) {
             scheduleViewModel.removeScheduleItem(mainViewModel.getParameters(), mainViewModel.getDayWithOffset(mainViewModel.getChosenDate()), scheduleViewModel.getChosenGroup()!!, scheduleViewModel.getChosenPairNum()!!)
         }
         super.onDestroyView()

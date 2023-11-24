@@ -70,7 +70,7 @@ class ScheduleFragment() : Fragment() {
         }
     }
 
-    private fun setupRecyclerView(currentSchedule: ArrayList<Schedule>) {
+    fun setupRecyclerView(currentSchedule: ArrayList<Schedule>) {
         scheduleRecyclerViewAdapter = ScheduleRecyclerViewAdapter(editButtonFunction, clearButtonFunction)
         scheduleRecyclerViewAdapter.differ.submitList(currentSchedule)
         binding.apply {
@@ -79,6 +79,10 @@ class ScheduleFragment() : Fragment() {
                 adapter = scheduleRecyclerViewAdapter
             }
         }
+
+        mainViewModel.performTimerEvent(
+            {(this.parentFragment as FragmentContainer).updateResetAndSaveButtons()},
+            50L)
     }
 
     companion object {

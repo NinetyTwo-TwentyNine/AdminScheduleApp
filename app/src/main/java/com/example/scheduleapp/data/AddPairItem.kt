@@ -1,6 +1,6 @@
-package com.example.scheduleapp.adapters
+package com.example.scheduleapp.data
 
-class AddPairItem(
+data class AddPairItem(
     var pairName: String = "",
     var teacher: String = "",
     var teacherSecond: String = "",

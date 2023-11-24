@@ -21,7 +21,8 @@ import com.example.scheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
 import com.example.scheduleapp.data.Constants.APP_WEAK_CONNECTION_WARNING
 import com.example.scheduleapp.data.Date
 import com.example.scheduleapp.models.FirebaseRepository
-import com.example.scheduleapp.utils.Utils
+import com.example.scheduleapp.utils.Utils.getArrayOfDataIntStringDeepCopy
+import com.example.scheduleapp.utils.Utils.getFlatScheduleDetailedDeepCopy
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.database.DataSnapshot
 import com.google.gson.Gson
@@ -67,7 +68,7 @@ class MainActivityViewModel @Inject constructor(
         if (link) {
             return table
         }
-        return Utils.getDataIntStringArrayDeepCopy(table)
+        return getArrayOfDataIntStringDeepCopy(table)
     }
 
     fun getParametersByIndex(id: Int, link: Boolean = false): ArrayList<Data_IntString> {
@@ -87,6 +88,10 @@ class MainActivityViewModel @Inject constructor(
         paramsArr.forEach {
             table_link.add(Data_IntString(it.id, it.title))
         }
+    }
+
+    fun updateSchedule(newFlatSchedule: FlatScheduleDetailed) {
+        flatScheduleDetailed = getFlatScheduleDetailedDeepCopy(newFlatSchedule)
     }
 
     fun <T> downloadParametersList(parametersDownloadState: MutableLiveData<DownloadStatus<T>>, reference: String? = null) {
@@ -183,7 +188,7 @@ class MainActivityViewModel @Inject constructor(
         return event_timer
     }
 
-    fun <T> uploadData(uploadState: MutableLiveData<UploadStatus>, reference: String, info: T) {
+    private fun <T> uploadData(uploadState: MutableLiveData<UploadStatus>, reference: String, info: T, updateFunc: ()->Unit) {
         uploadState.value = UploadStatus.Progress
         val timer = setUploadTimeout(uploadState, 5000L, false)
 
@@ -191,6 +196,7 @@ class MainActivityViewModel @Inject constructor(
             timer.cancel()
             if (task.isSuccessful) {
                 uploadState.value = UploadStatus.Success
+                updateFunc()
             } else {
                 uploadState.value = UploadStatus.Error(task.exception!!.message.toString())
             }
@@ -198,11 +204,15 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun uploadParameters(uploadState: MutableLiveData<UploadStatus>, index: Int, paramsArr: ArrayList<Data_IntString>) {
-        uploadData(uploadState, getReferenceByIndex(index), paramsArr)
+        uploadData(uploadState, getReferenceByIndex(index), paramsArr) { updateParametersByIndex(index, paramsArr) }
+    }
+
+    fun uploadCurrentSchedule(uploadState: MutableLiveData<UploadStatus>, flatSchedule: FlatScheduleDetailed) {
+        uploadData(uploadState, APP_BD_PATHS_SCHEDULE_CURRENT, flatSchedule) { updateSchedule(flatSchedule) }
     }
 
     fun getSchedule(): FlatScheduleDetailed {
-        return flatScheduleDetailed
+        return getFlatScheduleDetailedDeepCopy(flatScheduleDetailed)
     }
 
     fun getParameters(): FlatScheduleParameters {

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.scheduleapp.R
+import com.example.scheduleapp.data.AddPairItem
 import com.example.scheduleapp.databinding.ScheduleAddItemBinding
 import com.example.scheduleapp.databinding.ScheduleAddSpecialItemBinding
 

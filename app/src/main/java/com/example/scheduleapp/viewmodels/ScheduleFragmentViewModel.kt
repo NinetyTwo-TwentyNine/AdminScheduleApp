@@ -3,12 +3,13 @@ package com.example.scheduleapp.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.scheduleapp.adapters.AddPairItem
+import com.example.scheduleapp.data.AddPairItem
 import com.example.scheduleapp.data.*
 import com.example.scheduleapp.data.Date
 import com.example.scheduleapp.utils.Utils.addPairToFlatSchedule
 import com.example.scheduleapp.utils.Utils.convertPairToArrayOfAddPairItem
 import com.example.scheduleapp.utils.Utils.getById
+import com.example.scheduleapp.utils.Utils.getFlatScheduleDetailedDeepCopy
 import com.example.scheduleapp.utils.Utils.getItemId
 import com.example.scheduleapp.utils.Utils.moveDataFromScheduleToArray
 import com.example.scheduleapp.utils.Utils.removeScheduleItemById
@@ -24,7 +25,7 @@ class ScheduleFragmentViewModel : ViewModel() {
     private var chosenDate: String? = null
     private var chosenGroup: String? = null
 
-    var chosenScheduleIsNew: Boolean? = null
+    var chosenScheduleIdIsNew: Boolean? = null
 
 
     fun getScheduleByGroupAndDay(
@@ -192,11 +193,15 @@ class ScheduleFragmentViewModel : ViewModel() {
     }
 
     fun getSavedSchedule(): FlatScheduleDetailed? {
-        return savedFlatSchedule
+        return if (savedFlatSchedule == null) {
+            null
+        } else {
+            getFlatScheduleDetailedDeepCopy(savedFlatSchedule!!)
+        }
     }
 
-    fun saveSchedule(schedule: FlatScheduleDetailed) {
-        savedFlatSchedule = schedule
+    fun saveSchedule(newSchedule: FlatScheduleDetailed) {
+        savedFlatSchedule = getFlatScheduleDetailedDeepCopy(newSchedule)
     }
 
     fun chooseScheduleItem(scheduleParams: FlatScheduleParameters, currentDate: Date, currentGroup: String, number: Int) {
@@ -236,7 +241,7 @@ class ScheduleFragmentViewModel : ViewModel() {
             }
         }
 
-        chosenScheduleIsNew = (scheduleId == null)
+        chosenScheduleIdIsNew = (scheduleId == null)
         if (scheduleId == null) {
             scheduleId = possibleIdFunctionality(collectAllScheduleIds())
             firstScheduleArray.scheduleId.add(scheduleId)
@@ -316,6 +321,6 @@ class ScheduleFragmentViewModel : ViewModel() {
         removeScheduleItemById(savedFlatSchedule!!, chosenScheduleId!!, chosenPairNumber!!+1, false)
         addPairToFlatSchedule(savedFlatSchedule!!, scheduleParams, chosenScheduleId!!, pair)
         chosenScheduleItem = convertPairToArrayOfAddPairItem(Pair(pair.first, pair.second))
-        chosenScheduleIsNew = false
+        chosenScheduleIdIsNew = false
     }
 }

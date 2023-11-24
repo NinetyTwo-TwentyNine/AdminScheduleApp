@@ -10,7 +10,6 @@ import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.scheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
@@ -127,7 +126,7 @@ class DataBaseEditFragment: Fragment() {
         val popupWindow = PopupWindow(popupView, width, height, true)
         popupBinding.popupText.text = text
         popupBinding.yesButton.setOnClickListener {
-            uploadRecyclerList = Utils.getDataIntStringArrayDeepCopy(currentRecyclerList)
+            uploadRecyclerList = Utils.getArrayOfDataIntStringDeepCopy(currentRecyclerList)
             mainViewModel.uploadParameters(currentUploadStatus, index!!, uploadRecyclerList)
             popupWindow.dismiss()
         }
