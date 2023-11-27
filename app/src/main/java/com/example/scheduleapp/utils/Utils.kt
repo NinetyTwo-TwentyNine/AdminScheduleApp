@@ -2,12 +2,17 @@ package com.example.scheduleapp.utils
 
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.EditText
 import com.example.scheduleapp.data.AddPairItem
 import com.example.scheduleapp.data.*
 import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_PAIR_ARRAY
 
 object Utils {
+
+    //================================================================================================================
+    //General utility stuff
+    //================================================================================================================
 
     fun getBlankStringsChecker(textInput: EditText, setButtonVisibility: ()->Unit): TextWatcher {
         return object: TextWatcher {
@@ -21,58 +26,6 @@ object Utils {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
         }
-    }
-
-    fun getArrayOfDataIntStringDeepCopy(origArr: ArrayList<Data_IntString>): ArrayList<Data_IntString> {
-        val newArr = arrayListOf<Data_IntString>()
-        origArr.forEach { newArr.add(
-            Data_IntString(it.id, it.title)) }
-        return newArr
-    }
-
-    fun getArrayOfDataIntArrayDeepCopy(origArr: ArrayList<Data_IntArray>): ArrayList<Data_IntArray> {
-        val newArr = arrayListOf<Data_IntArray>()
-        origArr.forEach { newArr.add(
-            Data_IntArray(it.specialId, (it.scheduleId.clone() as ArrayList<Int>) )) }
-        return newArr
-    }
-
-    fun getArrayOfDataIntIntIntArrayArrayDeepCopy(origArr: ArrayList<Data_IntIntIntArrayArray>): ArrayList<Data_IntIntIntArrayArray> {
-        val newArr = arrayListOf<Data_IntIntIntArrayArray>()
-        origArr.forEach { newArr.add(Data_IntIntIntArrayArray(
-            scheduleId = it.scheduleId,
-            pairNum = it.pairNum,
-            subPairs = (it.subPairs.clone() as ArrayList<Int>),
-            subGroups = (it.subGroups.clone() as ArrayList<Int>),
-            specialId = it.specialId)) }
-        return newArr
-    }
-
-    fun getArrayOfAddPairItemDeepCopy(origArr: ArrayList<AddPairItem>): ArrayList<AddPairItem> {
-        val newArr = arrayListOf<AddPairItem>()
-        origArr.forEach { newArr.add(AddPairItem(
-            pairName = it.pairName,
-            teacher = it.teacher,
-            teacherSecond = it.teacherSecond,
-            teacherThird = it.teacherThird,
-            cabinet = it.cabinet,
-            cabinetSecond = it.cabinetSecond,
-            cabinetThird = it.cabinetThird,
-            subGroup = it.subGroup,
-            type = it.type,
-            id = it.id,
-            visibility = it.visibility)) }
-        return newArr
-    }
-
-    fun getFlatScheduleDetailedDeepCopy(origSchedule: FlatScheduleDetailed): FlatScheduleDetailed {
-        val newSchedule = FlatScheduleDetailed(
-            scheduleDay = getArrayOfDataIntArrayDeepCopy(origSchedule.scheduleDay),
-            scheduleGroup = getArrayOfDataIntArrayDeepCopy(origSchedule.scheduleGroup),
-            scheduleLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.scheduleLesson),
-            cabinetLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.cabinetLesson),
-            teacherLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.teacherLesson))
-        return newSchedule
     }
 
     fun getById(id: Int, array: ArrayList<Data_IntString>): Data_IntString? {
@@ -110,6 +63,100 @@ object Utils {
             }
         }
         throw(IllegalStateException("No item ID was found, some part of the DB is probably missing or incorrect (${itemName})."))
+    }
+
+    //================================================================================================================
+    //Deep copy creation
+    //================================================================================================================
+
+    fun getArrayOfDataIntStringDeepCopy(origArr: ArrayList<Data_IntString>): ArrayList<Data_IntString> {
+        val newArr = arrayListOf<Data_IntString>()
+        origArr.forEach { newArr.add(
+            //Data_IntString(it.id, it.title)
+            it.copy()
+        ) }
+        return newArr
+    }
+
+    fun getArrayOfDataIntArrayDeepCopy(origArr: ArrayList<Data_IntArray>): ArrayList<Data_IntArray> {
+        val newArr = arrayListOf<Data_IntArray>()
+        origArr.forEach { newArr.add(
+            //Data_IntArray(it.specialId, (it.scheduleId.clone() as ArrayList<Int>) )
+            it.copy()
+        ) }
+        return newArr
+    }
+
+    fun getArrayOfDataIntIntIntArrayArrayDeepCopy(origArr: ArrayList<Data_IntIntIntArrayArray>): ArrayList<Data_IntIntIntArrayArray> {
+        val newArr = arrayListOf<Data_IntIntIntArrayArray>()
+        origArr.forEach { newArr.add(
+            /*Data_IntIntIntArrayArray(
+            scheduleId = it.scheduleId,
+            pairNum = it.pairNum,
+            subPairs = (it.subPairs.clone() as ArrayList<Int>),
+            subGroups = (it.subGroups.clone() as ArrayList<Int>),
+            specialId = it.specialId)*/
+            it.copy()
+        ) }
+        return newArr
+    }
+
+    fun getArrayOfAddPairItemDeepCopy(origArr: ArrayList<AddPairItem>): ArrayList<AddPairItem> {
+        val newArr = arrayListOf<AddPairItem>()
+        origArr.forEach { newArr.add(
+            /*AddPairItem(
+            pairName = it.pairName,
+            teacher = it.teacher,
+            teacherSecond = it.teacherSecond,
+            teacherThird = it.teacherThird,
+            cabinet = it.cabinet,
+            cabinetSecond = it.cabinetSecond,
+            cabinetThird = it.cabinetThird,
+            subGroup = it.subGroup,
+            type = it.type,
+            id = it.id,
+            visibility = it.visibility)*/
+            it.copy()
+        ) }
+        return newArr
+    }
+
+    fun getFlatScheduleDetailedDeepCopy(origSchedule: FlatScheduleDetailed): FlatScheduleDetailed {
+        val newSchedule = FlatScheduleDetailed(
+            scheduleDay = getArrayOfDataIntArrayDeepCopy(origSchedule.scheduleDay),
+            scheduleGroup = getArrayOfDataIntArrayDeepCopy(origSchedule.scheduleGroup),
+            scheduleLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.scheduleLesson),
+            cabinetLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.cabinetLesson),
+            teacherLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.teacherLesson))
+        return newSchedule
+    }
+
+    //================================================================================================================
+    //FlatScheduleDetailed-related stuff
+    //================================================================================================================
+
+    fun getScheduleIdByGroupAndDate(flatSchedule: FlatScheduleDetailed, currentDateId: Int, currentGroupId: Int): Int? {
+        var scheduleId: Int? = null
+        val firstScheduleArray = getById(currentDateId, flatSchedule.scheduleDay)
+        val secondScheduleArray = getById(currentGroupId, flatSchedule.scheduleGroup)
+
+        val smallerArray: Data_IntArray
+        val biggerArray: Data_IntArray
+        if (firstScheduleArray!!.scheduleId.size < secondScheduleArray!!.scheduleId.size) {
+            smallerArray = firstScheduleArray
+            biggerArray = secondScheduleArray
+        } else {
+            smallerArray = secondScheduleArray
+            biggerArray = firstScheduleArray
+        }
+        for (item in smallerArray.scheduleId) {
+            if (biggerArray.scheduleId.contains(item)) {
+                scheduleId = item
+                break
+            }
+        }
+
+        return scheduleId
     }
 
     fun moveDataFromScheduleToArray(schedule: FlatScheduleDetailed, parameters: FlatScheduleParameters, scheduleId: Int, detArray: ArrayList<ScheduleDetailed>) {
@@ -180,6 +227,220 @@ object Utils {
             }
         }
     }
+
+    fun removeScheduleItemById(flatSchedule: FlatScheduleDetailed, scheduleId: Int, pairNum: Int? = null, canRemoveScheduleId: Boolean = true) {
+        val arrayToRemove: ArrayList<Data_IntIntIntArrayArray> = arrayListOf()
+        flatSchedule.scheduleLesson.forEach {
+            if (it.scheduleId == scheduleId && (it.pairNum == pairNum || pairNum == null)) {
+                arrayToRemove.add(it)
+            }
+        }
+        arrayToRemove.forEach {
+            flatSchedule.scheduleLesson.remove(it)
+        }
+
+        arrayToRemove.clear()
+        flatSchedule.cabinetLesson.forEach {
+            if (it.scheduleId == scheduleId && (it.pairNum == pairNum || pairNum == null)) {
+                arrayToRemove.add(it)
+            }
+        }
+        arrayToRemove.forEach {
+            flatSchedule.cabinetLesson.remove(it)
+        }
+
+        arrayToRemove.clear()
+        flatSchedule.teacherLesson.forEach {
+            if (it.scheduleId == scheduleId && (it.pairNum == pairNum || pairNum == null)) {
+                arrayToRemove.add(it)
+            }
+        }
+        arrayToRemove.forEach {
+            flatSchedule.teacherLesson.remove(it)
+        }
+
+
+        if (!canRemoveScheduleId) { return }
+        for (i: Int in 0 until flatSchedule.scheduleLesson.size) {
+            if (flatSchedule.scheduleLesson[i].scheduleId == scheduleId) {
+                return
+            }
+        }
+        for (i: Int in 0 until flatSchedule.cabinetLesson.size) {
+            if (flatSchedule.cabinetLesson[i].scheduleId == scheduleId) {
+                return
+            }
+        }
+        for (i: Int in 0 until flatSchedule.teacherLesson.size) {
+            if (flatSchedule.teacherLesson[i].scheduleId == scheduleId) {
+                return
+            }
+        }
+
+        val secondArrayToRemove: ArrayList<Data_IntArray> = arrayListOf()
+        flatSchedule.scheduleDay.forEach {
+            it.scheduleId.remove(scheduleId)
+            if (it.scheduleId.isEmpty()) {
+                secondArrayToRemove.add(it)
+            }
+        }
+        secondArrayToRemove.forEach {
+            flatSchedule.scheduleDay.remove(it)
+        }
+
+        secondArrayToRemove.clear()
+        flatSchedule.scheduleGroup.forEach {
+            it.scheduleId.remove(scheduleId)
+            if (it.scheduleId.isEmpty()) {
+                secondArrayToRemove.add(it)
+            }
+        }
+        secondArrayToRemove.forEach {
+            flatSchedule.scheduleGroup.remove(it)
+        }
+    }
+
+    fun addPairToFlatSchedule(flatSchedule: FlatScheduleDetailed, scheduleParameters: FlatScheduleParameters, scheduleId: Int, pair: Pair<ScheduleDetailed, ScheduleDetailed>) {
+        val subPair1 = pair.first
+        val subPair2 = pair.second
+
+
+        if ((subPair1.lessonNum!!-1)/2 != (subPair2.lessonNum!!-1)/2) {
+            throw(Exception("Provided subpairs are from different pairs! (${subPair1.lessonNum!!}, ${subPair2.lessonNum!!})"))
+        }
+
+        val lessonArray: ArrayList<Data_IntIntIntArrayArray> = arrayListOf()
+        if (subPair1.discipline1!!.length > 1) {
+            lessonArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(1), getItemId(scheduleParameters.lessonList, subPair1.discipline1)))
+        }
+        if (subPair1.discipline2!!.length > 1) {
+            lessonArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(2), getItemId(scheduleParameters.lessonList, subPair1.discipline2)))
+        }
+        if (subPair1.discipline3!!.length > 1) {
+            lessonArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(3), getItemId(scheduleParameters.lessonList, subPair1.discipline3)))
+        }
+        if (subPair2.discipline1!!.length > 1) {
+            lessonArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(1), getItemId(scheduleParameters.lessonList, subPair2.discipline1)))
+        }
+        if (subPair2.discipline2!!.length > 1) {
+            lessonArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(2), getItemId(scheduleParameters.lessonList, subPair2.discipline2)))
+        }
+        if (subPair2.discipline3!!.length > 1) {
+            lessonArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(3), getItemId(scheduleParameters.lessonList, subPair2.discipline3)))
+        }
+        unifyScheduleArray(lessonArray)
+
+        val teacherArray: ArrayList<Data_IntIntIntArrayArray> = arrayListOf()
+        if (subPair1.teacher1!!.length > 1) {
+            teacherArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(1), getItemId(scheduleParameters.teacherList, subPair1.teacher1)))
+        }
+        if (subPair1.teacher2!!.length > 1) {
+            teacherArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(2), getItemId(scheduleParameters.teacherList, subPair1.teacher2)))
+        }
+        if (subPair1.teacher3!!.length > 1) {
+            teacherArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(3), getItemId(scheduleParameters.teacherList, subPair1.teacher3)))
+        }
+        if (subPair2.teacher1!!.length > 1) {
+            teacherArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(1), getItemId(scheduleParameters.teacherList, subPair2.teacher1)))
+        }
+        if (subPair2.teacher2!!.length > 1) {
+            teacherArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(2), getItemId(scheduleParameters.teacherList, subPair2.teacher2)))
+        }
+        if (subPair2.teacher3!!.length > 1) {
+            teacherArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(3), getItemId(scheduleParameters.teacherList, subPair2.teacher3)))
+        }
+        unifyScheduleArray(teacherArray)
+
+        val cabinetArray: ArrayList<Data_IntIntIntArrayArray> = arrayListOf()
+        if (subPair1.cabinet1!!.length > 1) {
+            cabinetArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(1), getItemId(scheduleParameters.cabinetList, subPair1.cabinet1)))
+        }
+        if (subPair1.cabinet2!!.length > 1) {
+            cabinetArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(2), getItemId(scheduleParameters.cabinetList, subPair1.cabinet2)))
+        }
+        if (subPair1.cabinet3!!.length > 1) {
+            cabinetArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(3), getItemId(scheduleParameters.cabinetList, subPair1.cabinet3)))
+        }
+        if (subPair2.cabinet1!!.length > 1) {
+            cabinetArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(1), getItemId(scheduleParameters.cabinetList, subPair2.cabinet1)))
+        }
+        if (subPair2.cabinet2!!.length > 1) {
+            cabinetArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(2), getItemId(scheduleParameters.cabinetList, subPair2.cabinet2)))
+        }
+        if (subPair2.cabinet3!!.length > 1) {
+            cabinetArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(3), getItemId(scheduleParameters.cabinetList, subPair2.cabinet3)))
+        }
+        unifyScheduleArray(cabinetArray)
+
+        lessonArray.forEach { flatSchedule.scheduleLesson.add(it) }
+        teacherArray.forEach { flatSchedule.teacherLesson.add(it) }
+        cabinetArray.forEach { flatSchedule.cabinetLesson.add(it) }
+    }
+
+    fun changeSingleScheduleDay(dayList: ArrayList<Data_IntDate>, baseSchedule: FlatScheduleDetailed, newSchedule: FlatScheduleDetailed, day: Date): FlatScheduleDetailed {
+        val dateId = getItemId(dayList, day)
+        if (dateId == null) {
+            throw(Exception("No initialized date for chosen item, some part of the DB is probably missing or incorrect (${day})."))
+        }
+
+        val returnSchedule = getFlatScheduleDetailedDeepCopy(baseSchedule)
+
+        val dateIdArray = getById(dateId, newSchedule.scheduleDay)!!
+        dateIdArray.scheduleId.forEach { scheduleId->
+            newSchedule.scheduleGroup.forEach { newGroup->
+                if (newGroup.scheduleId.contains(scheduleId)) {
+                    returnSchedule.scheduleGroup.forEach { baseGroup->
+                        if (baseGroup.specialId == newGroup.specialId) {
+                            if (!baseGroup.scheduleId.contains(scheduleId)) {
+                                baseGroup.scheduleId.add(scheduleId)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        val returnSchedule_date = getById(dateId, returnSchedule.scheduleDay)
+        if (returnSchedule_date != null) {
+            val arrayToRemove: ArrayList<Int> = arrayListOf()
+            returnSchedule_date.scheduleId.forEach {
+                if (!arrayToRemove.contains(it)) {
+                    arrayToRemove.add(it)
+                }
+            }
+            arrayToRemove.forEach {
+                removeScheduleItemById(returnSchedule, it, canRemoveScheduleId = false)
+            }
+            returnSchedule_date.scheduleId = dateIdArray.scheduleId.clone() as ArrayList<Int>
+        } else {
+            returnSchedule.scheduleDay.add(Data_IntArray(dateId, dateIdArray.scheduleId.clone() as ArrayList<Int>))
+        }
+
+        dateIdArray.scheduleId.forEach { scheduleId->
+            removeScheduleItemById(returnSchedule, scheduleId, canRemoveScheduleId = false)
+            newSchedule.scheduleLesson.forEach {
+                if (it.scheduleId == scheduleId) {
+                    returnSchedule.scheduleLesson.add(it.copy())
+                }
+            }
+            newSchedule.teacherLesson.forEach {
+                if (it.scheduleId == scheduleId) {
+                    returnSchedule.teacherLesson.add(it.copy())
+                }
+            }
+            newSchedule.cabinetLesson.forEach {
+                if (it.scheduleId == scheduleId) {
+                    returnSchedule.cabinetLesson.add(it.copy())
+                }
+            }
+        }
+
+        return returnSchedule
+    }
+
+    //================================================================================================================
+    //Conversions
+    //================================================================================================================
 
     private fun convertScheduleDetailedToPairOfAddPairItem(subPair: ScheduleDetailed, items: Pair<AddPairItem, AddPairItem>) {
         val subGroup1Empty = (subPair.teacher1 == "-" && subPair.cabinet1 == "-" && subPair.discipline1 == "-")
@@ -306,86 +567,6 @@ object Utils {
         }
     }
 
-    fun removeScheduleItemById(flatSchedule: FlatScheduleDetailed, scheduleId: Int, pairNum: Int, canRemoveScheduleId: Boolean) {
-        val arrayToRemove: ArrayList<Data_IntIntIntArrayArray> = arrayListOf()
-        flatSchedule.scheduleLesson.forEach {
-            if (it.scheduleId == scheduleId && it.pairNum == pairNum) {
-                arrayToRemove.add(it)
-            }
-        }
-        arrayToRemove.forEach {
-            flatSchedule.scheduleLesson.remove(it)
-        }
-
-        arrayToRemove.clear()
-        flatSchedule.cabinetLesson.forEach {
-            if (it.scheduleId == scheduleId && it.pairNum == pairNum) {
-                arrayToRemove.add(it)
-            }
-        }
-        arrayToRemove.forEach {
-            flatSchedule.cabinetLesson.remove(it)
-        }
-
-        arrayToRemove.clear()
-        flatSchedule.teacherLesson.forEach {
-            if (it.scheduleId == scheduleId && it.pairNum == pairNum) {
-                arrayToRemove.add(it)
-            }
-        }
-        arrayToRemove.forEach {
-            flatSchedule.teacherLesson.remove(it)
-        }
-
-
-        if (!canRemoveScheduleId) { return }
-        var shouldRemoveTheEntireSchedule = true
-        for (i: Int in 0 until flatSchedule.scheduleLesson.size) {
-            if (flatSchedule.scheduleLesson[i].scheduleId == scheduleId) {
-                shouldRemoveTheEntireSchedule = false
-                break
-            }
-        }
-        for (i: Int in 0 until flatSchedule.cabinetLesson.size) {
-            if (!shouldRemoveTheEntireSchedule) {break}
-            if (flatSchedule.cabinetLesson[i].scheduleId == scheduleId) {
-                shouldRemoveTheEntireSchedule = false
-                break
-            }
-        }
-        for (i: Int in 0 until flatSchedule.teacherLesson.size) {
-            if (!shouldRemoveTheEntireSchedule) {break}
-            if (flatSchedule.teacherLesson[i].scheduleId == scheduleId) {
-                shouldRemoveTheEntireSchedule = false
-                break
-            }
-        }
-
-
-        if (!shouldRemoveTheEntireSchedule) { return }
-        val secondArrayToRemove: ArrayList<Data_IntArray> = arrayListOf()
-        flatSchedule.scheduleDay.forEach {
-            it.scheduleId.remove(scheduleId)
-            if (it.scheduleId.isEmpty()) {
-                secondArrayToRemove.add(it)
-            }
-        }
-        secondArrayToRemove.forEach {
-            flatSchedule.scheduleDay.remove(it)
-        }
-
-        secondArrayToRemove.clear()
-        flatSchedule.scheduleGroup.forEach {
-            it.scheduleId.remove(scheduleId)
-            if (it.scheduleId.isEmpty()) {
-                secondArrayToRemove.add(it)
-            }
-        }
-        secondArrayToRemove.forEach {
-            flatSchedule.scheduleGroup.remove(it)
-        }
-    }
-
     private fun unifyScheduleArray(scheduleItemArray: ArrayList<Data_IntIntIntArrayArray>) {
         val arrayToRemove: ArrayList<Data_IntIntIntArrayArray> = arrayListOf()
 
@@ -436,87 +617,14 @@ object Utils {
         }
     }
 
-    fun addPairToFlatSchedule(flatSchedule: FlatScheduleDetailed, scheduleParameters: FlatScheduleParameters, scheduleId: Int, pair: Pair<ScheduleDetailed, ScheduleDetailed>) {
-        val subPair1 = pair.first
-        val subPair2 = pair.second
-
-
-        if ((subPair1.lessonNum!!-1)/2 != (subPair2.lessonNum!!-1)/2) {
-            throw(Exception("Provided subpairs are from different pairs! (${subPair1.lessonNum!!}, ${subPair2.lessonNum!!})"))
-        }
-
-        val lessonArray: ArrayList<Data_IntIntIntArrayArray> = arrayListOf()
-        if (subPair1.discipline1!!.length > 1) {
-            lessonArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(1), getItemId(scheduleParameters.lessonList, subPair1.discipline1)))
-        }
-        if (subPair1.discipline2!!.length > 1) {
-            lessonArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(2), getItemId(scheduleParameters.lessonList, subPair1.discipline2)))
-        }
-        if (subPair1.discipline3!!.length > 1) {
-            lessonArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(3), getItemId(scheduleParameters.lessonList, subPair1.discipline3)))
-        }
-        if (subPair2.discipline1!!.length > 1) {
-            lessonArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(1), getItemId(scheduleParameters.lessonList, subPair2.discipline1)))
-        }
-        if (subPair2.discipline2!!.length > 1) {
-            lessonArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(2), getItemId(scheduleParameters.lessonList, subPair2.discipline2)))
-        }
-        if (subPair2.discipline3!!.length > 1) {
-            lessonArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(3), getItemId(scheduleParameters.lessonList, subPair2.discipline3)))
-        }
-        unifyScheduleArray(lessonArray)
-
-        val teacherArray: ArrayList<Data_IntIntIntArrayArray> = arrayListOf()
-        if (subPair1.teacher1!!.length > 1) {
-            teacherArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(1), getItemId(scheduleParameters.teacherList, subPair1.teacher1)))
-        }
-        if (subPair1.teacher2!!.length > 1) {
-            teacherArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(2), getItemId(scheduleParameters.teacherList, subPair1.teacher2)))
-        }
-        if (subPair1.teacher3!!.length > 1) {
-            teacherArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(3), getItemId(scheduleParameters.teacherList, subPair1.teacher3)))
-        }
-        if (subPair2.teacher1!!.length > 1) {
-            teacherArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(1), getItemId(scheduleParameters.teacherList, subPair2.teacher1)))
-        }
-        if (subPair2.teacher2!!.length > 1) {
-            teacherArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(2), getItemId(scheduleParameters.teacherList, subPair2.teacher2)))
-        }
-        if (subPair2.teacher3!!.length > 1) {
-            teacherArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(3), getItemId(scheduleParameters.teacherList, subPair2.teacher3)))
-        }
-        unifyScheduleArray(teacherArray)
-
-        val cabinetArray: ArrayList<Data_IntIntIntArrayArray> = arrayListOf()
-        if (subPair1.cabinet1!!.length > 1) {
-            cabinetArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(1), getItemId(scheduleParameters.cabinetList, subPair1.cabinet1)))
-        }
-        if (subPair1.cabinet2!!.length > 1) {
-            cabinetArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(2), getItemId(scheduleParameters.cabinetList, subPair1.cabinet2)))
-        }
-        if (subPair1.cabinet3!!.length > 1) {
-            cabinetArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair1.lessonNum!!-1)/2+1, subPairs = arrayListOf(1), subGroups = arrayListOf(3), getItemId(scheduleParameters.cabinetList, subPair1.cabinet3)))
-        }
-        if (subPair2.cabinet1!!.length > 1) {
-            cabinetArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(1), getItemId(scheduleParameters.cabinetList, subPair2.cabinet1)))
-        }
-        if (subPair2.cabinet2!!.length > 1) {
-            cabinetArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(2), getItemId(scheduleParameters.cabinetList, subPair2.cabinet2)))
-        }
-        if (subPair2.cabinet3!!.length > 1) {
-            cabinetArray.add(Data_IntIntIntArrayArray(scheduleId, (subPair2.lessonNum!!-1)/2+1, subPairs = arrayListOf(2), subGroups = arrayListOf(3), getItemId(scheduleParameters.cabinetList, subPair2.cabinet3)))
-        }
-        unifyScheduleArray(cabinetArray)
-
-        lessonArray.forEach { flatSchedule.scheduleLesson.add(it) }
-        teacherArray.forEach { flatSchedule.teacherLesson.add(it) }
-        cabinetArray.forEach { flatSchedule.cabinetLesson.add(it) }
-    }
+    //================================================================================================================
+    //Comparison-related stuff
+    //================================================================================================================
 
     fun <T> checkIfItemArraysAreEqual(itemArray1: ArrayList<T>, itemArray2: ArrayList<T>): Boolean {
         if (itemArray1.size != itemArray2.size) {return false}
         for (i: Int in 0 until itemArray1.size) {
-            if (!(itemArray1[i]!!.actuallyEquals(itemArray2[i] as Any))) {
+            if (!itemArray1.contains(itemArray2[i]) || !itemArray2.contains(itemArray1[i])) {
                 return false
             }
         }
@@ -524,6 +632,13 @@ object Utils {
     }
 
     fun checkIfFlatScheduleDetailedEquals(flatSchedule1: FlatScheduleDetailed, flatSchedule2: FlatScheduleDetailed): Boolean {
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "")
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "The function was called.")
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "schedule-lesson same = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleLesson, flatSchedule2.scheduleLesson)}")
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "schedule-teacher same = ${checkIfItemArraysAreEqual(flatSchedule1.teacherLesson, flatSchedule2.teacherLesson)}")
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "schedule-cabinet same = ${checkIfItemArraysAreEqual(flatSchedule1.cabinetLesson, flatSchedule2.cabinetLesson)}")
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "day-schedule same = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleDay, flatSchedule2.scheduleDay)}")
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "group-schedule same = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleGroup, flatSchedule2.scheduleGroup)}")
         return (checkIfItemArraysAreEqual(flatSchedule1.scheduleLesson, flatSchedule2.scheduleLesson) &&
                 checkIfItemArraysAreEqual(flatSchedule1.teacherLesson, flatSchedule2.teacherLesson) &&
                 checkIfItemArraysAreEqual(flatSchedule1.cabinetLesson, flatSchedule2.cabinetLesson) &&

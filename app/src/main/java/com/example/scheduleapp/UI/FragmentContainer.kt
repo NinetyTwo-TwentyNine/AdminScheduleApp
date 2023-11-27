@@ -24,6 +24,7 @@ import com.example.scheduleapp.data.UploadStatus
 import com.example.scheduleapp.databinding.BasicPopupWindowBinding
 import com.example.scheduleapp.databinding.FragmentContainerBinding
 import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleDetailedEquals
+import com.example.scheduleapp.utils.Utils.changeSingleScheduleDay
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
 import com.google.android.material.tabs.TabLayoutMediator
@@ -59,11 +60,23 @@ class FragmentContainer : Fragment() {
 
         binding.saveButton.setOnClickListener {
             createPopupWindow(APP_ADMIN_SAVE_CHANGES_WARNING, true) {
-                mainViewModel.uploadCurrentSchedule(currentUploadStatus, scheduleViewModel.getSavedSchedule()!!) }
+                val uploadSchedule = changeSingleScheduleDay(
+                    mainViewModel.getParameters().dayList,
+                    baseSchedule = mainViewModel.getSchedule(),
+                    newSchedule = scheduleViewModel.getSavedSchedule()!!,
+                    mainViewModel.getDayWithOffset(mainViewModel.getChosenDate())
+                )
+                mainViewModel.uploadCurrentSchedule(currentUploadStatus, uploadSchedule) }
         }
         binding.resetButton.setOnClickListener {
             createPopupWindow(APP_ADMIN_RESET_CHANGES_WARNING) {
-                scheduleViewModel.saveSchedule(mainViewModel.getSchedule())
+                val resetSchedule = changeSingleScheduleDay(
+                    mainViewModel.getParameters().dayList,
+                    baseSchedule = scheduleViewModel.getSavedSchedule()!!,
+                    newSchedule = mainViewModel.getSchedule(),
+                    mainViewModel.getDayWithOffset(mainViewModel.getChosenDate())
+                )
+                scheduleViewModel.saveSchedule(resetSchedule)
                 mainViewModel.performTimerEvent(
                     { setupViewPager2() },
                     50L) }
@@ -201,7 +214,13 @@ class FragmentContainer : Fragment() {
 
         val comparisonResult: Boolean
         if (forcedBool == null) {
-            comparisonResult = checkIfFlatScheduleDetailedEquals(mainViewModel.getSchedule(), scheduleViewModel.getSavedSchedule()!!)
+            val theoreticalUploadSchedule = changeSingleScheduleDay(
+                mainViewModel.getParameters().dayList,
+                baseSchedule = mainViewModel.getSchedule(),
+                newSchedule = scheduleViewModel.getSavedSchedule()!!,
+                mainViewModel.getDayWithOffset(mainViewModel.getChosenDate())
+            )
+            comparisonResult = checkIfFlatScheduleDetailedEquals(mainViewModel.getSchedule(), theoreticalUploadSchedule)
         } else {
             comparisonResult = !forcedBool
             Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "Forced boolean = $forcedBool")

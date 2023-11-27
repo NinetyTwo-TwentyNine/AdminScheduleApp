@@ -53,7 +53,7 @@ class ScheduleFragment() : Fragment() {
             var currentSchedule = scheduleViewModel.getScheduleByGroupAndDay(currentGroupId, currentDateId, scheduleParams)
 
             editButtonFunction = {number ->
-                scheduleViewModel.chooseScheduleItem(scheduleParams, currentDate, currentGroup, number)
+                scheduleViewModel.chooseScheduleItem(scheduleParams, currentDate, currentGroup, number, mainViewModel.getSchedule())
                 (this.parentFragment as FragmentContainer).moveToAddPairFragment()
             }
             clearButtonFunction = {number ->
@@ -70,7 +70,7 @@ class ScheduleFragment() : Fragment() {
         }
     }
 
-    fun setupRecyclerView(currentSchedule: ArrayList<Schedule>) {
+    private fun setupRecyclerView(currentSchedule: ArrayList<Schedule>) {
         scheduleRecyclerViewAdapter = ScheduleRecyclerViewAdapter(editButtonFunction, clearButtonFunction)
         scheduleRecyclerViewAdapter.differ.submitList(currentSchedule)
         binding.apply {
