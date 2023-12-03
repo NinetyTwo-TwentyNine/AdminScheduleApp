@@ -15,6 +15,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.example.scheduleapp.adapters.MainScreenAdapter
+import com.example.scheduleapp.data.Constants.APP_ADMIN_MISSING_DAY_WARNING
 import com.example.scheduleapp.data.Constants.APP_ADMIN_RESET_CHANGES_WARNING
 import com.example.scheduleapp.data.Constants.APP_ADMIN_SAVE_CHANGES_WARNING
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
@@ -39,6 +40,8 @@ class FragmentContainer : Fragment() {
     private lateinit var popupBinding: BasicPopupWindowBinding
     private lateinit var currentDownloadStatus: MutableLiveData<DownloadStatus<FlatScheduleDetailed>>
     private lateinit var currentUploadStatus: MutableLiveData<UploadStatus>
+
+    private var dontEverShowDayWarning = false
 
 
     override fun onCreateView(
@@ -103,7 +106,7 @@ class FragmentContainer : Fragment() {
         initUploadObservers()
     }
 
-    private fun createPopupWindow(warning: String, alwaysDisableButtons: Boolean = false, yesFunc: ()->Unit) {
+    private fun createPopupWindow(warning: String, alwaysDisableButtons: Boolean = false, noButtonDisabled: Boolean = false, yesFunc: ()->Unit) {
         updateResetAndSaveButtons(false)
         popupBinding = BasicPopupWindowBinding.inflate(layoutInflater)
         val popupView: View = popupBinding.root
@@ -120,6 +123,7 @@ class FragmentContainer : Fragment() {
                 updateResetAndSaveButtons(false)
             }
         }
+        popupBinding.noButton.isEnabled = !noButtonDisabled
         popupBinding.noButton.setOnClickListener {
             popupWindow.dismiss()
         }
@@ -188,17 +192,20 @@ class FragmentContainer : Fragment() {
                         "Failed to upload the Data: ${uploadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
-                    updateResetAndSaveButtons()
+                    mainViewModel.performTimerEvent({
+                        updateResetAndSaveButtons()
+                    }, 50L)
                 }
                 is UploadStatus.Success -> {
                     binding.progressBar.visibility = View.GONE
-                    mainViewModel.updateSchedule(scheduleViewModel.getSavedSchedule()!!)
                     Toast.makeText(
                         activity,
                         "Succeeded in uploading the Data.",
                         Toast.LENGTH_LONG
                     ).show()
-                    updateResetAndSaveButtons()
+                    mainViewModel.performTimerEvent({
+                        updateResetAndSaveButtons()
+                    }, 50L)
                 }
             }
         }
@@ -209,17 +216,33 @@ class FragmentContainer : Fragment() {
             .navigate(FragmentContainerDirections.actionFragmentContainerToAddPairFragment())
     }
 
+    private fun showDayMissingWarning() {
+        if (dontEverShowDayWarning) { dontEverShowDayWarning = false; return }
+        createPopupWindow(APP_ADMIN_MISSING_DAY_WARNING, noButtonDisabled = true) {
+            dontEverShowDayWarning = true
+            requireView().findNavController()
+                .navigate(FragmentContainerDirections.actionFragmentContainerToSettingsFragment())
+        }
+    }
+
     fun updateResetAndSaveButtons(forcedBool: Boolean? = null) {
         Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "")
 
         val comparisonResult: Boolean
         if (forcedBool == null) {
-            val theoreticalUploadSchedule = changeSingleScheduleDay(
-                mainViewModel.getParameters().dayList,
-                baseSchedule = mainViewModel.getSchedule(),
-                newSchedule = scheduleViewModel.getSavedSchedule()!!,
-                mainViewModel.getDayWithOffset(mainViewModel.getChosenDate())
-            )
+            val theoreticalUploadSchedule: FlatScheduleDetailed
+            try {
+                theoreticalUploadSchedule = changeSingleScheduleDay(
+                    mainViewModel.getParameters().dayList,
+                    baseSchedule = mainViewModel.getSchedule(),
+                    newSchedule = scheduleViewModel.getSavedSchedule()!!,
+                    mainViewModel.getDayWithOffset(mainViewModel.getChosenDate())
+                )
+            } catch (e: Exception) {
+                Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "The day ID was missing!")
+                showDayMissingWarning()
+                return
+            }
             comparisonResult = checkIfFlatScheduleDetailedEquals(mainViewModel.getSchedule(), theoreticalUploadSchedule)
         } else {
             comparisonResult = !forcedBool

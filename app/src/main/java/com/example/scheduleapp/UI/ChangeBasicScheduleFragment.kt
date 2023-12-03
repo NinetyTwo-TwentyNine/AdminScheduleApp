@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.scheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
 import com.example.scheduleapp.data.Data_IntString
 import com.example.scheduleapp.databinding.FragmentChangeBasicScheduleBinding
+import com.example.scheduleapp.utils.Utils.getPossibleId
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
 
@@ -35,7 +36,7 @@ class ChangeBasicScheduleFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.addButton.setOnClickListener {
             val currentRecyclerList = ArrayList(dbEditorRecyclerViewAdapter.differ.currentList)
-            val new_id = scheduleViewModel.getPossibleId(currentRecyclerList)
+            val new_id = getPossibleId(currentRecyclerList)
             currentRecyclerList.add(0, Data_IntString(new_id, "Базовое расписание $new_id"))
 
             //dbEditorRecyclerViewAdapter.notifyItemChanged(0)

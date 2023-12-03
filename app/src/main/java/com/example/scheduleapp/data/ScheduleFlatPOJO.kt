@@ -22,8 +22,8 @@ data class Data_IntString (
 )
 
 data class Data_IntDate (
-    var date : Date? = Date(),
-    var id   : Int?  = null
+    var id   : Int?  = null,
+    var date : Date? = Date()
 )
 
 data class Data_IntArray (

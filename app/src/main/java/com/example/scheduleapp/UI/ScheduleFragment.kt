@@ -53,17 +53,19 @@ class ScheduleFragment() : Fragment() {
             var currentSchedule = scheduleViewModel.getScheduleByGroupAndDay(currentGroupId, currentDateId, scheduleParams)
 
             editButtonFunction = {number ->
-                scheduleViewModel.chooseScheduleItem(scheduleParams, currentDate, currentGroup, number, mainViewModel.getSchedule())
-                (this.parentFragment as FragmentContainer).moveToAddPairFragment()
+                if (scheduleViewModel.chooseScheduleItem(scheduleParams, currentDate, currentGroup, number, baseSchedule = mainViewModel.getSchedule())) {
+                    (this.parentFragment as FragmentContainer).moveToAddPairFragment()
+                }
             }
             clearButtonFunction = {number ->
-                scheduleViewModel.removeScheduleItem(scheduleParams, currentDate, currentGroup, number)
-                currentSchedule = scheduleViewModel.getScheduleByGroupAndDay(currentGroupId, currentDateId, scheduleParams)
-                setupRecyclerView(currentSchedule)
+                if (scheduleViewModel.removeScheduleItem(scheduleParams, currentDate, currentGroup, number)) {
+                    currentSchedule = scheduleViewModel.getScheduleByGroupAndDay(currentGroupId, currentDateId, scheduleParams)
+                    setupRecyclerView(currentSchedule)
 
-                mainViewModel.performTimerEvent(
-                    {binding.schedulesRecyclerView.scrollToPosition(number + 1)},
-                50L)
+                    mainViewModel.performTimerEvent(
+                        {binding.schedulesRecyclerView.scrollToPosition(number + 1)},
+                        50L)
+                }
             }
 
             setupRecyclerView(currentSchedule)

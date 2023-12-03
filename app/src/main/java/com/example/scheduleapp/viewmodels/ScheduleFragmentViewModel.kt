@@ -9,6 +9,7 @@ import com.example.scheduleapp.data.Date
 import com.example.scheduleapp.utils.Utils.addPairToFlatSchedule
 import com.example.scheduleapp.utils.Utils.convertPairToArrayOfAddPairItem
 import com.example.scheduleapp.utils.Utils.getById
+import com.example.scheduleapp.utils.Utils.getEmptyId
 import com.example.scheduleapp.utils.Utils.getFlatScheduleDetailedDeepCopy
 import com.example.scheduleapp.utils.Utils.getItemId
 import com.example.scheduleapp.utils.Utils.getScheduleIdByGroupAndDate
@@ -97,31 +98,6 @@ class ScheduleFragmentViewModel : ViewModel() {
         }
     }
 
-    private fun possibleIdFunctionality(currentIds: ArrayList<Int>): Int {
-        currentIds.sort()
-
-        var new_id = 0
-        for(e: Int in currentIds){
-            if(new_id == e){
-                new_id += 1
-            }
-        }
-        return new_id
-    }
-
-    @JvmName("getPossibleIdString")
-    fun getPossibleId(originalList: ArrayList<Data_IntString>): Int {
-        val currentIds = arrayListOf<Int>()
-        originalList.forEach { currentIds.add(it.id!!) }
-        return possibleIdFunctionality(currentIds)
-    }
-    @JvmName("getPossibleIdDate")
-    fun getPossibleId(originalList: ArrayList<Data_IntDate>): Int {
-        val currentIds = arrayListOf<Int>()
-        originalList.forEach { currentIds.add(it.id!!) }
-        return possibleIdFunctionality(currentIds)
-    }
-
     fun compareParametersLists(base: ArrayList<Data_IntString>, new: ArrayList<Data_IntString>): Pair<Boolean, Boolean> {
         var same: Boolean = base.size == new.size
         val base_ids = arrayListOf<Int>()
@@ -181,14 +157,13 @@ class ScheduleFragmentViewModel : ViewModel() {
         savedFlatSchedule = getFlatScheduleDetailedDeepCopy(newSchedule)
     }
 
-    fun chooseScheduleItem(scheduleParams: FlatScheduleParameters, currentDate: Date, currentGroup: String, pairNumber: Int, baseSchedule: FlatScheduleDetailed? = null) {
+    fun chooseScheduleItem(scheduleParams: FlatScheduleParameters, currentDate: Date, currentGroup: String, pairNumber: Int, baseSchedule: FlatScheduleDetailed? = null): Boolean {
         val currentGroupId = getItemId(scheduleParams.groupList, currentGroup)
         val currentDateId = getItemId(scheduleParams.dayList, currentDate)
 
-        if (currentDateId == null) { // this is really, really bad and it will have to be changed later on.
-            //currentDateId = getPossibleId(scheduleParams.dayList)
-            //scheduleParams.dayList.add(Data_IntDate(currentDate, currentDateId))
-            throw(Exception("No initialized date for chosen item, some part of the DB is probably missing or incorrect (${currentDate})."))
+        if (currentDateId == null) {
+            Log.d("ADMIN_EDITOR_CHECKER", "No date ID was found (${currentDate}).")
+            return false
         }
 
 
@@ -207,7 +182,7 @@ class ScheduleFragmentViewModel : ViewModel() {
                 scheduleId = getScheduleIdByGroupAndDate(baseSchedule, currentDateId, currentGroupId)
             }
             if (scheduleId == null) {
-                scheduleId = possibleIdFunctionality(collectAllScheduleIds())
+                scheduleId = getEmptyId(collectAllScheduleIds())
             }
             val dayScheduleArray = getById(currentDateId, savedFlatSchedule!!.scheduleDay)
             val groupScheduleArray = getById(currentGroupId, savedFlatSchedule!!.scheduleGroup)
@@ -221,6 +196,8 @@ class ScheduleFragmentViewModel : ViewModel() {
 
         chosenDate = currentDate.toString()
         chosenGroup = currentGroup
+
+        return true
     }
 
     private fun convertChosenScheduleToAddPairItem(scheduleParams: FlatScheduleParameters, currentDateId: Int, currentGroupId: Int, pairNumber: Int) {
@@ -243,21 +220,21 @@ class ScheduleFragmentViewModel : ViewModel() {
         return chosenGroup
     }
 
-    fun removeScheduleItem(scheduleParams: FlatScheduleParameters, currentDate: Date, currentGroup: String, number: Int) {
+    fun removeScheduleItem(scheduleParams: FlatScheduleParameters, currentDate: Date, currentGroup: String, number: Int): Boolean {
         val currentGroupId = getItemId(scheduleParams.groupList, currentGroup)
         val currentDateId = getItemId(scheduleParams.dayList, currentDate)
 
-        if (currentDateId == null || currentGroupId == null) {
-            Log.d("ADMIN_EDITOR_CHECKER", "No date or group ID was found.")
-            return
+        if (currentDateId == null) {
+            Log.d("ADMIN_EDITOR_CHECKER", "No date ID was found (${currentDate}).")
+            return false
         }
 
         var scheduleId: Int? = null
         val firstScheduleArray = getById(currentDateId, savedFlatSchedule!!.scheduleDay)
-        val secondScheduleArray = getById(currentGroupId, savedFlatSchedule!!.scheduleGroup)
+        val secondScheduleArray = getById(currentGroupId!!, savedFlatSchedule!!.scheduleGroup)
         if (firstScheduleArray == null || secondScheduleArray == null) {
             Log.d("ADMIN_EDITOR_CHECKER", "No date or group array was found.")
-            return
+            return true
         }
 
         if (firstScheduleArray.scheduleId.size < secondScheduleArray.scheduleId.size) {
@@ -278,10 +255,11 @@ class ScheduleFragmentViewModel : ViewModel() {
 
         if (scheduleId == null) {
             Log.d("ADMIN_EDITOR_CHECKER", "No schedule ID was identified.")
-            return
+            return true
         }
 
         removeScheduleItemById(savedFlatSchedule!!, scheduleId, number+1, true)
+        return true
     }
 
     fun saveScheduleEdits(scheduleParams: FlatScheduleParameters, pair: Pair<ScheduleDetailed, ScheduleDetailed>) {

@@ -4,15 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.example.scheduleapp.R
-import com.example.scheduleapp.data.Constants.APP_PREFERENCES_PUSHES
+import com.example.scheduleapp.data.Constants.APP_PREFERENCES_AUTOUPDATE
 import com.example.scheduleapp.data.Constants.APP_PREFERENCES_STAY
-import com.example.scheduleapp.data.Data_IntString
+import com.example.scheduleapp.data.UploadStatus
 import com.example.scheduleapp.databinding.FragmentSettingsBinding
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,6 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class SettingsFragment : Fragment() {
     private val viewModel: MainActivityViewModel by activityViewModels()
     private lateinit var binding: FragmentSettingsBinding
+    private lateinit var currentUploadStatus: MutableLiveData<UploadStatus>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,37 +39,24 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.enablePushesCheckBox.isChecked = viewModel.getPreference(APP_PREFERENCES_PUSHES, false)
+        binding.enableAutoUpdateCheckBox.isChecked = viewModel.getPreference(APP_PREFERENCES_AUTOUPDATE, true)
         binding.staySignedInCheckBox.isChecked = viewModel.getPreference(APP_PREFERENCES_STAY, false)
-        binding.enablePushesCheckBox.setOnCheckedChangeListener(){v, checked ->
-            viewModel.editPreferences(APP_PREFERENCES_PUSHES, checked)
+        binding.enableAutoUpdateCheckBox.setOnCheckedChangeListener(){v, checked ->
+            viewModel.editPreferences(APP_PREFERENCES_AUTOUPDATE, checked)
         }
         binding.staySignedInCheckBox.setOnCheckedChangeListener(){v, checked ->
             viewModel.editPreferences(APP_PREFERENCES_STAY, checked)
         }
 
-        /*
-        binding.selectGroupSpinner.adapter = ArrayAdapter((activity as MainActivity), R.layout.spinner_item, viewModel.getGroupNames()).also { adapter ->
-            adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+        binding.manualUpdateTrigger.setOnClickListener {
+            viewModel.updateAndUploadTheDayList(currentUploadStatus)
+            it.isEnabled = false
         }
-        for (i in 0 until binding.selectGroupSpinner.adapter.count) {
-            if (binding.selectGroupSpinner.getItemAtPosition(i).toString() == viewModel.getPreference(getGroupPreferencesId(), "")) {
-                binding.selectGroupSpinner.setSelection(i)
-                break
-            }
-        }
-        binding.selectGroupSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                viewModel.editPreferences(getGroupPreferencesId(), parent?.getItemAtPosition(position).toString())
-                (activity as MainActivity).title = viewModel.getPreference(getGroupPreferencesId(), resources.getString(R.string.app_name))
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-        */
-
         binding.logoutTrigger.setOnClickListener {
             logOut()
         }
+
+        initUploadObservers()
     }
 
     private fun logOut() {
@@ -80,9 +68,39 @@ class SettingsFragment : Fragment() {
             .navigate(SettingsFragmentDirections.actionSettingsFragmentToLoginFragment())
     }
 
-    /*
-    private fun getGroupPreferencesId(): String {
-        return APP_PREFERENCES_GROUP+"_"+viewModel.getUserEmail()
+    private fun initUploadObservers() {
+        currentUploadStatus = MutableLiveData()
+        currentUploadStatus.observe(viewLifecycleOwner) { uploadStatus ->
+            when (uploadStatus) {
+                is UploadStatus.Progress -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                }
+                is UploadStatus.WeakProgress -> {
+                    Toast.makeText(
+                        activity,
+                        uploadStatus.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                is UploadStatus.Error -> {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(
+                        activity,
+                        "Failed to upload the Data: ${uploadStatus.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    binding.manualUpdateTrigger.isEnabled = true
+                }
+                is UploadStatus.Success -> {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(
+                        activity,
+                        "Succeeded in uploading the Data.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    binding.manualUpdateTrigger.isEnabled = true
+                }
+            }
+        }
     }
-    */
 }

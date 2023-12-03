@@ -11,12 +11,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import com.example.scheduleapp.R
-import com.example.scheduleapp.data.Constants.APP_PREFERENCES_PUSHES
+import com.example.scheduleapp.data.Constants.APP_PREFERENCES_AUTOUPDATE
 import com.example.scheduleapp.data.Constants.APP_PREFERENCES_STAY
 import com.example.scheduleapp.databinding.ActivityMainBinding
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -31,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar!!.setBackgroundDrawable(ColorDrawable(Color.parseColor("#05080D")))
 
         viewModel.editPreferences(APP_PREFERENCES_STAY, viewModel.getPreference(APP_PREFERENCES_STAY, true))
-        viewModel.editPreferences(APP_PREFERENCES_PUSHES, viewModel.getPreference(APP_PREFERENCES_PUSHES, true))
+        viewModel.editPreferences(APP_PREFERENCES_AUTOUPDATE, viewModel.getPreference(APP_PREFERENCES_AUTOUPDATE, true))
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

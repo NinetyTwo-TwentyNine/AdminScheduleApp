@@ -19,6 +19,7 @@ import com.example.scheduleapp.data.Constants.APP_ADMIN_SAVE_CHANGES_WARNING
 import com.example.scheduleapp.databinding.BasicPopupWindowBinding
 import com.example.scheduleapp.databinding.FragmentDataBaseEditBinding
 import com.example.scheduleapp.utils.Utils
+import com.example.scheduleapp.utils.Utils.getPossibleId
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
 import kotlin.collections.ArrayList
@@ -61,7 +62,7 @@ class DataBaseEditFragment: Fragment() {
     private fun setupView() {
         binding.addButton.setOnClickListener {
             val currentRecyclerList = ArrayList(dbEditorRecyclerViewAdapter.differ.currentList)
-            val currentId = scheduleViewModel.getPossibleId(currentRecyclerList)
+            val currentId = getPossibleId(currentRecyclerList)
             currentRecyclerList.add(0, Data_IntString(currentId, ""))
 
             //dbEditorRecyclerViewAdapter.notifyItemChanged(0)
@@ -188,17 +189,20 @@ class DataBaseEditFragment: Fragment() {
                         "Failed to upload the Data: ${uploadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
-                    updateSaveButton()
+                    mainViewModel.performTimerEvent({
+                        updateSaveButton()
+                    }, 50L)
                 }
                 is UploadStatus.Success -> {
                     binding.progressBar.visibility = View.GONE
-                    mainViewModel.updateParametersByIndex(index!!, uploadRecyclerList)
                     Toast.makeText(
                         activity,
                         "Succeeded in uploading the Data.",
                         Toast.LENGTH_LONG
                     ).show()
-                    updateSaveButton()
+                    mainViewModel.performTimerEvent({
+                        updateSaveButton()
+                    }, 50L)
                 }
             }
         }

@@ -13,6 +13,7 @@ import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_LIST
 import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_TEACHER_NAME
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_BASE_PARAMETERS
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_CABINET_LIST
+import com.example.scheduleapp.data.Constants.APP_BD_PATHS_DATE_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_DISCIPLINE_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_CURRENT
@@ -21,8 +22,13 @@ import com.example.scheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
 import com.example.scheduleapp.data.Constants.APP_WEAK_CONNECTION_WARNING
 import com.example.scheduleapp.data.Date
 import com.example.scheduleapp.models.FirebaseRepository
+import com.example.scheduleapp.utils.Utils.checkIfItemArraysAreEqual
+import com.example.scheduleapp.utils.Utils.getArrayOfDataIntDateDeepCopy
 import com.example.scheduleapp.utils.Utils.getArrayOfDataIntStringDeepCopy
+import com.example.scheduleapp.utils.Utils.getById
 import com.example.scheduleapp.utils.Utils.getFlatScheduleDetailedDeepCopy
+import com.example.scheduleapp.utils.Utils.getPossibleId
+import com.example.scheduleapp.utils.Utils.removeScheduleItemById
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.database.DataSnapshot
 import com.google.gson.Gson
@@ -75,11 +81,11 @@ class MainActivityViewModel @Inject constructor(
         return getParametersByReference(getReferenceByIndex(id), link)
     }
 
-    fun updateParametersByReference(reference: String, paramsArr: ArrayList<Data_IntString>) {
+    private fun updateParametersByReference(reference: String, paramsArr: ArrayList<Data_IntString>) {
         val table_link = getParametersByReference(reference, true)
         updateParameters(table_link, paramsArr)
     }
-    fun updateParametersByIndex(id: Int, paramsArr: ArrayList<Data_IntString>) {
+    private fun updateParametersByIndex(id: Int, paramsArr: ArrayList<Data_IntString>) {
         val table_link = getParametersByIndex(id, true)
         updateParameters(table_link, paramsArr)
     }
@@ -90,7 +96,7 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun updateSchedule(newFlatSchedule: FlatScheduleDetailed) {
+    private fun updateSchedule(newFlatSchedule: FlatScheduleDetailed) {
         flatScheduleDetailed = getFlatScheduleDetailedDeepCopy(newFlatSchedule)
     }
 
@@ -208,7 +214,58 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun uploadCurrentSchedule(uploadState: MutableLiveData<UploadStatus>, flatSchedule: FlatScheduleDetailed) {
+        cleanScheduleFromUnnecessaryDates(flatSchedule)
         uploadData(uploadState, APP_BD_PATHS_SCHEDULE_CURRENT, flatSchedule) { updateSchedule(flatSchedule) }
+    }
+
+    private fun cleanScheduleFromUnnecessaryDates(flatSchedule: FlatScheduleDetailed) {
+        val arrayToRemove: ArrayList<Int> = arrayListOf()
+        flatSchedule.scheduleDay.forEach {curData ->
+            val curDate = getById(curData.specialId!!, flatScheduleParameters.dayList)
+            if (curDate == null) {
+                curData.scheduleId.forEach {
+                    if (!arrayToRemove.contains(it)) {
+                        arrayToRemove.add(it)
+                    }
+                }
+            }
+        }
+
+        arrayToRemove.forEach {
+            removeScheduleItemById(flatSchedule, it)
+        }
+    }
+
+    fun updateAndUploadTheDayList(uploadState: MutableLiveData<UploadStatus>): Boolean {
+        val dayList = getArrayOfDataIntDateDeepCopy(flatScheduleParameters.dayList)
+
+        for (i in 0 until PAGE_COUNT) {
+            val date = getDayWithOffset(i)
+            var dateExists = false
+            dayList.forEach {
+                if (it.date!! == date) {
+                    dateExists = true
+                }
+            }
+
+            if (!dateExists) {
+                val newIndex = getPossibleId(dayList)
+                dayList.add(Data_IntDate(newIndex, date))
+            }
+        }
+
+        val arrayToRemove: ArrayList<Data_IntDate> = arrayListOf()
+        dayList.forEach {
+            if (getDateIndex(it.date!!) == -1) {
+                arrayToRemove.add(it)
+            }
+        }
+        arrayToRemove.forEach { dayList.remove(it) }
+        arrayToRemove.clear()
+
+        if (checkIfItemArraysAreEqual(flatScheduleParameters.dayList, dayList)) { return false }
+        uploadData(uploadState, APP_BD_PATHS_DATE_LIST, dayList) { flatScheduleParameters.dayList = dayList }
+        return true
     }
 
     fun getSchedule(): FlatScheduleDetailed {
@@ -316,7 +373,7 @@ class MainActivityViewModel @Inject constructor(
         return chosenDateIndex
     }
 
-    fun chooseDate(date: Date) {
+    private fun getDateIndex(date: Date): Int {
         var index = -1
         for (i in 0 until PAGE_COUNT) {
             if (getDayWithOffset(i).equals(date)) {
@@ -324,6 +381,11 @@ class MainActivityViewModel @Inject constructor(
                 break
             }
         }
+        return index
+    }
+
+    fun chooseDate(date: Date) {
+        val index = getDateIndex(date)
 
         if (index == -1) {
             throw(Exception("Failed to calculate chosen date's index."))

@@ -5,6 +5,16 @@
     android:layout_height="match_parent"
     android:background="#05080D">
 
+    <TextView
+        android:id="@+id/textView1"
+        style="@style/MainText"
+        android:layout_width="wrap_content"
+        android:layout_height="46dp"
+        android:text="Настройки"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <TextView
         android:id="@+id/staySignedInTextView"
@@ -18,7 +28,7 @@
         android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView" />
+        app:layout_constraintTop_toBottomOf="@id/autoUpdateTextView" />
 
     <ImageView
         android:id="@+id/icon_stay_signet"
@@ -39,29 +49,18 @@
         android:thumb="@drawable/switch_custom_thumb"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/enablePushesCheckBox"
+        app:layout_constraintTop_toBottomOf="@id/enableAutoUpdateCheckBox"
         app:track="@drawable/switch_custom_track" />
 
 
     <TextView
-        android:id="@+id/textView1"
-        style="@style/MainText"
+        android:id="@+id/autoUpdateTextView"
         android:layout_width="wrap_content"
-        android:layout_height="46dp"
-        android:text="Настройки"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="130dp"
         android:layout_height="23dp"
         android:layout_marginTop="99dp"
-        android:layout_marginEnd="180dp"
+        android:layout_marginEnd="110dp"
         android:fontFamily="@font/roboto_medium"
-        android:text="Уведомления"
+        android:text="Автообновлять даты"
         android:textColor="#FFFFFF"
         android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -74,13 +73,13 @@
         android:layout_height="23dp"
         android:layout_marginStart="3dp"
         android:layout_marginTop="102dp"
-        app:layout_constraintEnd_toStartOf="@+id/textView"
+        app:layout_constraintEnd_toStartOf="@+id/autoUpdateTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView1"
         app:srcCompat="@drawable/icon_notification" />
 
     <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/enablePushesCheckBox"
+        android:id="@+id/enableAutoUpdateCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="260dp"
@@ -117,7 +116,7 @@
         app:srcCompat="@drawable/icon_logout" />
 
     <ImageView
-        android:id="@+id/icon_contact"
+        android:id="@+id/icon_manualUpdate"
         android:layout_width="23dp"
         android:layout_height="23dp"
         android:layout_marginStart="3dp"
@@ -128,17 +127,30 @@
         app:srcCompat="@drawable/icon_contact" />
 
     <TextView
-        android:id="@+id/contactUsTextView"
-        android:layout_width="180dp"
+        android:id="@+id/manual_update_trigger"
+        android:layout_width="300dp"
         android:layout_height="23dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="130dp"
-        android:text="Связаться с нами"
+        android:layout_marginEnd="10dp"
+        android:text="Обновить список дней сейчас"
         android:textColor="@color/white"
         android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/logoutTrigger" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:indeterminateDrawable="@drawable/progress_bar"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

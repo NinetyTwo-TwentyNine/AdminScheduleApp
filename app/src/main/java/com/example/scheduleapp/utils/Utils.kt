@@ -36,6 +36,14 @@ object Utils {
         }
         return null
     }
+    fun getById(id: Int, array: ArrayList<Data_IntDate>): Data_IntDate? {
+        for (item in array) {
+            if (item.id == id) {
+                return item
+            }
+        }
+        return null
+    }
     fun getById(id: Int, array: ArrayList<Data_IntArray>): Data_IntArray? {
         for (item in array) {
             if (item.specialId == id) {
@@ -65,9 +73,43 @@ object Utils {
         throw(IllegalStateException("No item ID was found, some part of the DB is probably missing or incorrect (${itemName})."))
     }
 
+    fun getEmptyId(currentIds: ArrayList<Int>): Int {
+        currentIds.sort()
+
+        var new_id = 0
+        for(e: Int in currentIds){
+            if(new_id == e){
+                new_id += 1
+            }
+        }
+        return new_id
+    }
+
+    @JvmName("getPossibleIdString")
+    fun getPossibleId(originalList: ArrayList<Data_IntString>): Int {
+        val currentIds = arrayListOf<Int>()
+        originalList.forEach { currentIds.add(it.id!!) }
+        return getEmptyId(currentIds)
+    }
+    @JvmName("getPossibleIdDate")
+    fun getPossibleId(originalList: ArrayList<Data_IntDate>): Int {
+        val currentIds = arrayListOf<Int>()
+        originalList.forEach { currentIds.add(it.id!!) }
+        return getEmptyId(currentIds)
+    }
+
     //================================================================================================================
     //Deep copy creation
     //================================================================================================================
+
+    fun getArrayOfDataIntDateDeepCopy(origArr: ArrayList<Data_IntDate>): ArrayList<Data_IntDate> {
+        val newArr = arrayListOf<Data_IntDate>()
+        origArr.forEach { newArr.add(
+            Data_IntDate(it.id, it.date)
+            //it.copy()
+        ) }
+        return newArr
+    }
 
     fun getArrayOfDataIntStringDeepCopy(origArr: ArrayList<Data_IntString>): ArrayList<Data_IntString> {
         val newArr = arrayListOf<Data_IntString>()
@@ -81,8 +123,8 @@ object Utils {
     fun getArrayOfDataIntArrayDeepCopy(origArr: ArrayList<Data_IntArray>): ArrayList<Data_IntArray> {
         val newArr = arrayListOf<Data_IntArray>()
         origArr.forEach { newArr.add(
-            //Data_IntArray(it.specialId, (it.scheduleId.clone() as ArrayList<Int>) )
-            it.copy()
+            Data_IntArray(it.specialId, (it.scheduleId.clone() as ArrayList<Int>) )
+            //it.copy()
         ) }
         return newArr
     }
@@ -90,13 +132,13 @@ object Utils {
     fun getArrayOfDataIntIntIntArrayArrayDeepCopy(origArr: ArrayList<Data_IntIntIntArrayArray>): ArrayList<Data_IntIntIntArrayArray> {
         val newArr = arrayListOf<Data_IntIntIntArrayArray>()
         origArr.forEach { newArr.add(
-            /*Data_IntIntIntArrayArray(
+            Data_IntIntIntArrayArray(
             scheduleId = it.scheduleId,
             pairNum = it.pairNum,
             subPairs = (it.subPairs.clone() as ArrayList<Int>),
             subGroups = (it.subGroups.clone() as ArrayList<Int>),
-            specialId = it.specialId)*/
-            it.copy()
+            specialId = it.specialId)
+            //it.copy()
         ) }
         return newArr
     }
@@ -140,9 +182,13 @@ object Utils {
         val firstScheduleArray = getById(currentDateId, flatSchedule.scheduleDay)
         val secondScheduleArray = getById(currentGroupId, flatSchedule.scheduleGroup)
 
+        if (firstScheduleArray == null || secondScheduleArray == null) {
+            return scheduleId
+        }
+
         val smallerArray: Data_IntArray
         val biggerArray: Data_IntArray
-        if (firstScheduleArray!!.scheduleId.size < secondScheduleArray!!.scheduleId.size) {
+        if (firstScheduleArray.scheduleId.size < secondScheduleArray.scheduleId.size) {
             smallerArray = firstScheduleArray
             biggerArray = secondScheduleArray
         } else {
@@ -379,20 +425,25 @@ object Utils {
 
     fun changeSingleScheduleDay(dayList: ArrayList<Data_IntDate>, baseSchedule: FlatScheduleDetailed, newSchedule: FlatScheduleDetailed, day: Date): FlatScheduleDetailed {
         val dateId = getItemId(dayList, day)
+        Log.d("ADMIN_SCHEDULE_SINGLEDAY_CHANGE_CHECK", "dayList: $dayList")
+        Log.d("ADMIN_SCHEDULE_SINGLEDAY_CHANGE_CHECK", "day: $day")
         if (dateId == null) {
+            Log.d("ADMIN_SCHEDULE_SINGLEDAY_CHANGE_CHECK", "Killing the application, because there is no date Id.")
             throw(Exception("No initialized date for chosen item, some part of the DB is probably missing or incorrect (${day})."))
         }
 
         val returnSchedule = getFlatScheduleDetailedDeepCopy(baseSchedule)
 
-        val dateIdArray = getById(dateId, newSchedule.scheduleDay)!!
-        dateIdArray.scheduleId.forEach { scheduleId->
-            newSchedule.scheduleGroup.forEach { newGroup->
-                if (newGroup.scheduleId.contains(scheduleId)) {
-                    returnSchedule.scheduleGroup.forEach { baseGroup->
-                        if (baseGroup.specialId == newGroup.specialId) {
-                            if (!baseGroup.scheduleId.contains(scheduleId)) {
-                                baseGroup.scheduleId.add(scheduleId)
+        val dateIdArray = getById(dateId, newSchedule.scheduleDay)
+        if (dateIdArray != null) {
+            dateIdArray.scheduleId!!.forEach { scheduleId ->
+                newSchedule.scheduleGroup.forEach { newGroup ->
+                    if (newGroup.scheduleId.contains(scheduleId)) {
+                        returnSchedule.scheduleGroup.forEach { baseGroup ->
+                            if (baseGroup.specialId == newGroup.specialId) {
+                                if (!baseGroup.scheduleId.contains(scheduleId)) {
+                                    baseGroup.scheduleId.add(scheduleId)
+                                }
                             }
                         }
                     }
@@ -400,37 +451,41 @@ object Utils {
             }
         }
 
-        val returnSchedule_date = getById(dateId, returnSchedule.scheduleDay)
-        if (returnSchedule_date != null) {
+        val returnSchedule_dateIdArray = getById(dateId, returnSchedule.scheduleDay)
+        if (returnSchedule_dateIdArray != null) {
             val arrayToRemove: ArrayList<Int> = arrayListOf()
-            returnSchedule_date.scheduleId.forEach {
+            returnSchedule_dateIdArray.scheduleId.forEach {
                 if (!arrayToRemove.contains(it)) {
                     arrayToRemove.add(it)
                 }
             }
             arrayToRemove.forEach {
-                removeScheduleItemById(returnSchedule, it, canRemoveScheduleId = false)
+                removeScheduleItemById(returnSchedule, it, canRemoveScheduleId = (dateIdArray == null))
             }
-            returnSchedule_date.scheduleId = dateIdArray.scheduleId.clone() as ArrayList<Int>
-        } else {
+            if (dateIdArray != null) {
+                returnSchedule_dateIdArray.scheduleId = dateIdArray.scheduleId.clone() as ArrayList<Int>
+            }
+        } else if (dateIdArray != null) {
             returnSchedule.scheduleDay.add(Data_IntArray(dateId, dateIdArray.scheduleId.clone() as ArrayList<Int>))
         }
 
-        dateIdArray.scheduleId.forEach { scheduleId->
-            removeScheduleItemById(returnSchedule, scheduleId, canRemoveScheduleId = false)
-            newSchedule.scheduleLesson.forEach {
-                if (it.scheduleId == scheduleId) {
-                    returnSchedule.scheduleLesson.add(it.copy())
+        if (dateIdArray != null) {
+            dateIdArray.scheduleId!!.forEach { scheduleId ->
+                removeScheduleItemById(returnSchedule, scheduleId, canRemoveScheduleId = false)
+                newSchedule.scheduleLesson.forEach {
+                    if (it.scheduleId == scheduleId) {
+                        returnSchedule.scheduleLesson.add(it.copy())
+                    }
                 }
-            }
-            newSchedule.teacherLesson.forEach {
-                if (it.scheduleId == scheduleId) {
-                    returnSchedule.teacherLesson.add(it.copy())
+                newSchedule.teacherLesson.forEach {
+                    if (it.scheduleId == scheduleId) {
+                        returnSchedule.teacherLesson.add(it.copy())
+                    }
                 }
-            }
-            newSchedule.cabinetLesson.forEach {
-                if (it.scheduleId == scheduleId) {
-                    returnSchedule.cabinetLesson.add(it.copy())
+                newSchedule.cabinetLesson.forEach {
+                    if (it.scheduleId == scheduleId) {
+                        returnSchedule.cabinetLesson.add(it.copy())
+                    }
                 }
             }
         }
@@ -499,11 +554,11 @@ object Utils {
             convertScheduleDetailedToPairOfAddPairItem(subPair1, Pair(items[0], items[1]))
         }
 
-        //Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "")
-        //Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "Are they the same? ${checkIfScheduleDetailedEquals(subPair1, subPair2)}")
-        //Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "visibility1 = ${item[1].visibility}")
-        //Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "visibility2 = ${item[2].visibility}")
-        //Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "visibility3 = ${item[3].visibility}")
+        /*Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "")
+        Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "Are they the same? ${checkIfScheduleDetailedEquals(subPair1, subPair2)}")
+        Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "visibility1 = ${item[1].visibility}")
+        Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "visibility2 = ${item[2].visibility}")
+        Log.d("ADMIN_PAIR_TO_ADDPAIR_CONVERSION_CHECKER", "visibility3 = ${item[3].visibility}")*/
 
         return items
     }
@@ -575,10 +630,9 @@ object Utils {
             for (i: Int in 0 until scheduleItemArray.size) {
                 if (scheduleItemArray[i].specialId == scheduleItemArray[currentIndex].specialId && currentIndex != i) {
 
-                    //Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "")
-                    //Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "Current-subp = ${scheduleItemArray[currentIndex].subPairs}, i-subp = ${scheduleItemArray[i].subPairs}")
-                    //Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "Are they the same? ${scheduleItemArray[currentIndex].subPairs == scheduleItemArray[i].subPairs}")
-
+                    /*Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "")
+                    Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "Current-subp = ${scheduleItemArray[currentIndex].subPairs}, i-subp = ${scheduleItemArray[i].subPairs}")
+                    Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "Are they the same? ${scheduleItemArray[currentIndex].subPairs == scheduleItemArray[i].subPairs}")*/
                     if (scheduleItemArray[currentIndex].subPairs == scheduleItemArray[i].subPairs) {
                         scheduleItemArray[i].subGroups.forEach {
                             if (!scheduleItemArray[currentIndex].subGroups.contains(it)) {
@@ -587,10 +641,9 @@ object Utils {
                         }
                     }
 
-                    //Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "")
-                    //Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "Current-subg = ${scheduleItemArray[currentIndex].subGroups}, i-subg = ${scheduleItemArray[i].subGroups}")
-                    //Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "Are they the same? ${scheduleItemArray[currentIndex].subGroups == scheduleItemArray[i].subGroups}")
-
+                    /*Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "")
+                    Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "Current-subg = ${scheduleItemArray[currentIndex].subGroups}, i-subg = ${scheduleItemArray[i].subGroups}")
+                    Log.d("ADMIN_SCHEDULE_UNIFIER_CHECKER", "Are they the same? ${scheduleItemArray[currentIndex].subGroups == scheduleItemArray[i].subGroups}")*/
                     if (scheduleItemArray[currentIndex].subGroups == scheduleItemArray[i].subGroups) {
                         scheduleItemArray[i].subPairs.forEach {
                             if (!scheduleItemArray[currentIndex].subPairs.contains(it)) {
@@ -632,13 +685,13 @@ object Utils {
     }
 
     fun checkIfFlatScheduleDetailedEquals(flatSchedule1: FlatScheduleDetailed, flatSchedule2: FlatScheduleDetailed): Boolean {
-        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "")
+        /*Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "")
         Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "The function was called.")
-        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "schedule-lesson same = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleLesson, flatSchedule2.scheduleLesson)}")
-        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "schedule-teacher same = ${checkIfItemArraysAreEqual(flatSchedule1.teacherLesson, flatSchedule2.teacherLesson)}")
-        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "schedule-cabinet same = ${checkIfItemArraysAreEqual(flatSchedule1.cabinetLesson, flatSchedule2.cabinetLesson)}")
-        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "day-schedule same = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleDay, flatSchedule2.scheduleDay)}")
-        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "group-schedule same = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleGroup, flatSchedule2.scheduleGroup)}")
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Similar schedule-lesson = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleLesson, flatSchedule2.scheduleLesson)}")
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Similar schedule-teacher = ${checkIfItemArraysAreEqual(flatSchedule1.teacherLesson, flatSchedule2.teacherLesson)}")
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Similar schedule-cabinet = ${checkIfItemArraysAreEqual(flatSchedule1.cabinetLesson, flatSchedule2.cabinetLesson)}")
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Similar day-schedule = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleDay, flatSchedule2.scheduleDay)}")
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Similar group-schedule = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleGroup, flatSchedule2.scheduleGroup)}")*/
         return (checkIfItemArraysAreEqual(flatSchedule1.scheduleLesson, flatSchedule2.scheduleLesson) &&
                 checkIfItemArraysAreEqual(flatSchedule1.teacherLesson, flatSchedule2.teacherLesson) &&
                 checkIfItemArraysAreEqual(flatSchedule1.cabinetLesson, flatSchedule2.cabinetLesson) &&
