@@ -57,10 +57,18 @@ class AddPairFragment() : Fragment() {
     }
 
     private fun setupRecyclerView() {
+        val discipline_params_list = mainViewModel.getParametersList(APP_BD_PATHS_DISCIPLINE_LIST)
+        val teacher_params_list = mainViewModel.getParametersList(APP_BD_PATHS_TEACHER_LIST)
+        val cabinet_params_list = mainViewModel.getParametersList(APP_BD_PATHS_CABINET_LIST)
+
+        teacher_params_list.sort()
+        discipline_params_list.sort()
+        cabinet_params_list.sort()
+
         addPairRecyclerViewAdapter = AddPairRecyclerViewAdapter(
-            mainViewModel.getParametersList(APP_BD_PATHS_DISCIPLINE_LIST),
-            mainViewModel.getParametersList(APP_BD_PATHS_TEACHER_LIST),
-            mainViewModel.getParametersList(APP_BD_PATHS_CABINET_LIST)
+            discipline_params_list,
+            teacher_params_list,
+            cabinet_params_list
         ) { mainViewModel.performTimerEvent({ updateSaveButton() }, 50L) }
 
         val addPairArray = getArrayOfAddPairItemDeepCopy(scheduleViewModel.getChosenScheduleItem()!!)

@@ -7,9 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.scheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
 import com.example.scheduleapp.adapters.ScheduleRecyclerViewAdapter
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
 import com.example.scheduleapp.data.Schedule
@@ -53,7 +51,7 @@ class ScheduleFragment() : Fragment() {
             var currentSchedule = scheduleViewModel.getScheduleByGroupAndDay(currentGroupId, currentDateId, scheduleParams)
 
             editButtonFunction = {number ->
-                if (scheduleViewModel.chooseScheduleItem(scheduleParams, currentDate, currentGroup, number, baseSchedule = mainViewModel.getSchedule())) {
+                if (scheduleViewModel.chooseScheduleItem(scheduleParams, currentDate, currentGroup, number, baseSchedule = mainViewModel.getCurrentSchedule())) {
                     (this.parentFragment as FragmentContainer).moveToAddPairFragment()
                 }
             }

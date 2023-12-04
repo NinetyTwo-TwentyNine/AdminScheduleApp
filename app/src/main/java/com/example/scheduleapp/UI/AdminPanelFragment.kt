@@ -61,11 +61,13 @@ class AdminPanelFragment: Fragment() {
 
         binding.changingBasicSchedule.isEnabled = true
         binding.changingBasicSchedule.setOnClickListener{
+            viewModel.setBaseScheduleEditMode()
             requireView().findNavController().navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToChangeBasicScheduleFragment())
         }
 
         binding.creatingSchedule.isEnabled = true
         binding.creatingSchedule.setOnClickListener{
+            viewModel.setCurrentScheduleEditMode()
             requireView().findNavController().navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToChooseDateFragment())
         }
     }
@@ -88,7 +90,7 @@ class AdminPanelFragment: Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Failed to upload the Data: ${uploadStatus.message}",
+                        "Failed to upload the new day list: ${uploadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
                     currentUploadStatus.removeObservers(viewLifecycleOwner)
@@ -97,7 +99,7 @@ class AdminPanelFragment: Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Succeeded in uploading the Data.",
+                        "Succeeded in updating the day list.",
                         Toast.LENGTH_LONG
                     ).show()
                     currentUploadStatus.removeObservers(viewLifecycleOwner)

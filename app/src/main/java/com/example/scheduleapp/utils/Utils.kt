@@ -129,6 +129,15 @@ object Utils {
         return newArr
     }
 
+    fun getArrayOfDataStringArrayDeepCopy(origArr: ArrayList<Data_StringArray>): ArrayList<Data_StringArray> {
+        val newArr = arrayListOf<Data_StringArray>()
+        origArr.forEach { newArr.add(
+            Data_StringArray(it.title, (it.scheduleId.clone() as ArrayList<Int>) )
+            //it.copy()
+        ) }
+        return newArr
+    }
+
     fun getArrayOfDataIntIntIntArrayArrayDeepCopy(origArr: ArrayList<Data_IntIntIntArrayArray>): ArrayList<Data_IntIntIntArrayArray> {
         val newArr = arrayListOf<Data_IntIntIntArrayArray>()
         origArr.forEach { newArr.add(
@@ -164,13 +173,24 @@ object Utils {
     }
 
     fun getFlatScheduleDetailedDeepCopy(origSchedule: FlatScheduleDetailed): FlatScheduleDetailed {
-        val newSchedule = FlatScheduleDetailed(
+        return FlatScheduleDetailed(
             scheduleDay = getArrayOfDataIntArrayDeepCopy(origSchedule.scheduleDay),
             scheduleGroup = getArrayOfDataIntArrayDeepCopy(origSchedule.scheduleGroup),
             scheduleLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.scheduleLesson),
             cabinetLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.cabinetLesson),
-            teacherLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.teacherLesson))
-        return newSchedule
+            teacherLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.teacherLesson)
+        )
+    }
+
+    fun getFlatScheduleBaseDeepCopy(origSchedule: FlatScheduleBase): FlatScheduleBase {
+        return FlatScheduleBase(
+            scheduleName = getArrayOfDataStringArrayDeepCopy(origSchedule.scheduleName),
+            scheduleDay = getArrayOfDataIntArrayDeepCopy(origSchedule.scheduleDay),
+            scheduleGroup = getArrayOfDataIntArrayDeepCopy(origSchedule.scheduleGroup),
+            scheduleLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.scheduleLesson),
+            cabinetLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.cabinetLesson),
+            teacherLesson = getArrayOfDataIntIntIntArrayArrayDeepCopy(origSchedule.teacherLesson)
+        )
     }
 
     //================================================================================================================

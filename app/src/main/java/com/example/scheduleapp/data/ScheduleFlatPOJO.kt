@@ -1,6 +1,16 @@
 package com.example.scheduleapp.data
 
+
 data class FlatScheduleDetailed (
+    var scheduleDay   : ArrayList<Data_IntArray>   = arrayListOf(),
+    var scheduleGroup : ArrayList<Data_IntArray> = arrayListOf(),
+    var scheduleLesson : ArrayList<Data_IntIntIntArrayArray> = arrayListOf(),
+    var cabinetLesson  : ArrayList<Data_IntIntIntArrayArray>  = arrayListOf(),
+    var teacherLesson  : ArrayList<Data_IntIntIntArrayArray>  = arrayListOf()
+)
+
+data class FlatScheduleBase (
+    var scheduleName   : ArrayList<Data_StringArray>   = arrayListOf(),
     var scheduleDay   : ArrayList<Data_IntArray>   = arrayListOf(),
     var scheduleGroup : ArrayList<Data_IntArray> = arrayListOf(),
     var scheduleLesson : ArrayList<Data_IntIntIntArrayArray> = arrayListOf(),
@@ -27,7 +37,12 @@ data class Data_IntDate (
 )
 
 data class Data_IntArray (
-    var specialId     : Int?           = null,
+    var specialId  : Int?           = null,
+    var scheduleId : ArrayList<Int> = arrayListOf()
+)
+
+data class Data_StringArray (
+    var title      : String?        = null,
     var scheduleId : ArrayList<Int> = arrayListOf()
 )
 

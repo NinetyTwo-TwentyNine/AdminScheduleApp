@@ -18,7 +18,7 @@ import com.example.scheduleapp.data.Constants.APP_ADMIN_ID_DELETION_WARNING
 import com.example.scheduleapp.data.Constants.APP_ADMIN_SAVE_CHANGES_WARNING
 import com.example.scheduleapp.databinding.BasicPopupWindowBinding
 import com.example.scheduleapp.databinding.FragmentDataBaseEditBinding
-import com.example.scheduleapp.utils.Utils
+import com.example.scheduleapp.utils.Utils.getArrayOfDataIntStringDeepCopy
 import com.example.scheduleapp.utils.Utils.getPossibleId
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
@@ -101,6 +101,7 @@ class DataBaseEditFragment: Fragment() {
 
     private fun setupRecyclerView() {
         val currentRecyclerList = mainViewModel.getParametersByIndex(index!!)
+        currentRecyclerList.sortBy { it.title }
         dbEditorRecyclerViewAdapter.differ.submitList(currentRecyclerList)
         binding.apply {
             parametersRecyclerView.apply {
@@ -127,7 +128,7 @@ class DataBaseEditFragment: Fragment() {
         val popupWindow = PopupWindow(popupView, width, height, true)
         popupBinding.popupText.text = text
         popupBinding.yesButton.setOnClickListener {
-            uploadRecyclerList = Utils.getArrayOfDataIntStringDeepCopy(currentRecyclerList)
+            uploadRecyclerList = getArrayOfDataIntStringDeepCopy(currentRecyclerList)
             mainViewModel.uploadParameters(currentUploadStatus, index!!, uploadRecyclerList)
             popupWindow.dismiss()
         }

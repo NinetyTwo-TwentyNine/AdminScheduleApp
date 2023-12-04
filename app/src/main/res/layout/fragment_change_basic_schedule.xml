@@ -18,28 +18,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.cardview.widget.CardView
+    <TextView
         android:id="@+id/addButton"
+        style="@style/Button"
         android:layout_width="360dp"
         android:layout_height="69dp"
+        android:fontFamily="@font/roboto_light"
+        android:paddingTop="19dp"
+        android:paddingBottom="19dp"
+        android:text="+"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="25sp"
+        android:enabled="false"
         app:cardBackgroundColor="#5265CE"
         app:cardCornerRadius="13dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text">
-
-        <TextView
-            android:id="@+id/basic_schedule"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="170dp"
-            android:layout_marginTop="5dp"
-            android:text="+"
-            android:textAlignment="center"
-            android:textColor="#FFFFFF"
-            android:textSize="40dp" />
-    </androidx.cardview.widget.CardView>
-
+        app:layout_constraintTop_toBottomOf="@+id/text"/>
 
 
     <LinearLayout

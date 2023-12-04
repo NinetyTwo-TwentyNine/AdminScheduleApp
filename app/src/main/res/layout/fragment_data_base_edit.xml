@@ -34,7 +34,6 @@
         android:layout_width="360dp"
         android:layout_height="69dp"
         android:fontFamily="@font/roboto_light"
-        android:paddingStart="13dp"
         android:paddingTop="19dp"
         android:paddingBottom="19dp"
         android:text="+"

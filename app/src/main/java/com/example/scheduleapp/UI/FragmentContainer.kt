@@ -54,9 +54,9 @@ class FragmentContainer : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (scheduleViewModel.getSavedSchedule() == null) {
+        if (scheduleViewModel.getSavedCurrentSchedule() == null) {
             initDownloadObservers()
-            mainViewModel.downloadSchedule(currentDownloadStatus)
+            mainViewModel.downloadCurrentSchedule(currentDownloadStatus)
         } else {
             setupViewPager2()
         }
@@ -65,8 +65,8 @@ class FragmentContainer : Fragment() {
             createPopupWindow(APP_ADMIN_SAVE_CHANGES_WARNING, true) {
                 val uploadSchedule = changeSingleScheduleDay(
                     mainViewModel.getParameters().dayList,
-                    baseSchedule = mainViewModel.getSchedule(),
-                    newSchedule = scheduleViewModel.getSavedSchedule()!!,
+                    baseSchedule = mainViewModel.getCurrentSchedule(),
+                    newSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
                     mainViewModel.getDayWithOffset(mainViewModel.getChosenDate())
                 )
                 mainViewModel.uploadCurrentSchedule(currentUploadStatus, uploadSchedule) }
@@ -75,11 +75,11 @@ class FragmentContainer : Fragment() {
             createPopupWindow(APP_ADMIN_RESET_CHANGES_WARNING) {
                 val resetSchedule = changeSingleScheduleDay(
                     mainViewModel.getParameters().dayList,
-                    baseSchedule = scheduleViewModel.getSavedSchedule()!!,
-                    newSchedule = mainViewModel.getSchedule(),
+                    baseSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
+                    newSchedule = mainViewModel.getCurrentSchedule(),
                     mainViewModel.getDayWithOffset(mainViewModel.getChosenDate())
                 )
-                scheduleViewModel.saveSchedule(resetSchedule)
+                scheduleViewModel.saveCurrentSchedule(resetSchedule)
                 mainViewModel.performTimerEvent(
                     { setupViewPager2() },
                     50L) }
@@ -161,7 +161,7 @@ class FragmentContainer : Fragment() {
                 is DownloadStatus.Success<FlatScheduleDetailed> -> {
                     binding.progressBar.visibility = View.GONE
                     currentDownloadStatus.removeObservers(viewLifecycleOwner)
-                    scheduleViewModel.saveSchedule(mainViewModel.getSchedule())
+                    scheduleViewModel.saveCurrentSchedule(mainViewModel.getCurrentSchedule())
                     setupViewPager2()
                 }
                 else -> {
@@ -234,8 +234,8 @@ class FragmentContainer : Fragment() {
             try {
                 theoreticalUploadSchedule = changeSingleScheduleDay(
                     mainViewModel.getParameters().dayList,
-                    baseSchedule = mainViewModel.getSchedule(),
-                    newSchedule = scheduleViewModel.getSavedSchedule()!!,
+                    baseSchedule = mainViewModel.getCurrentSchedule(),
+                    newSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
                     mainViewModel.getDayWithOffset(mainViewModel.getChosenDate())
                 )
             } catch (e: Exception) {
@@ -243,7 +243,7 @@ class FragmentContainer : Fragment() {
                 showDayMissingWarning()
                 return
             }
-            comparisonResult = checkIfFlatScheduleDetailedEquals(mainViewModel.getSchedule(), theoreticalUploadSchedule)
+            comparisonResult = checkIfFlatScheduleDetailedEquals(mainViewModel.getCurrentSchedule(), theoreticalUploadSchedule)
         } else {
             comparisonResult = !forcedBool
             Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "Forced boolean = $forcedBool")

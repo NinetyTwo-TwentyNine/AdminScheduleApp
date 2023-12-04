@@ -10,6 +10,7 @@ import com.example.scheduleapp.utils.Utils.addPairToFlatSchedule
 import com.example.scheduleapp.utils.Utils.convertPairToArrayOfAddPairItem
 import com.example.scheduleapp.utils.Utils.getById
 import com.example.scheduleapp.utils.Utils.getEmptyId
+import com.example.scheduleapp.utils.Utils.getFlatScheduleBaseDeepCopy
 import com.example.scheduleapp.utils.Utils.getFlatScheduleDetailedDeepCopy
 import com.example.scheduleapp.utils.Utils.getItemId
 import com.example.scheduleapp.utils.Utils.getScheduleIdByGroupAndDate
@@ -19,7 +20,8 @@ import kotlin.collections.ArrayList
 
 //@HiltViewModel
 class ScheduleFragmentViewModel : ViewModel() {
-    private var savedFlatSchedule: FlatScheduleDetailed? = null
+    private var savedFlatScheduleDetailed: FlatScheduleDetailed? = null
+    private var savedFlatScheduleBase: FlatScheduleBase? = null
     private var chosenScheduleItem: ArrayList<AddPairItem>? = null
     private var chosenScheduleId: Int? = null
     private var chosenPairNumber: Int? = null
@@ -55,13 +57,13 @@ class ScheduleFragmentViewModel : ViewModel() {
             return detArray
         }
 
-        val scheduleId: Int? = getScheduleIdByGroupAndDate(savedFlatSchedule!!, dayId, groupId)
+        val scheduleId: Int? = getScheduleIdByGroupAndDate(savedFlatScheduleDetailed!!, dayId, groupId)
 
         if (scheduleId == null) {
             return detArray
         }
 
-        moveDataFromScheduleToArray(savedFlatSchedule!!, parameters, scheduleId, detArray)
+        moveDataFromScheduleToArray(savedFlatScheduleDetailed!!, parameters, scheduleId, detArray)
         return detArray
     }
     private fun finishScheduleArraySetup(resArray: ArrayList<Schedule>, detArray: ArrayList<ScheduleDetailed>) {
@@ -70,7 +72,7 @@ class ScheduleFragmentViewModel : ViewModel() {
         }
     }
 
-    fun checkForEquality(scheduleDetailed: ScheduleDetailed): Schedule {
+    private fun checkForEquality(scheduleDetailed: ScheduleDetailed): Schedule {
         val scheduleObject = Schedule()
 
         scheduleObject.lessonNum = scheduleDetailed.lessonNum
@@ -115,8 +117,8 @@ class ScheduleFragmentViewModel : ViewModel() {
         }
 
         if (same) {
-            for (i in 0 until base.size) {
-                if (base[i].title != new[i].title) {
+            for (i in 0 until base_ids.size) {
+                if (getById(base_ids[i], base)!!.title != getById(base_ids[i], new)!!.title) {
                     same = false
                     break
                 }
@@ -128,14 +130,14 @@ class ScheduleFragmentViewModel : ViewModel() {
 
     private fun collectAllScheduleIds(): ArrayList<Int> {
         val scheduleIds = arrayListOf<Int>()
-        for (i: Data_IntArray in savedFlatSchedule!!.scheduleDay) {
+        for (i: Data_IntArray in savedFlatScheduleDetailed!!.scheduleDay) {
             i.scheduleId.forEach {
                 if (!scheduleIds.contains(it)) {
                     scheduleIds.add(it)
                 }
             }
         }
-        for (i: Data_IntArray in savedFlatSchedule!!.scheduleGroup) {
+        for (i: Data_IntArray in savedFlatScheduleDetailed!!.scheduleGroup) {
             i.scheduleId.forEach {
                 if (!scheduleIds.contains(it)) {
                     scheduleIds.add(it)
@@ -145,16 +147,28 @@ class ScheduleFragmentViewModel : ViewModel() {
         return scheduleIds
     }
 
-    fun getSavedSchedule(): FlatScheduleDetailed? {
-        return if (savedFlatSchedule == null) {
+    fun getSavedCurrentSchedule(): FlatScheduleDetailed? {
+        return if (savedFlatScheduleDetailed == null) {
             null
         } else {
-            getFlatScheduleDetailedDeepCopy(savedFlatSchedule!!)
+            getFlatScheduleDetailedDeepCopy(savedFlatScheduleDetailed!!)
         }
     }
 
-    fun saveSchedule(newSchedule: FlatScheduleDetailed) {
-        savedFlatSchedule = getFlatScheduleDetailedDeepCopy(newSchedule)
+    fun saveCurrentSchedule(newSchedule: FlatScheduleDetailed) {
+        savedFlatScheduleDetailed = getFlatScheduleDetailedDeepCopy(newSchedule)
+    }
+
+    fun getSavedBaseSchedule(): FlatScheduleBase? {
+        return if (savedFlatScheduleBase == null) {
+            null
+        } else {
+            getFlatScheduleBaseDeepCopy(savedFlatScheduleBase!!)
+        }
+    }
+
+    fun saveBaseSchedule(newSchedule: FlatScheduleBase) {
+        savedFlatScheduleBase = getFlatScheduleBaseDeepCopy(newSchedule)
     }
 
     fun chooseScheduleItem(scheduleParams: FlatScheduleParameters, currentDate: Date, currentGroup: String, pairNumber: Int, baseSchedule: FlatScheduleDetailed? = null): Boolean {
@@ -167,14 +181,14 @@ class ScheduleFragmentViewModel : ViewModel() {
         }
 
 
-        if (getById(currentDateId, savedFlatSchedule!!.scheduleDay) == null) {
-            savedFlatSchedule!!.scheduleDay.add(Data_IntArray(currentDateId, arrayListOf()))
+        if (getById(currentDateId, savedFlatScheduleDetailed!!.scheduleDay) == null) {
+            savedFlatScheduleDetailed!!.scheduleDay.add(Data_IntArray(currentDateId, arrayListOf()))
         }
-        if (getById(currentGroupId!!, savedFlatSchedule!!.scheduleGroup) == null) {
-            savedFlatSchedule!!.scheduleGroup.add(Data_IntArray(currentDateId, arrayListOf()))
+        if (getById(currentGroupId!!, savedFlatScheduleDetailed!!.scheduleGroup) == null) {
+            savedFlatScheduleDetailed!!.scheduleGroup.add(Data_IntArray(currentDateId, arrayListOf()))
         }
 
-        var scheduleId: Int? = getScheduleIdByGroupAndDate(savedFlatSchedule!!, currentDateId, currentGroupId)
+        var scheduleId: Int? = getScheduleIdByGroupAndDate(savedFlatScheduleDetailed!!, currentDateId, currentGroupId)
 
         chosenScheduleIdIsNew = (scheduleId == null)
         if (scheduleId == null) {
@@ -184,8 +198,8 @@ class ScheduleFragmentViewModel : ViewModel() {
             if (scheduleId == null) {
                 scheduleId = getEmptyId(collectAllScheduleIds())
             }
-            val dayScheduleArray = getById(currentDateId, savedFlatSchedule!!.scheduleDay)
-            val groupScheduleArray = getById(currentGroupId, savedFlatSchedule!!.scheduleGroup)
+            val dayScheduleArray = getById(currentDateId, savedFlatScheduleDetailed!!.scheduleDay)
+            val groupScheduleArray = getById(currentGroupId, savedFlatScheduleDetailed!!.scheduleGroup)
             dayScheduleArray!!.scheduleId.add(scheduleId)
             groupScheduleArray!!.scheduleId.add(scheduleId)
         }
@@ -230,8 +244,8 @@ class ScheduleFragmentViewModel : ViewModel() {
         }
 
         var scheduleId: Int? = null
-        val firstScheduleArray = getById(currentDateId, savedFlatSchedule!!.scheduleDay)
-        val secondScheduleArray = getById(currentGroupId!!, savedFlatSchedule!!.scheduleGroup)
+        val firstScheduleArray = getById(currentDateId, savedFlatScheduleDetailed!!.scheduleDay)
+        val secondScheduleArray = getById(currentGroupId!!, savedFlatScheduleDetailed!!.scheduleGroup)
         if (firstScheduleArray == null || secondScheduleArray == null) {
             Log.d("ADMIN_EDITOR_CHECKER", "No date or group array was found.")
             return true
@@ -258,13 +272,13 @@ class ScheduleFragmentViewModel : ViewModel() {
             return true
         }
 
-        removeScheduleItemById(savedFlatSchedule!!, scheduleId, number+1, true)
+        removeScheduleItemById(savedFlatScheduleDetailed!!, scheduleId, number+1, true)
         return true
     }
 
     fun saveScheduleEdits(scheduleParams: FlatScheduleParameters, pair: Pair<ScheduleDetailed, ScheduleDetailed>) {
-        removeScheduleItemById(savedFlatSchedule!!, chosenScheduleId!!, chosenPairNumber!!+1, false)
-        addPairToFlatSchedule(savedFlatSchedule!!, scheduleParams, chosenScheduleId!!, pair)
+        removeScheduleItemById(savedFlatScheduleDetailed!!, chosenScheduleId!!, chosenPairNumber!!+1, false)
+        addPairToFlatSchedule(savedFlatScheduleDetailed!!, scheduleParams, chosenScheduleId!!, pair)
         chosenScheduleItem = convertPairToArrayOfAddPairItem(Pair(pair.first, pair.second))
         chosenScheduleIdIsNew = false
     }

@@ -30,6 +30,8 @@ object Constants {
     const val APP_ADMIN_SAVE_CHANGES_WARNING = "Are sure you want to save these changes?"
     const val APP_ADMIN_RESET_CHANGES_WARNING = "Are sure you want to reset these changes?"
     const val APP_ADMIN_ID_DELETION_WARNING = "Some of the IDs were deleted."
+    const val APP_ADMIN_BASE_SCHEDULE_EDIT_MODE = 0
+    const val APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE = 1
     val APP_CALENDER_DAY_OF_WEEK = listOf("вс", "пн", "вт", "ср", "чт", "пт", "сб")
     val APP_ADMIN_PARAMETERS_LIST = listOf(APP_ADMIN_PARAMETERS_DISCIPLINE_NAME, APP_ADMIN_PARAMETERS_TEACHER_NAME, APP_ADMIN_PARAMETERS_GROUP_NAME, APP_ADMIN_PARAMETERS_CABINET_NAME)
 
