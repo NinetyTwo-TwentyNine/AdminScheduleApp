@@ -18,6 +18,38 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <LinearLayout
+        android:id="@+id/buttons_layout"
+        android:layout_width="360dp"
+        android:layout_height="69dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:weightSum="100">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/resetButton"
+            style="@style/Button"
+            android:layout_height="match_parent"
+            android:layout_marginRight="5dp"
+            android:layout_weight="50"
+            android:enabled="false"
+            android:text="Reset all changes"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="parent" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/saveButton"
+            style="@style/Button"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="50"
+            android:enabled="false"
+            android:text="Upload all changes"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="parent" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/addButton"
         style="@style/Button"
@@ -26,6 +58,7 @@
         android:fontFamily="@font/roboto_light"
         android:paddingTop="19dp"
         android:paddingBottom="19dp"
+        android:layout_marginTop="10dp"
         android:text="+"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
@@ -35,7 +68,7 @@
         app:cardCornerRadius="13dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text"/>
+        app:layout_constraintTop_toBottomOf="@+id/buttons_layout"/>
 
 
     <LinearLayout

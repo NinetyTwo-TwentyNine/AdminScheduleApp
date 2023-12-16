@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.scheduleapp.adapters.AddPairRecyclerViewAdapter
+import com.example.scheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
+import com.example.scheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
 import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_PAIR_ARRAY
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_CABINET_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_DISCIPLINE_LIST
@@ -18,7 +20,8 @@ import com.example.scheduleapp.data.ScheduleDetailed
 import com.example.scheduleapp.databinding.FragmentAddPairBinding
 import com.example.scheduleapp.utils.Utils.checkIfItemArraysAreEqual
 import com.example.scheduleapp.utils.Utils.convertArrayOfAddPairItemToPair
-import com.example.scheduleapp.utils.Utils.getArrayOfAddPairItemDeepCopy
+import com.example.scheduleapp.utils.Utils.getById
+import com.example.scheduleapp.utils.Utils.getItemArrayDeepCopy
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
 
@@ -47,13 +50,17 @@ class AddPairFragment() : Fragment() {
             val subPair2 = ScheduleDetailed(scheduleViewModel.getChosenPairNum()!! * 2 + 2)
 
             convertArrayOfAddPairItemToPair(ArrayList(addPairRecyclerViewAdapter.differ.currentList), Pair(subPair1, subPair2))
-            scheduleViewModel.saveScheduleEdits(mainViewModel.getParameters(), Pair(subPair1, subPair2))
+            scheduleViewModel.saveScheduleEdits(mainViewModel.getParameters(), Pair(subPair1, subPair2), mainViewModel.getEditMode())
             it.isEnabled = false
         }
 
         binding.pair.text = (scheduleViewModel.getChosenPairNum()!! + 1).toString() + "-я пара"
         binding.group.text = scheduleViewModel.getChosenGroup()
-        binding.date.text = mainViewModel.getDayToTab(mainViewModel.getChosenDate()).replace(System.lineSeparator(), ", ")
+        binding.date.text = mainViewModel.getDayToTab().replace(System.lineSeparator(), ", ")
+
+        if (mainViewModel.getEditMode() == APP_ADMIN_BASE_SCHEDULE_EDIT_MODE) {
+            binding.baseSchedule.text = scheduleViewModel.getBaseScheduleName()
+        }
     }
 
     private fun setupRecyclerView() {
@@ -71,7 +78,7 @@ class AddPairFragment() : Fragment() {
             cabinet_params_list
         ) { mainViewModel.performTimerEvent({ updateSaveButton() }, 50L) }
 
-        val addPairArray = getArrayOfAddPairItemDeepCopy(scheduleViewModel.getChosenScheduleItem()!!)
+        val addPairArray = getItemArrayDeepCopy(scheduleViewModel.getChosenScheduleItem()!!)
         addPairRecyclerViewAdapter.differ.submitList(addPairArray)
         binding.apply {
             schedulesRecyclerView.apply {
@@ -150,7 +157,10 @@ class AddPairFragment() : Fragment() {
 
     override fun onDestroyView() {
         if (scheduleViewModel.chosenScheduleIdIsNew!!) {
-            scheduleViewModel.removeScheduleItem(mainViewModel.getParameters(), mainViewModel.getDayWithOffset(mainViewModel.getChosenDate()), scheduleViewModel.getChosenGroup()!!, scheduleViewModel.getChosenPairNum()!!)
+            when(mainViewModel.getEditMode()) {
+                APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> scheduleViewModel.removeScheduleItemCurrent(mainViewModel.getParameters(), mainViewModel.getDayWithOffset(), scheduleViewModel.getChosenGroup()!!, scheduleViewModel.getChosenPairNum()!!)
+                APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> scheduleViewModel.removeScheduleItemBase(mainViewModel.getParameters(), mainViewModel.getChosenDayIndex(), scheduleViewModel.getChosenGroup()!!, scheduleViewModel.getChosenPairNum()!!)
+            }
         }
         super.onDestroyView()
     }

@@ -42,7 +42,7 @@ class ChooseDateFragment : Fragment() {
         binding.dateToCreateScheduleDatePicker.maxDate = mCalendar.timeInMillis
 
         binding.goNextButton.setOnClickListener {
-            viewModel.chooseDate(com.example.scheduleapp.data.Date(binding.dateToCreateScheduleDatePicker.year, binding.dateToCreateScheduleDatePicker.month+1, binding.dateToCreateScheduleDatePicker.dayOfMonth))
+            viewModel.chooseDay(com.example.scheduleapp.data.Date(binding.dateToCreateScheduleDatePicker.year, binding.dateToCreateScheduleDatePicker.month+1, binding.dateToCreateScheduleDatePicker.dayOfMonth))
             requireView().findNavController()
                 .navigate(ChooseDateFragmentDirections.actionChooseDateFragmentToFragmentContainer())
         }

@@ -15,14 +15,15 @@ import com.example.scheduleapp.data.AddPairItem
 import com.example.scheduleapp.databinding.ScheduleAddItemBinding
 import com.example.scheduleapp.databinding.ScheduleAddSpecialItemBinding
 
-const val COMMON = 0
-const val SPECIAL = 1
 
 class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
                                  private val teacherList: ArrayList<String>,
                                  private val cabinetList: ArrayList<String>,
                                  private val updateFunc: ()->Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    val TYPE_COMMON = 0
+    val TYPE_SPECIAL = 1
+
     private lateinit var binding: ScheduleAddItemBinding
     private lateinit var bindingSpecial: ScheduleAddSpecialItemBinding
 
@@ -93,7 +94,7 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        if (viewType == COMMON) {
+        if (viewType == TYPE_COMMON) {
             binding = ScheduleAddItemBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false)
             return ItemViewHolder(binding, this)
@@ -105,7 +106,7 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (getItemViewType(position) == COMMON) {
+        if (getItemViewType(position) == TYPE_COMMON) {
             (holder as ItemViewHolder).setData(differ.currentList[position])
             holder.setIsRecyclable(false)
         } else {

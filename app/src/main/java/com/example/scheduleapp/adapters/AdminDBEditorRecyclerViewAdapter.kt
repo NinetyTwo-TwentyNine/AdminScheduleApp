@@ -1,7 +1,6 @@
 package com.example.scheduleapp.adapters
 
 import android.annotation.SuppressLint
-import android.opengl.Visibility
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
@@ -16,13 +15,15 @@ import com.example.scheduleapp.R
 import com.example.scheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_DELETE
 import com.example.scheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_OFF
 import com.example.scheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_ON
+import com.example.scheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
 import com.example.scheduleapp.data.Data_IntString
 import com.example.scheduleapp.databinding.BasicTextItemBinding
-import com.example.scheduleapp.utils.Utils
 
 class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<Int>) -> Unit,
                                        private val updateSaveButton: () -> Unit,
-                                       private val minTextLength: Int
+                                       private val minTextLength: Int,
+                                       private val deleteFunc: ((Int)->Unit)? = null,
+                                       private val cardSpinnerFunc: ((Int, Int) -> Unit)? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     val viewStates: ArrayList<Int> = ArrayList()
     private lateinit var binding: BasicTextItemBinding
@@ -36,12 +37,31 @@ class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<I
                 title.text = SpannableStringBuilder(item.title)
                 title.inputType = 0
 
+                if (recycler.cardSpinnerFunc != null) {
+                    val adapterArray = ArrayList(APP_CALENDER_DAY_OF_WEEK)
+                    adapterArray[0] = ""
+                    cardSpinner.adapter = ArrayAdapter(cardSpinner.context, R.layout.invisible_spinner_item, adapterArray).also { adapter ->
+                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+                    }
+                    cardSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                            if (position != 0 && title.inputType != 1) {
+                                recycler.cardSpinnerFunc!!(position, item.id!!)
+                            }
+                        }
+                        override fun onNothingSelected(parent: AdapterView<*>?) { }
+                    }
+                } else {
+                    cardSpinner.isEnabled = false
+                }
+
                 moreVertexSpinner.adapter = ArrayAdapter(moreVertexSpinner.context, R.layout.spinner_item, arrayListOf(APP_ADMIN_TABLE_EDIT_OPTIONS_OFF, APP_ADMIN_TABLE_EDIT_OPTIONS_ON, APP_ADMIN_TABLE_EDIT_OPTIONS_DELETE)).also { adapter ->
                     adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                 }
                 moreVertexSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         if (position == 0) {
+                            title.text = SpannableStringBuilder(title.text.toString().trim())
                             if (title.inputType == 0) {
                                 if (title.text.isEmpty()) {
                                     moreVertexSpinner.setSelection(1)
@@ -51,16 +71,18 @@ class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<I
                                 Toast.makeText(moreVertexSpinner.context, "Can not save such a name.", Toast.LENGTH_SHORT).show()
                             } else {
                                 title.inputType = 0
+                                cardSpinner.isEnabled = (recycler.cardSpinnerFunc != null)
                                 recycler.editFunction(adapterPosition, title.text.toString())
                                 recycler.removeValueFromViewStates(item.id!!)
                             }
                         }
                         if (position == 1) {
                             title.inputType = 1
+                            cardSpinner.isEnabled = false
                             recycler.addValueToViewStates(item.id!!)
                         }
                         if (position == 2) {
-                            recycler.deleteFunction(adapterPosition, binding)
+                            recycler.deleteCardView(adapterPosition, binding)
                             recycler.removeValueFromViewStates(item.id!!)
                         }
                         recycler.updateAddButton(recycler.viewStates)
@@ -85,8 +107,9 @@ class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<I
         return differ.currentList.size
     }
 
-    private fun deleteFunction(pos: Int, binding: BasicTextItemBinding) {
+    private fun deleteCardView(pos: Int, binding: BasicTextItemBinding) {
         val currentRecyclerList = ArrayList(differ.currentList)
+        deleteFunc?.let { it(currentRecyclerList[pos].id!!) }
         currentRecyclerList.removeAt(pos)
 
         completelyRemoveTheView(binding)
@@ -116,6 +139,7 @@ class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<I
     }
 
     private fun completelyRemoveTheView(binding: BasicTextItemBinding) {
+        binding.cardSpinner.isEnabled = false
         binding.moreVertexSpinner.isClickable = false
         binding.title.isClickable = false
         binding.root.isClickable = false

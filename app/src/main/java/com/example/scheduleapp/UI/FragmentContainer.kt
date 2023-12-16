@@ -15,9 +15,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.example.scheduleapp.adapters.MainScreenAdapter
-import com.example.scheduleapp.data.Constants.APP_ADMIN_MISSING_DAY_WARNING
-import com.example.scheduleapp.data.Constants.APP_ADMIN_RESET_CHANGES_WARNING
-import com.example.scheduleapp.data.Constants.APP_ADMIN_SAVE_CHANGES_WARNING
+import com.example.scheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
+import com.example.scheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
+import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_MISSING_DAY
+import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_RESET_CHANGES
+import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
 import com.example.scheduleapp.data.DownloadStatus
 import com.example.scheduleapp.data.FlatScheduleDetailed
@@ -26,6 +28,8 @@ import com.example.scheduleapp.databinding.BasicPopupWindowBinding
 import com.example.scheduleapp.databinding.FragmentContainerBinding
 import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleDetailedEquals
 import com.example.scheduleapp.utils.Utils.changeSingleScheduleDay
+import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleBaseEquals
+import com.example.scheduleapp.utils.Utils.getById
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
 import com.google.android.material.tabs.TabLayoutMediator
@@ -54,6 +58,14 @@ class FragmentContainer : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        when(mainViewModel.getEditMode()) {
+            APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> setupViewBaseEditMode()
+            APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> setupViewCurrentEditMode()
+        }
+    }
+
+    private fun setupViewCurrentEditMode() {
         if (scheduleViewModel.getSavedCurrentSchedule() == null) {
             initDownloadObservers()
             mainViewModel.downloadCurrentSchedule(currentDownloadStatus)
@@ -62,24 +74,53 @@ class FragmentContainer : Fragment() {
         }
 
         binding.saveButton.setOnClickListener {
-            createPopupWindow(APP_ADMIN_SAVE_CHANGES_WARNING, true) {
+            createPopupWindow(APP_ADMIN_WARNING_SAVE_CHANGES, true) {
                 val uploadSchedule = changeSingleScheduleDay(
                     mainViewModel.getParameters().dayList,
                     baseSchedule = mainViewModel.getCurrentSchedule(),
                     newSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
-                    mainViewModel.getDayWithOffset(mainViewModel.getChosenDate())
+                    mainViewModel.getDayWithOffset(mainViewModel.getChosenDayIndex())
                 )
                 mainViewModel.uploadCurrentSchedule(currentUploadStatus, uploadSchedule) }
         }
         binding.resetButton.setOnClickListener {
-            createPopupWindow(APP_ADMIN_RESET_CHANGES_WARNING) {
+            createPopupWindow(APP_ADMIN_WARNING_RESET_CHANGES) {
                 val resetSchedule = changeSingleScheduleDay(
                     mainViewModel.getParameters().dayList,
                     baseSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
                     newSchedule = mainViewModel.getCurrentSchedule(),
-                    mainViewModel.getDayWithOffset(mainViewModel.getChosenDate())
+                    mainViewModel.getDayWithOffset(mainViewModel.getChosenDayIndex())
                 )
                 scheduleViewModel.saveCurrentSchedule(resetSchedule)
+                mainViewModel.performTimerEvent(
+                    { setupViewPager2() },
+                    50L) }
+        }
+    }
+
+    private fun setupViewBaseEditMode() {
+        dontEverShowDayWarning = true
+        setupViewPager2()
+
+        binding.saveButton.setOnClickListener {
+            createPopupWindow(APP_ADMIN_WARNING_SAVE_CHANGES, true) {
+                val uploadSchedule = changeSingleScheduleDay(
+                    dateId = mainViewModel.getChosenDayIndex(),
+                    baseSchedule = mainViewModel.getBaseSchedule(),
+                    newSchedule = scheduleViewModel.getSavedBaseSchedule()!!,
+                    nameId = scheduleViewModel.getChosenBaseSchedule()!!
+                )
+                mainViewModel.uploadBaseSchedule(currentUploadStatus, uploadSchedule) }
+        }
+        binding.resetButton.setOnClickListener {
+            createPopupWindow(APP_ADMIN_WARNING_RESET_CHANGES) {
+                val resetSchedule = changeSingleScheduleDay(
+                    dateId = mainViewModel.getChosenDayIndex(),
+                    baseSchedule = scheduleViewModel.getSavedBaseSchedule()!!,
+                    newSchedule = mainViewModel.getBaseSchedule(),
+                    nameId = scheduleViewModel.getChosenBaseSchedule()!!
+                )
+                scheduleViewModel.saveBaseSchedule(resetSchedule)
                 mainViewModel.performTimerEvent(
                     { setupViewPager2() },
                     50L) }
@@ -101,7 +142,12 @@ class FragmentContainer : Fragment() {
         for (i in 0 until groupArray.size) {
             binding.tabLayout.getTabAt(i)?.text = groupArray[i]
         }
-        binding.dayName.text = mainViewModel.getDayToTab(mainViewModel.getChosenDate())
+        binding.dayName.text = mainViewModel.getDayToTab()
+        if (mainViewModel.getEditMode() == APP_ADMIN_BASE_SCHEDULE_EDIT_MODE) {
+            binding.dayName.text =
+                scheduleViewModel.getBaseScheduleName() +
+                        System.lineSeparator() + binding.dayName.text.toString()
+        }
 
         initUploadObservers()
     }
@@ -218,7 +264,7 @@ class FragmentContainer : Fragment() {
 
     private fun showDayMissingWarning() {
         if (dontEverShowDayWarning) { dontEverShowDayWarning = false; return }
-        createPopupWindow(APP_ADMIN_MISSING_DAY_WARNING, noButtonDisabled = true) {
+        createPopupWindow(APP_ADMIN_WARNING_MISSING_DAY, noButtonDisabled = true) {
             dontEverShowDayWarning = true
             requireView().findNavController()
                 .navigate(FragmentContainerDirections.actionFragmentContainerToSettingsFragment())
@@ -228,28 +274,61 @@ class FragmentContainer : Fragment() {
     fun updateResetAndSaveButtons(forcedBool: Boolean? = null) {
         Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "")
 
-        val comparisonResult: Boolean
+        val comparisonResult: Boolean?
         if (forcedBool == null) {
-            val theoreticalUploadSchedule: FlatScheduleDetailed
-            try {
-                theoreticalUploadSchedule = changeSingleScheduleDay(
-                    mainViewModel.getParameters().dayList,
-                    baseSchedule = mainViewModel.getCurrentSchedule(),
-                    newSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
-                    mainViewModel.getDayWithOffset(mainViewModel.getChosenDate())
-                )
-            } catch (e: Exception) {
-                Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "The day ID was missing!")
-                showDayMissingWarning()
-                return
+            comparisonResult = performTheoreticalUploadCheck()
+            if (comparisonResult == null) {
+                when(mainViewModel.getEditMode()) {
+                    APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> {
+                        showDayMissingWarning()
+                        return
+                    }
+                    APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> {
+                        throw(Exception("Theoretical upload check result and edit mode mismatch."))
+                    }
+                }
             }
-            comparisonResult = checkIfFlatScheduleDetailedEquals(mainViewModel.getCurrentSchedule(), theoreticalUploadSchedule)
         } else {
             comparisonResult = !forcedBool
             Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "Forced boolean = $forcedBool")
         }
-        Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "Are they the same? $comparisonResult.")
+
+        if (forcedBool == null) {
+            Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "Are they the same? $comparisonResult.")
+        }
         binding.saveButton.isEnabled = !comparisonResult
         binding.resetButton.isEnabled = !comparisonResult
+    }
+
+    private fun performTheoreticalUploadCheck(): Boolean? {
+        when (mainViewModel.getEditMode()) {
+            APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> {
+                val theoreticalUploadSchedule: FlatScheduleDetailed
+                try {
+                    theoreticalUploadSchedule = changeSingleScheduleDay(
+                        mainViewModel.getParameters().dayList,
+                        baseSchedule = mainViewModel.getCurrentSchedule(),
+                        newSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
+                        mainViewModel.getDayWithOffset()
+                    )
+                } catch (e: Exception) {
+                    Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "The day ID was missing!")
+                    return null
+                }
+                return checkIfFlatScheduleDetailedEquals(mainViewModel.getCurrentSchedule(), theoreticalUploadSchedule)
+            }
+            APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> {
+                val theoreticalUploadSchedule = changeSingleScheduleDay(
+                    mainViewModel.getChosenDayIndex(),
+                    baseSchedule = mainViewModel.getBaseSchedule(),
+                    newSchedule = scheduleViewModel.getSavedBaseSchedule()!!,
+                    scheduleViewModel.getChosenBaseSchedule()!!
+                )
+                return checkIfFlatScheduleBaseEquals(mainViewModel.getBaseSchedule(), theoreticalUploadSchedule, false)
+            }
+            else -> {
+                return null
+            }
+        }
     }
 }

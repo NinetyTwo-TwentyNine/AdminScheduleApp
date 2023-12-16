@@ -10,7 +10,8 @@ data class FlatScheduleDetailed (
 )
 
 data class FlatScheduleBase (
-    var scheduleName   : ArrayList<Data_StringArray>   = arrayListOf(),
+    var nameList    : ArrayList<Data_IntString>    = arrayListOf(),
+    var scheduleName   : ArrayList<Data_IntArray>   = arrayListOf(),
     var scheduleDay   : ArrayList<Data_IntArray>   = arrayListOf(),
     var scheduleGroup : ArrayList<Data_IntArray> = arrayListOf(),
     var scheduleLesson : ArrayList<Data_IntIntIntArrayArray> = arrayListOf(),
@@ -38,11 +39,6 @@ data class Data_IntDate (
 
 data class Data_IntArray (
     var specialId  : Int?           = null,
-    var scheduleId : ArrayList<Int> = arrayListOf()
-)
-
-data class Data_StringArray (
-    var title      : String?        = null,
     var scheduleId : ArrayList<Int> = arrayListOf()
 )
 

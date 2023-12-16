@@ -3,17 +3,20 @@ package com.example.scheduleapp.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.scheduleapp.data.AddPairItem
 import com.example.scheduleapp.data.*
-import com.example.scheduleapp.data.Date
+import com.example.scheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
+import com.example.scheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
+import com.example.scheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
 import com.example.scheduleapp.utils.Utils.addPairToFlatSchedule
 import com.example.scheduleapp.utils.Utils.convertPairToArrayOfAddPairItem
 import com.example.scheduleapp.utils.Utils.getById
 import com.example.scheduleapp.utils.Utils.getEmptyId
 import com.example.scheduleapp.utils.Utils.getFlatScheduleBaseDeepCopy
 import com.example.scheduleapp.utils.Utils.getFlatScheduleDetailedDeepCopy
+import com.example.scheduleapp.utils.Utils.getItemArrayDeepCopy
 import com.example.scheduleapp.utils.Utils.getItemId
 import com.example.scheduleapp.utils.Utils.getScheduleIdByGroupAndDate
+import com.example.scheduleapp.utils.Utils.getScheduleIdByGroupDateAndBaseScheduleId
 import com.example.scheduleapp.utils.Utils.moveDataFromScheduleToArray
 import com.example.scheduleapp.utils.Utils.removeScheduleItemById
 import kotlin.collections.ArrayList
@@ -22,6 +25,8 @@ import kotlin.collections.ArrayList
 class ScheduleFragmentViewModel : ViewModel() {
     private var savedFlatScheduleDetailed: FlatScheduleDetailed? = null
     private var savedFlatScheduleBase: FlatScheduleBase? = null
+
+    private var chosenBaseSchedule: Int? = null
     private var chosenScheduleItem: ArrayList<AddPairItem>? = null
     private var chosenScheduleId: Int? = null
     private var chosenPairNumber: Int? = null
@@ -33,10 +38,20 @@ class ScheduleFragmentViewModel : ViewModel() {
 
 
     fun getScheduleByGroupAndDay(
-        groupId: Int?, dayId: Int?, parameters: FlatScheduleParameters
+        groupId: Int?, dayId: Int?, parameters: FlatScheduleParameters, editMode: Int
     ): ArrayList<Schedule> {
         val resArray = arrayListOf<Schedule>()
-        val detArray = getScheduleByGroupAndDayDetailed(groupId, dayId, parameters)
+        val detArray: ArrayList<ScheduleDetailed> = when (editMode) {
+            APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> {
+                getCurrentScheduleByGroupAndDayDetailed(groupId, dayId, parameters)
+            }
+            APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> {
+                getBaseScheduleByGroupAndDayDetailed(groupId, dayId, parameters)
+            }
+            else -> {
+                throw(IllegalStateException("Unknown edit mode."))
+            }
+        }
         detArray.forEach {
             resArray.add(Schedule())
         }
@@ -44,7 +59,7 @@ class ScheduleFragmentViewModel : ViewModel() {
         finishScheduleArraySetup(resArray, detArray)
         return resArray
     }
-    fun getScheduleByGroupAndDayDetailed(
+    private fun getCurrentScheduleByGroupAndDayDetailed(
         groupId: Int?, dayId: Int?, parameters: FlatScheduleParameters
     ): ArrayList<ScheduleDetailed> {
         val detArray = arrayListOf<ScheduleDetailed>()
@@ -66,6 +81,30 @@ class ScheduleFragmentViewModel : ViewModel() {
         moveDataFromScheduleToArray(savedFlatScheduleDetailed!!, parameters, scheduleId, detArray)
         return detArray
     }
+
+    private fun getBaseScheduleByGroupAndDayDetailed(
+        groupId: Int?, dayId: Int?, parameters: FlatScheduleParameters
+    ): ArrayList<ScheduleDetailed> {
+        val detArray = arrayListOf<ScheduleDetailed>()
+
+        for (i in 1..14) {
+            detArray.add(ScheduleDetailed(lessonNum = i))
+        }
+
+        if (groupId == null || dayId == null) {
+            return detArray
+        }
+
+        val scheduleId: Int? = getScheduleIdByGroupDateAndBaseScheduleId(savedFlatScheduleBase!!, dayId, groupId, chosenBaseSchedule!!)
+
+        if (scheduleId == null) {
+            return detArray
+        }
+
+        moveDataFromScheduleToArray(savedFlatScheduleBase!!, parameters, scheduleId, detArray)
+        return detArray
+    }
+
     private fun finishScheduleArraySetup(resArray: ArrayList<Schedule>, detArray: ArrayList<ScheduleDetailed>) {
         for (i in 0 until detArray.size) {
             resArray[i] = checkForEquality(detArray[i])
@@ -128,7 +167,7 @@ class ScheduleFragmentViewModel : ViewModel() {
         return Pair(same, missing_ids)
     }
 
-    private fun collectAllScheduleIds(): ArrayList<Int> {
+    private fun collectAllCurrentScheduleIds(): ArrayList<Int> {
         val scheduleIds = arrayListOf<Int>()
         for (i: Data_IntArray in savedFlatScheduleDetailed!!.scheduleDay) {
             i.scheduleId.forEach {
@@ -138,6 +177,31 @@ class ScheduleFragmentViewModel : ViewModel() {
             }
         }
         for (i: Data_IntArray in savedFlatScheduleDetailed!!.scheduleGroup) {
+            i.scheduleId.forEach {
+                if (!scheduleIds.contains(it)) {
+                    scheduleIds.add(it)
+                }
+            }
+        }
+        return scheduleIds
+    }
+    private fun collectAllBaseScheduleIds(): ArrayList<Int> {
+        val scheduleIds = arrayListOf<Int>()
+        for (i: Data_IntArray in savedFlatScheduleBase!!.scheduleDay) {
+            i.scheduleId.forEach {
+                if (!scheduleIds.contains(it)) {
+                    scheduleIds.add(it)
+                }
+            }
+        }
+        for (i: Data_IntArray in savedFlatScheduleBase!!.scheduleGroup) {
+            i.scheduleId.forEach {
+                if (!scheduleIds.contains(it)) {
+                    scheduleIds.add(it)
+                }
+            }
+        }
+        for (i: Data_IntArray in savedFlatScheduleBase!!.scheduleName) {
             i.scheduleId.forEach {
                 if (!scheduleIds.contains(it)) {
                     scheduleIds.add(it)
@@ -171,7 +235,15 @@ class ScheduleFragmentViewModel : ViewModel() {
         savedFlatScheduleBase = getFlatScheduleBaseDeepCopy(newSchedule)
     }
 
-    fun chooseScheduleItem(scheduleParams: FlatScheduleParameters, currentDate: Date, currentGroup: String, pairNumber: Int, baseSchedule: FlatScheduleDetailed? = null): Boolean {
+    fun chooseBaseSchedule(scheduleNum: Int) {
+        chosenBaseSchedule = scheduleNum
+    }
+
+    fun getChosenBaseSchedule(): Int? {
+        return chosenBaseSchedule
+    }
+
+    fun chooseScheduleItemCurrent(scheduleParams: FlatScheduleParameters, currentDate: Date, currentGroup: String, pairNumber: Int, baseSchedule: FlatScheduleDetailed? = null): Boolean {
         val currentGroupId = getItemId(scheduleParams.groupList, currentGroup)
         val currentDateId = getItemId(scheduleParams.dayList, currentDate)
 
@@ -196,15 +268,16 @@ class ScheduleFragmentViewModel : ViewModel() {
                 scheduleId = getScheduleIdByGroupAndDate(baseSchedule, currentDateId, currentGroupId)
             }
             if (scheduleId == null) {
-                scheduleId = getEmptyId(collectAllScheduleIds())
+                scheduleId = getEmptyId(collectAllCurrentScheduleIds())
             }
             val dayScheduleArray = getById(currentDateId, savedFlatScheduleDetailed!!.scheduleDay)
             val groupScheduleArray = getById(currentGroupId, savedFlatScheduleDetailed!!.scheduleGroup)
+
             dayScheduleArray!!.scheduleId.add(scheduleId)
             groupScheduleArray!!.scheduleId.add(scheduleId)
         }
 
-        convertChosenScheduleToAddPairItem(scheduleParams, currentDateId, currentGroupId, pairNumber)
+        convertChosenScheduleToAddPairItem(scheduleParams, currentDateId, currentGroupId, pairNumber, APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE)
         chosenScheduleId = scheduleId
         chosenPairNumber = pairNumber
 
@@ -214,8 +287,61 @@ class ScheduleFragmentViewModel : ViewModel() {
         return true
     }
 
-    private fun convertChosenScheduleToAddPairItem(scheduleParams: FlatScheduleParameters, currentDateId: Int, currentGroupId: Int, pairNumber: Int) {
-        val schedule = getScheduleByGroupAndDayDetailed(currentGroupId, currentDateId, scheduleParams)
+    fun chooseScheduleItemBase(scheduleParams: FlatScheduleParameters, dayId: Int, currentGroup: String, pairNumber: Int, baseSchedule: FlatScheduleBase? = null): Boolean {
+        val currentGroupId = getItemId(scheduleParams.groupList, currentGroup)
+
+
+        if (getById(dayId, savedFlatScheduleBase!!.scheduleDay) == null) {
+            savedFlatScheduleBase!!.scheduleDay.add(Data_IntArray(dayId, arrayListOf()))
+        }
+        if (getById(currentGroupId!!, savedFlatScheduleBase!!.scheduleGroup) == null) {
+            savedFlatScheduleBase!!.scheduleGroup.add(Data_IntArray(dayId, arrayListOf()))
+        }
+        if (getById(chosenBaseSchedule!!, savedFlatScheduleBase!!.scheduleName) == null) {
+            savedFlatScheduleBase!!.scheduleName.add(Data_IntArray(chosenBaseSchedule!!, arrayListOf()))
+        }
+
+        var scheduleId: Int? = getScheduleIdByGroupDateAndBaseScheduleId(savedFlatScheduleBase!!, dayId, currentGroupId, chosenBaseSchedule!!)
+
+        chosenScheduleIdIsNew = (scheduleId == null)
+        if (scheduleId == null) {
+            if (baseSchedule != null) {
+                scheduleId = getScheduleIdByGroupDateAndBaseScheduleId(baseSchedule, dayId, currentGroupId, chosenBaseSchedule!!)
+            }
+            if (scheduleId == null) {
+                scheduleId = getEmptyId(collectAllBaseScheduleIds())
+            }
+            val dayScheduleArray = getById(dayId, savedFlatScheduleBase!!.scheduleDay)
+            val groupScheduleArray = getById(currentGroupId, savedFlatScheduleBase!!.scheduleGroup)
+            val nameScheduleArray = getById(chosenBaseSchedule!!, savedFlatScheduleBase!!.scheduleName)
+
+            dayScheduleArray!!.scheduleId.add(scheduleId)
+            groupScheduleArray!!.scheduleId.add(scheduleId)
+            nameScheduleArray!!.scheduleId.add(scheduleId)
+        }
+
+        convertChosenScheduleToAddPairItem(scheduleParams, dayId, currentGroupId, pairNumber, APP_ADMIN_BASE_SCHEDULE_EDIT_MODE)
+        chosenScheduleId = scheduleId
+        chosenPairNumber = pairNumber
+
+        chosenDate = APP_CALENDER_DAY_OF_WEEK[dayId]
+        chosenGroup = currentGroup
+
+        return true
+    }
+
+    private fun convertChosenScheduleToAddPairItem(scheduleParams: FlatScheduleParameters, currentDateId: Int, currentGroupId: Int, pairNumber: Int, editMode: Int) {
+        val schedule: ArrayList<ScheduleDetailed> = when(editMode) {
+            APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> {
+                getCurrentScheduleByGroupAndDayDetailed(currentGroupId, currentDateId, scheduleParams)
+            }
+            APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> {
+                getBaseScheduleByGroupAndDayDetailed(currentGroupId, currentDateId, scheduleParams)
+            }
+            else -> {
+                throw(IllegalStateException("Unknown edit mode."))
+            }
+        }
         val subPair1 = schedule[pairNumber*2]
         val subPair2 = schedule[pairNumber*2+1]
 
@@ -234,7 +360,7 @@ class ScheduleFragmentViewModel : ViewModel() {
         return chosenGroup
     }
 
-    fun removeScheduleItem(scheduleParams: FlatScheduleParameters, currentDate: Date, currentGroup: String, number: Int): Boolean {
+    fun removeScheduleItemCurrent(scheduleParams: FlatScheduleParameters, currentDate: Date, currentGroup: String, number: Int): Boolean {
         val currentGroupId = getItemId(scheduleParams.groupList, currentGroup)
         val currentDateId = getItemId(scheduleParams.dayList, currentDate)
 
@@ -251,24 +377,15 @@ class ScheduleFragmentViewModel : ViewModel() {
             return true
         }
 
-        if (firstScheduleArray.scheduleId.size < secondScheduleArray.scheduleId.size) {
-            for (item in firstScheduleArray.scheduleId) {
-                if (secondScheduleArray.scheduleId.contains(item)) {
-                    scheduleId = item
-                    break
-                }
-            }
-        } else {
-            for (item in secondScheduleArray.scheduleId) {
-                if (firstScheduleArray.scheduleId.contains(item)) {
-                    scheduleId = item
-                    break
-                }
+        for (item in firstScheduleArray.scheduleId) {
+            if (secondScheduleArray.scheduleId.contains(item)) {
+                scheduleId = item
+                break
             }
         }
 
         if (scheduleId == null) {
-            Log.d("ADMIN_EDITOR_CHECKER", "No schedule ID was identified.")
+            Log.d("ADMIN_EDITOR_CHECKER", "No schedule ID was found.")
             return true
         }
 
@@ -276,10 +393,86 @@ class ScheduleFragmentViewModel : ViewModel() {
         return true
     }
 
-    fun saveScheduleEdits(scheduleParams: FlatScheduleParameters, pair: Pair<ScheduleDetailed, ScheduleDetailed>) {
-        removeScheduleItemById(savedFlatScheduleDetailed!!, chosenScheduleId!!, chosenPairNumber!!+1, false)
-        addPairToFlatSchedule(savedFlatScheduleDetailed!!, scheduleParams, chosenScheduleId!!, pair)
+    fun removeScheduleItemBase(scheduleParams: FlatScheduleParameters, currentDayId: Int, currentGroup: String, number: Int): Boolean {
+        val currentGroupId = getItemId(scheduleParams.groupList, currentGroup)
+
+
+        var scheduleId: Int? = null
+        val firstScheduleArray = getById(currentDayId, savedFlatScheduleBase!!.scheduleDay)
+        val secondScheduleArray = getById(currentGroupId!!, savedFlatScheduleBase!!.scheduleGroup)
+        val thirdScheduleArray = getById(chosenBaseSchedule!!, savedFlatScheduleBase!!.scheduleName)
+        if (firstScheduleArray == null || secondScheduleArray == null || thirdScheduleArray == null) {
+            Log.d("ADMIN_EDITOR_CHECKER", "No date or group array was found.")
+            return true
+        }
+
+        for (item in firstScheduleArray.scheduleId) {
+            if (secondScheduleArray.scheduleId.contains(item) && thirdScheduleArray.scheduleId.contains(item)) {
+                scheduleId = item
+                break
+            }
+        }
+
+        if (scheduleId == null) {
+            Log.d("ADMIN_EDITOR_CHECKER", "No schedule ID was found.")
+            return true
+        }
+
+        removeScheduleItemById(savedFlatScheduleBase!!, scheduleId, number+1, true)
+        return true
+    }
+
+    fun saveScheduleEdits(scheduleParams: FlatScheduleParameters, pair: Pair<ScheduleDetailed, ScheduleDetailed>, editMode: Int) {
+        when (editMode) {
+            APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> {
+                removeScheduleItemById(savedFlatScheduleDetailed!!, chosenScheduleId!!, chosenPairNumber!!+1, false)
+                addPairToFlatSchedule(savedFlatScheduleDetailed!!, scheduleParams, chosenScheduleId!!, pair)
+            }
+            APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> {
+                removeScheduleItemById(savedFlatScheduleBase!!, chosenScheduleId!!, chosenPairNumber!!+1, false)
+                addPairToFlatSchedule(savedFlatScheduleBase!!, scheduleParams, chosenScheduleId!!, pair)
+            }
+            else -> {
+                throw(IllegalStateException("Unknown edit mode."))
+            }
+        }
         chosenScheduleItem = convertPairToArrayOfAddPairItem(Pair(pair.first, pair.second))
         chosenScheduleIdIsNew = false
+    }
+
+    fun addNewBaseSchedule(newId: Int, newTitle: String) {
+        savedFlatScheduleBase!!.nameList.add(Data_IntString(newId, newTitle))
+    }
+
+    fun removeBaseSchedule(baseScheduleId: Int) {
+        val idsArray: ArrayList<Int> = arrayListOf()
+        savedFlatScheduleBase!!.nameList.forEach { idsArray.add(it.id!!) }
+        if (!idsArray.contains(baseScheduleId)) {
+            throw(Exception("Attempt to remove a base schedule with an unknown ID!"))
+        }
+        idsArray.clear()
+
+        val nameIdArray = getById(baseScheduleId, savedFlatScheduleBase!!.scheduleName)
+        if (nameIdArray != null) {
+            nameIdArray.scheduleId.forEach { idsArray.add(it) }
+            Log.d("NON-CRASH_DEBUGGER_ULT", idsArray.toString())
+            idsArray.forEach { removeScheduleItemById(savedFlatScheduleBase!!, it) }
+        }
+        savedFlatScheduleBase!!.nameList.remove(getById(baseScheduleId, savedFlatScheduleBase!!.nameList))
+    }
+
+    fun saveBaseScheduleNames(newNameList: ArrayList<Data_IntString>) {
+        savedFlatScheduleBase!!.nameList = getItemArrayDeepCopy(newNameList)
+    }
+
+    fun checkBaseScheduleIdValidity(baseFlatSchedule: FlatScheduleBase, baseScheduleId: Int = chosenBaseSchedule!!): Boolean {
+        val idsArray: ArrayList<Int> = arrayListOf()
+        baseFlatSchedule.nameList.forEach { idsArray.add(it.id!!) }
+
+        return idsArray.contains(baseScheduleId)
+    }
+
+    fun getBaseScheduleName(baseScheduleId: Int = chosenBaseSchedule!!): String {
+        return getById(baseScheduleId, savedFlatScheduleBase!!.nameList)!!.title!!
     }
 }

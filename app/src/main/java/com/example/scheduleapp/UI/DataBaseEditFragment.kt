@@ -13,12 +13,14 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.scheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
-import com.example.scheduleapp.data.*
-import com.example.scheduleapp.data.Constants.APP_ADMIN_ID_DELETION_WARNING
-import com.example.scheduleapp.data.Constants.APP_ADMIN_SAVE_CHANGES_WARNING
+import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_ID_DELETION
+import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
+import com.example.scheduleapp.data.Data_IntString
+import com.example.scheduleapp.data.DownloadStatus
+import com.example.scheduleapp.data.UploadStatus
 import com.example.scheduleapp.databinding.BasicPopupWindowBinding
 import com.example.scheduleapp.databinding.FragmentDataBaseEditBinding
-import com.example.scheduleapp.utils.Utils.getArrayOfDataIntStringDeepCopy
+import com.example.scheduleapp.utils.Utils.getItemArrayDeepCopy
 import com.example.scheduleapp.utils.Utils.getPossibleId
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
@@ -75,7 +77,6 @@ class DataBaseEditFragment: Fragment() {
 
         binding.saveButton.setOnClickListener {
             createPopupWindow()
-            updateSaveButton(false)
         }
 
         setupFunctions()
@@ -112,6 +113,7 @@ class DataBaseEditFragment: Fragment() {
     }
 
     private fun createPopupWindow() {
+        updateSaveButton(false)
         val currentRecyclerList = ArrayList(dbEditorRecyclerViewAdapter.differ.currentList)
 
         popupBinding = BasicPopupWindowBinding.inflate(layoutInflater)
@@ -120,15 +122,15 @@ class DataBaseEditFragment: Fragment() {
         val width = ConstraintLayout.LayoutParams.WRAP_CONTENT
         val height = ConstraintLayout.LayoutParams.WRAP_CONTENT
 
-        var text = APP_ADMIN_SAVE_CHANGES_WARNING
+        var text = APP_ADMIN_WARNING_SAVE_CHANGES
         if (scheduleViewModel.compareParametersLists(mainViewModel.getParametersByIndex(index!!), currentRecyclerList).second) {
-            text = APP_ADMIN_ID_DELETION_WARNING + "\n" + text
+            text = APP_ADMIN_WARNING_ID_DELETION + "\n" + text
         }
 
         val popupWindow = PopupWindow(popupView, width, height, true)
         popupBinding.popupText.text = text
         popupBinding.yesButton.setOnClickListener {
-            uploadRecyclerList = getArrayOfDataIntStringDeepCopy(currentRecyclerList)
+            uploadRecyclerList = getItemArrayDeepCopy(currentRecyclerList)
             mainViewModel.uploadParameters(currentUploadStatus, index!!, uploadRecyclerList)
             popupWindow.dismiss()
         }

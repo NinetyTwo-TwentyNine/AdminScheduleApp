@@ -14,23 +14,21 @@
         app:cardBackgroundColor="#292B30"
         app:cardCornerRadius="13dp">
 
+        <Spinner
+            android:id="@+id/card_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:backgroundTint="#292B30"/>
+
         <EditText
             android:id="@+id/title"
             style="@style/EditTextInSchedule"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Базовое расписание 1"
             android:backgroundTint="#292B30"
             android:textColor="#FFFFFF"
             android:layout_marginStart="10dp"/>
-
-        <ImageView
-            android:id="@+id/icon_more_vertex"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="14.5dp"
-            android:layout_marginStart="300dp"
-            app:srcCompat="@drawable/icon_more_options" />
 
         <Spinner
             android:id="@+id/more_vertex_spinner"
@@ -39,6 +37,14 @@
             android:layout_marginTop="14.5dp"
             android:layout_marginStart="300dp"
             android:backgroundTint="#292B30" />
+
+        <ImageView
+            android:id="@+id/icon_more_vertex"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="14.5dp"
+            android:layout_marginStart="300dp"
+            app:srcCompat="@drawable/icon_more_options" />
 
     </androidx.cardview.widget.CardView>
 

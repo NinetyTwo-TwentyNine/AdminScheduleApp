@@ -43,7 +43,7 @@ fun Any.actuallyEquals(comparisonItem: Data_IntArray): Boolean {
     return ((this as Data_IntArray).scheduleId == comparisonItem.scheduleId &&
             specialId == comparisonItem.specialId)
 }
-
+/*
 fun Any.actuallyEquals(comparisonItem: Any?): Boolean {
     Log.d("ADMIN_OBJECT_COMPARISON_DEBUGGER", "")
     Log.d("ADMIN_OBJECT_COMPARISON_DEBUGGER", "Comparison function was called.")
@@ -55,3 +55,4 @@ fun Any.actuallyEquals(comparisonItem: Any?): Boolean {
     Log.d("ADMIN_OBJECT_COMPARISON_DEBUGGER", "Warning! Actually-equals function returned result of the default equals function.")
     return (equals(comparisonItem))
 }
+*/

@@ -41,12 +41,13 @@
             app:layout_constraintTop_toBottomOf="parent" />
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/saveButton"
-            android:layout_weight="50"
             style="@style/Button"
-            android:enabled="false"
-            android:text="Upload the changes"
+            android:layout_height="match_parent"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="10dp"
+            android:layout_weight="50"
+            android:enabled="false"
+            android:text="Upload the changes"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
     </LinearLayout>

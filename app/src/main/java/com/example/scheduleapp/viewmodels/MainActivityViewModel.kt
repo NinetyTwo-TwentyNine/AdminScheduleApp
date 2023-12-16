@@ -19,18 +19,18 @@ import com.example.scheduleapp.data.Constants.APP_BD_PATHS_DATE_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_DISCIPLINE_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_BASE
+import com.example.scheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_BASE_NAME_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_CURRENT
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_TEACHER_LIST
 import com.example.scheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
-import com.example.scheduleapp.data.Constants.APP_WEAK_CONNECTION_WARNING
+import com.example.scheduleapp.data.Constants.APP_WARNING_WEAK_CONNECTION
 import com.example.scheduleapp.data.Date
 import com.example.scheduleapp.models.FirebaseRepository
 import com.example.scheduleapp.utils.Utils.checkIfItemArraysAreEqual
-import com.example.scheduleapp.utils.Utils.getArrayOfDataIntDateDeepCopy
-import com.example.scheduleapp.utils.Utils.getArrayOfDataIntStringDeepCopy
 import com.example.scheduleapp.utils.Utils.getById
 import com.example.scheduleapp.utils.Utils.getFlatScheduleBaseDeepCopy
 import com.example.scheduleapp.utils.Utils.getFlatScheduleDetailedDeepCopy
+import com.example.scheduleapp.utils.Utils.getItemArrayDeepCopy
 import com.example.scheduleapp.utils.Utils.getPossibleId
 import com.example.scheduleapp.utils.Utils.removeScheduleItemById
 import com.google.android.gms.tasks.OnCompleteListener
@@ -51,7 +51,7 @@ class MainActivityViewModel @Inject constructor(
     private var flatScheduleDetailed = FlatScheduleDetailed()
     private var flatScheduleBase = FlatScheduleBase()
     private var flatScheduleParameters = FlatScheduleParameters()
-    private var chosenDateIndex = PAGE_COUNT/2
+    private var chosenDayIndex = PAGE_COUNT/2
     private var editMode: Int = APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
 
     init {
@@ -92,7 +92,7 @@ class MainActivityViewModel @Inject constructor(
         if (link) {
             return table
         }
-        return getArrayOfDataIntStringDeepCopy(table)
+        return getItemArrayDeepCopy(table)
     }
 
     fun getParametersByIndex(id: Int, link: Boolean = false): ArrayList<Data_IntString> {
@@ -116,6 +116,10 @@ class MainActivityViewModel @Inject constructor(
 
     private fun updateCurrentSchedule(newFlatSchedule: FlatScheduleDetailed) {
         flatScheduleDetailed = getFlatScheduleDetailedDeepCopy(newFlatSchedule)
+    }
+
+    private fun updateBaseSchedule(newFlatSchedule: FlatScheduleBase) {
+        flatScheduleBase = getFlatScheduleBaseDeepCopy(newFlatSchedule)
     }
 
     fun <T> downloadParametersList(parametersDownloadState: MutableLiveData<DownloadStatus<T>>, reference: String? = null) {
@@ -213,17 +217,6 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    private fun <T> setDownloadTimeout(downloadStatus: MutableLiveData<DownloadStatus<T>>, time: Long): Timer {
-        return performTimerEvent(
-            { downloadStatus.value = DownloadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING) }, time)
-    }
-
-    private fun setUploadTimeout(uploadState: MutableLiveData<UploadStatus>, time: Long): Timer {
-        return performTimerEvent(
-            { uploadState.value = UploadStatus.WeakProgress(APP_WEAK_CONNECTION_WARNING) }, time
-        )
-    }
-
     fun performTimerEvent(function: ()->Unit, time: Long): Timer {
         val event_timer = Timer()
         val timerTask = object : TimerTask() {
@@ -235,6 +228,17 @@ class MainActivityViewModel @Inject constructor(
         }
         event_timer.schedule(timerTask, time)
         return event_timer
+    }
+
+    private fun <T> setDownloadTimeout(downloadStatus: MutableLiveData<DownloadStatus<T>>, time: Long): Timer {
+        return performTimerEvent(
+            { downloadStatus.value = DownloadStatus.WeakProgress(APP_WARNING_WEAK_CONNECTION) }, time)
+    }
+
+    private fun setUploadTimeout(uploadState: MutableLiveData<UploadStatus>, time: Long): Timer {
+        return performTimerEvent(
+            { uploadState.value = UploadStatus.WeakProgress(APP_WARNING_WEAK_CONNECTION) }, time
+        )
     }
 
     private fun <T> uploadData(uploadState: MutableLiveData<UploadStatus>, reference: String, info: T, updateFunc: ()->Unit) {
@@ -253,14 +257,26 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun uploadParameters(uploadState: MutableLiveData<UploadStatus>, index: Int, paramsArr: ArrayList<Data_IntString>) {
-        val downloadableParamsArray = getArrayOfDataIntStringDeepCopy(paramsArr)
-        downloadableParamsArray.forEach { it.title = "'${it.title}'" }
+        val downloadableParamsArray = getItemArrayDeepCopy(paramsArr)
+        downloadableParamsArray.forEach { it.title = "'${it.title!!}'" }
         uploadData(uploadState, getReferenceByIndex(index), downloadableParamsArray) { updateParametersByIndex(index, paramsArr) }
     }
 
     fun uploadCurrentSchedule(uploadState: MutableLiveData<UploadStatus>, flatSchedule: FlatScheduleDetailed) {
         cleanScheduleFromUnnecessaryDates(flatSchedule)
         uploadData(uploadState, APP_BD_PATHS_SCHEDULE_CURRENT, flatSchedule) { updateCurrentSchedule(flatSchedule) }
+    }
+
+    fun uploadBaseSchedule(uploadState: MutableLiveData<UploadStatus>, flatSchedule: FlatScheduleBase) {
+        val uploadSchedule = getFlatScheduleBaseDeepCopy(flatSchedule)
+        uploadSchedule.nameList.forEach { it.title = "'${it.title!!}'" }
+        uploadData(uploadState, APP_BD_PATHS_SCHEDULE_BASE, uploadSchedule) { updateBaseSchedule(flatSchedule) }
+    }
+
+    fun uploadBaseScheduleNames(uploadState: MutableLiveData<UploadStatus>, flatSchedule: FlatScheduleBase) {
+        val uploadNameList = getItemArrayDeepCopy(flatSchedule.nameList)
+        uploadNameList.forEach { it.title = "'${it.title!!}'" }
+        uploadData(uploadState, APP_BD_PATHS_SCHEDULE_BASE_NAME_LIST, uploadNameList) { flatScheduleBase.nameList = getItemArrayDeepCopy(flatSchedule.nameList) }
     }
 
     private fun cleanScheduleFromUnnecessaryDates(flatSchedule: FlatScheduleDetailed) {
@@ -282,7 +298,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun updateAndUploadTheDayList(uploadState: MutableLiveData<UploadStatus>): Boolean {
-        val dayList = getArrayOfDataIntDateDeepCopy(flatScheduleParameters.dayList)
+        val dayList = getItemArrayDeepCopy(flatScheduleParameters.dayList)
 
         for (i in 0 until PAGE_COUNT) {
             val date = getDayWithOffset(i)
@@ -331,8 +347,8 @@ class MainActivityViewModel @Inject constructor(
         return table
     }
 
-    fun getDayWithOffset(index: Int): Date {
-        var position = index - PAGE_COUNT/2
+    fun getDayWithOffset(index: Int = chosenDayIndex): Date {
+        val position = index - PAGE_COUNT/2
         val c = Calendar.getInstance()
 
         if (position != 0) {
@@ -345,19 +361,29 @@ class MainActivityViewModel @Inject constructor(
         return Date(year, month, day)
     }
 
-    fun getDayToTab(index: Int): String {
-        val position = index - PAGE_COUNT/2
-        val c = Calendar.getInstance()
+    fun getDayToTab(index: Int = chosenDayIndex): String {
+        when (editMode) {
+            APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> {
+                return APP_CALENDER_DAY_OF_WEEK[index]
+            }
+            APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> {
+                val position = index - PAGE_COUNT/2
+                val c = Calendar.getInstance()
 
-        if (position != 0) {
-            c.add(Calendar.DATE, position)
+                if (position != 0) {
+                    c.add(Calendar.DATE, position)
+                }
+
+                val weekDay = APP_CALENDER_DAY_OF_WEEK[c.get(Calendar.DAY_OF_WEEK) - 1]
+                var day = c.get(Calendar.DAY_OF_MONTH).toString()
+                if (day.length < 2) { day = "0$day" }
+
+                return "$weekDay${System.getProperty("line.separator")}$day"
+            }
+            else -> {
+                throw(IllegalStateException("Unknown edit mode."))
+            }
         }
-
-        val weekDay = APP_CALENDER_DAY_OF_WEEK[c.get(Calendar.DAY_OF_WEEK) - 1]
-        var day = c.get(Calendar.DAY_OF_MONTH).toString()
-        if (day.length < 2) { day = "0$day" }
-
-        return "$weekDay${System.getProperty("line.separator")}$day"
     }
 
     fun isUserSingedIn(): Boolean {
@@ -418,8 +444,8 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun getChosenDate(): Int {
-        return chosenDateIndex
+    fun getChosenDayIndex(): Int {
+        return chosenDayIndex
     }
 
     private fun getDateIndex(date: Date): Int {
@@ -433,12 +459,26 @@ class MainActivityViewModel @Inject constructor(
         return index
     }
 
-    fun chooseDate(date: Date) {
-        val index = getDateIndex(date)
+    fun chooseDay(date: Date) {
+        if (editMode != APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE) {
+            throw(Exception("Edit mode and chosen date mismatch."))
+        }
 
+        val index = getDateIndex(date)
         if (index == -1) {
             throw(Exception("Failed to calculate chosen date's index."))
         }
-        chosenDateIndex = index
+        chosenDayIndex = index
+    }
+
+    fun chooseDay(day: Int) {
+        if (editMode != APP_ADMIN_BASE_SCHEDULE_EDIT_MODE) {
+            throw(Exception("Edit mode and chosen day mismatch."))
+        }
+
+        if (day < 1 || day > 7) {
+            throw(Exception("Invalid day number."))
+        }
+        chosenDayIndex = day
     }
 }
