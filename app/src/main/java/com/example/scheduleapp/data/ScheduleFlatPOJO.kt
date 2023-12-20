@@ -1,6 +1,12 @@
 package com.example.scheduleapp.data
 
 
+data class FlatSchedule(
+    var BaseParameters : FlatScheduleParameters = FlatScheduleParameters(),
+    var BaseSchedules : FlatScheduleBase = FlatScheduleBase(),
+    var CurrentSchedules : FlatScheduleDetailed = FlatScheduleDetailed()
+)
+
 data class FlatScheduleDetailed (
     var scheduleDay   : ArrayList<Data_IntArray>   = arrayListOf(),
     var scheduleGroup : ArrayList<Data_IntArray> = arrayListOf(),

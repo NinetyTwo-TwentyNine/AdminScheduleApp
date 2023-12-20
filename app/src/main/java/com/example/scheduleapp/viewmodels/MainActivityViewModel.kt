@@ -13,6 +13,7 @@ import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_DISCIPLINE_NA
 import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_GROUP_NAME
 import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_LIST
 import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_TEACHER_NAME
+import com.example.scheduleapp.data.Constants.APP_BD_PATHS_BASE
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_BASE_PARAMETERS
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_CABINET_LIST
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_DATE_LIST
@@ -155,6 +156,15 @@ class MainActivityViewModel @Inject constructor(
             .addOnCompleteListener(listener)
     }
 
+    fun downloadEverything(scheduleDownloadState: MutableLiveData<DownloadStatus<FlatSchedule>>) {
+        scheduleDownloadState.value = DownloadStatus.Progress
+        val timer = setDownloadTimeout(scheduleDownloadState, 8000L)
+
+        val listener = getEverythingDownloadListener(scheduleDownloadState, timer)
+        rImplementation.downloadByReference(APP_BD_PATHS_BASE)
+            .addOnCompleteListener(listener)
+    }
+
     private fun <T> getDownloadListener(downloadState: MutableLiveData<DownloadStatus<T>>, timer: Timer, reference: String): OnCompleteListener<DataSnapshot> {
         val listener = OnCompleteListener<DataSnapshot> { task ->
             timer.cancel()
@@ -164,6 +174,16 @@ class MainActivityViewModel @Inject constructor(
 
                 try {
                     when (reference) {
+                        APP_BD_PATHS_BASE -> {
+                            val flatScheduleAll = Gson().fromJson(
+                                task.result.value.toString(),
+                                FlatSchedule::class.java
+                            )
+                            flatScheduleBase = flatScheduleAll.BaseSchedules
+                            flatScheduleDetailed = flatScheduleAll.CurrentSchedules
+                            flatScheduleParameters = flatScheduleAll.BaseParameters
+                            downloadState.value = DownloadStatus.Success(flatScheduleAll as T)
+                        }
                         APP_BD_PATHS_SCHEDULE_CURRENT -> {
                             flatScheduleDetailed = Gson().fromJson(
                                 task.result.value.toString(),
@@ -215,6 +235,9 @@ class MainActivityViewModel @Inject constructor(
         } else {
             getDownloadListener(downloadState, timer, APP_BD_PATHS_SCHEDULE_CURRENT)
         }
+    }
+    private fun getEverythingDownloadListener(downloadState: MutableLiveData<DownloadStatus<FlatSchedule>>, timer: Timer): OnCompleteListener<DataSnapshot> {
+        return getDownloadListener(downloadState, timer, APP_BD_PATHS_BASE)
     }
 
     fun performTimerEvent(function: ()->Unit, time: Long): Timer {
@@ -301,7 +324,7 @@ class MainActivityViewModel @Inject constructor(
         val dayList = getItemArrayDeepCopy(flatScheduleParameters.dayList)
 
         for (i in 0 until PAGE_COUNT) {
-            val date = getDayWithOffset(i)
+            val date = getDateWithOffset(i)
             var dateExists = false
             dayList.forEach {
                 if (it.date!! == date) {
@@ -347,7 +370,7 @@ class MainActivityViewModel @Inject constructor(
         return table
     }
 
-    fun getDayWithOffset(index: Int = chosenDayIndex): Date {
+    fun getDateWithOffset(index: Int = chosenDayIndex): Date {
         val position = index - PAGE_COUNT/2
         val c = Calendar.getInstance()
 
@@ -451,7 +474,7 @@ class MainActivityViewModel @Inject constructor(
     private fun getDateIndex(date: Date): Int {
         var index = -1
         for (i in 0 until PAGE_COUNT) {
-            if (getDayWithOffset(i).equals(date)) {
+            if (getDateWithOffset(i).equals(date)) {
                 index = i
                 break
             }

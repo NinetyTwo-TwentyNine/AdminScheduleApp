@@ -29,7 +29,7 @@ class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
     private lateinit var setButtonVisibility: ()->Unit
     private lateinit var currentAuthStatus: MutableLiveData<AuthenticationStatus>
-    private lateinit var currentDownloadStatus: MutableLiveData<DownloadStatus<FlatScheduleParameters>>
+    private lateinit var currentDownloadStatus: MutableLiveData<DownloadStatus<FlatSchedule>>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,7 +44,8 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initDownloadObservers()
-        viewModel.downloadParametersList(currentDownloadStatus)
+        //viewModel.downloadParametersList(currentDownloadStatus)
+        viewModel.downloadEverything(currentDownloadStatus)
     }
 
     private fun initDownloadObservers() {
@@ -70,7 +71,7 @@ class LoginFragment : Fragment() {
                         Toast.LENGTH_LONG
                     ).show()
                 }
-                is DownloadStatus.Success<FlatScheduleParameters> -> {
+                is DownloadStatus.Success<FlatSchedule> -> {
                     binding.progressBar.visibility = View.GONE
                     currentDownloadStatus.removeObservers(viewLifecycleOwner)
 

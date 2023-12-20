@@ -57,12 +57,8 @@ class ChangeBasicScheduleFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (scheduleViewModel.getSavedBaseSchedule() == null) {
-            initDownloadObservers()
-            mainViewModel.downloadBaseSchedule(currentDownloadStatus)
-        } else {
-            setupView()
-        }
+        initDownloadObservers()
+        mainViewModel.downloadBaseSchedule(currentDownloadStatus)
     }
 
     private fun setupFunctions() {
@@ -254,7 +250,9 @@ class ChangeBasicScheduleFragment() : Fragment() {
                 is DownloadStatus.Success<FlatScheduleBase> -> {
                     binding.progressBar.visibility = View.GONE
                     currentDownloadStatus.removeObservers(viewLifecycleOwner)
-                    scheduleViewModel.saveBaseSchedule(mainViewModel.getBaseSchedule())
+                    if (scheduleViewModel.getSavedBaseSchedule() == null) {
+                        scheduleViewModel.saveBaseSchedule(mainViewModel.getBaseSchedule())
+                    }
                     setupView()
                 }
                 else -> {

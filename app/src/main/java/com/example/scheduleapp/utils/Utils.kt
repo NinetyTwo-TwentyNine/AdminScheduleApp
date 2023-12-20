@@ -684,6 +684,108 @@ object Utils {
         return returnSchedule
     }
 
+    fun applyBaseScheduleByNameAndDate(flatSchedule: FlatScheduleDetailed, dateId: Int, baseSchedule: FlatScheduleBase, nameId: Int, dayId: Int) {
+        val base_dayIdArray = getById(dayId, baseSchedule.scheduleDay)
+        val base_nameIdArray = getById(nameId, baseSchedule.scheduleName)
+
+        if (base_dayIdArray == null || base_nameIdArray == null) {
+            Log.d("ADMIN_BASE_SCHEDULE_APPLICATION", "No IDs to apply for that day and base schedule name.")
+            return
+        }
+
+        val idsToApply: ArrayList<Int> = arrayListOf()
+        base_nameIdArray.scheduleId.forEach {
+            if (base_dayIdArray.scheduleId.contains(it)) {
+                idsToApply.add(it)
+            }
+        }
+        if (idsToApply.isEmpty()) {
+            Log.d("ADMIN_BASE_SCHEDULE_APPLICATION", "No IDs to apply for that day and base schedule name.")
+            return
+        }
+
+        var dateIdArray = getById(dateId, flatSchedule.scheduleDay)
+        if (dateIdArray == null) {
+            dateIdArray = Data_IntArray(dateId, arrayListOf())
+            flatSchedule.scheduleDay.add(dateIdArray)
+        }
+
+        idsToApply.forEach { scheduleId ->
+            var base_groupIdArray: Data_IntArray? = null
+            baseSchedule.scheduleGroup.forEach {
+                if (it.scheduleId.contains(scheduleId)) {
+                    base_groupIdArray = it
+                }
+            }
+            if (base_groupIdArray == null) {
+                throw(Exception("Found a schedule ID with no group attached to it! Something is definitely wrong with the DB."))
+            }
+
+            var groupIdArray = getById(base_groupIdArray!!.specialId!!, flatSchedule.scheduleGroup)
+            if (groupIdArray == null) {
+                groupIdArray = Data_IntArray(base_groupIdArray!!.specialId!!, arrayListOf())
+                flatSchedule.scheduleGroup.add(groupIdArray)
+            }
+
+            var sameIdInFlatSchedule: Int? = null
+            dateIdArray.scheduleId.forEach {
+                if (groupIdArray.scheduleId.contains(it)) {
+                    sameIdInFlatSchedule = it
+                }
+            }
+
+            if (sameIdInFlatSchedule == null) {
+                val totalIdsList: ArrayList<Int> = arrayListOf()
+                groupIdArray.scheduleId.forEach {
+                    if (!totalIdsList.contains(it)) {
+                        totalIdsList.add(it)
+                    }
+                }
+                dateIdArray.scheduleId.forEach {
+                    if (!totalIdsList.contains(it)) {
+                        totalIdsList.add(it)
+                    }
+                }
+                sameIdInFlatSchedule = getEmptyId(totalIdsList)
+
+                groupIdArray.scheduleId.add(sameIdInFlatSchedule!!)
+                dateIdArray.scheduleId.add(sameIdInFlatSchedule!!)
+            } else {
+                removeScheduleItemById(flatSchedule, sameIdInFlatSchedule!!, canRemoveScheduleId = false)
+            }
+
+            baseSchedule.scheduleLesson.forEach {
+                if (it.scheduleId == scheduleId) {
+                    val duplicateItem = getDataIntIntIntArrayArrayDeepCopy(it)
+                    duplicateItem.scheduleId = sameIdInFlatSchedule
+                    flatSchedule.scheduleLesson.add(duplicateItem)
+                }
+            }
+            baseSchedule.cabinetLesson.forEach {
+                if (it.scheduleId == scheduleId) {
+                    val duplicateItem = getDataIntIntIntArrayArrayDeepCopy(it)
+                    duplicateItem.scheduleId = sameIdInFlatSchedule
+                    flatSchedule.cabinetLesson.add(duplicateItem)
+                }
+            }
+            baseSchedule.teacherLesson.forEach {
+                if (it.scheduleId == scheduleId) {
+                    val duplicateItem = getDataIntIntIntArrayArrayDeepCopy(it)
+                    duplicateItem.scheduleId = sameIdInFlatSchedule
+                    flatSchedule.teacherLesson.add(duplicateItem)
+                }
+            }
+
+            if (groupIdArray.scheduleId.isEmpty()) {
+                flatSchedule.scheduleGroup.remove(groupIdArray)
+            }
+        }
+
+        if (dateIdArray.scheduleId.isEmpty()) {
+            flatSchedule.scheduleDay.remove(dateIdArray)
+        }
+    }
+
     //================================================================================================================
     //Conversions
     //================================================================================================================
@@ -891,16 +993,15 @@ object Utils {
     }
 
     fun checkIfFlatScheduleBaseEquals(flatSchedule1: FlatScheduleBase, flatSchedule2: FlatScheduleBase, shouldCheckNameList: Boolean): Boolean {
-        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "")
+        /*Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "")
         Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "The FlatScheduleBase-comparison function was called.")
         Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Should check the name list = $shouldCheckNameList")
         Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Similar name-list = ${checkIfItemArraysAreEqual(flatSchedule1.nameList, flatSchedule2.nameList)}")
-        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "schedule-name1 = ${flatSchedule1.scheduleName}, schedule-name2 = ${flatSchedule2.scheduleName}")
         Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Similar schedule-lesson = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleLesson, flatSchedule2.scheduleLesson)}")
         Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Similar schedule-teacher = ${checkIfItemArraysAreEqual(flatSchedule1.teacherLesson, flatSchedule2.teacherLesson)}")
         Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Similar schedule-cabinet = ${checkIfItemArraysAreEqual(flatSchedule1.cabinetLesson, flatSchedule2.cabinetLesson)}")
         Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Similar day-schedule = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleDay, flatSchedule2.scheduleDay)}")
-        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Similar group-schedule = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleGroup, flatSchedule2.scheduleGroup)}")
+        Log.d("ADMIN_FLATSCHEDULE_COMPARISON_CHECKER", "Similar group-schedule = ${checkIfItemArraysAreEqual(flatSchedule1.scheduleGroup, flatSchedule2.scheduleGroup)}")*/
         return ((!shouldCheckNameList || checkIfItemArraysAreEqual(flatSchedule1.nameList, flatSchedule2.nameList)) &&
                 checkIfItemArraysAreEqual(flatSchedule1.scheduleName, flatSchedule2.scheduleName) &&
                 checkIfItemArraysAreEqual(flatSchedule1.scheduleLesson, flatSchedule2.scheduleLesson) &&

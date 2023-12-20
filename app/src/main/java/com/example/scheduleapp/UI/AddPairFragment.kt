@@ -20,7 +20,6 @@ import com.example.scheduleapp.data.ScheduleDetailed
 import com.example.scheduleapp.databinding.FragmentAddPairBinding
 import com.example.scheduleapp.utils.Utils.checkIfItemArraysAreEqual
 import com.example.scheduleapp.utils.Utils.convertArrayOfAddPairItemToPair
-import com.example.scheduleapp.utils.Utils.getById
 import com.example.scheduleapp.utils.Utils.getItemArrayDeepCopy
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
@@ -158,7 +157,7 @@ class AddPairFragment() : Fragment() {
     override fun onDestroyView() {
         if (scheduleViewModel.chosenScheduleIdIsNew!!) {
             when(mainViewModel.getEditMode()) {
-                APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> scheduleViewModel.removeScheduleItemCurrent(mainViewModel.getParameters(), mainViewModel.getDayWithOffset(), scheduleViewModel.getChosenGroup()!!, scheduleViewModel.getChosenPairNum()!!)
+                APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> scheduleViewModel.removeScheduleItemCurrent(mainViewModel.getParameters(), mainViewModel.getDateWithOffset(), scheduleViewModel.getChosenGroup()!!, scheduleViewModel.getChosenPairNum()!!)
                 APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> scheduleViewModel.removeScheduleItemBase(mainViewModel.getParameters(), mainViewModel.getChosenDayIndex(), scheduleViewModel.getChosenGroup()!!, scheduleViewModel.getChosenPairNum()!!)
             }
         }

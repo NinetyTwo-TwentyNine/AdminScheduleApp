@@ -26,12 +26,14 @@ object Constants {
     const val APP_ADMIN_PARAMETERS_TEACHER_NAME = "Teacher"
     const val APP_ADMIN_PARAMETERS_GROUP_NAME = "Group"
     const val APP_ADMIN_PARAMETERS_CABINET_NAME = "Cabinet"
+    const val APP_ADMIN_CHOOSE_BASE_SCHEDULE_TEXT = "Выбрать базовое расписание"
     const val APP_WARNING_WEAK_CONNECTION = "Looks like there are some problems with connection..."
     const val APP_ADMIN_WARNING_MISSING_DAY = "Warning! No ID was found for this date!\nDo you want to update the day list?"
     const val APP_ADMIN_WARNING_SAVE_CHANGES = "Are sure you want to save these changes?"
     const val APP_ADMIN_WARNING_RESET_CHANGES = "Are sure you want to reset these changes?"
     const val APP_ADMIN_WARNING_ID_DELETION = "Some of the IDs were deleted."
     const val APP_ADMIN_WARNING_SHOULD_UPLOAD = "The schedule should be uploaded first before it can be edited."
+    const val APP_ADMIN_WARNING_APPLY_BASE_SCHEDULE = "Вы уверены, что хотите применить это расписание?\nЛюбые совпадающие элементы расписания будут перезаписаны."
     const val APP_ADMIN_BASE_SCHEDULE_EDIT_MODE = 0
     const val APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE = 1
 

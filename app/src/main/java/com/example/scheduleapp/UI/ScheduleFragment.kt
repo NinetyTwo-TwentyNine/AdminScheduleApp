@@ -55,7 +55,7 @@ class ScheduleFragment() : Fragment() {
         val scheduleParams = mainViewModel.getParameters()
         val currentGroup = mainViewModel.getParametersList(APP_BD_PATHS_GROUP_LIST)[index!!]
         val currentGroupId = getItemId(scheduleParams.groupList, currentGroup)
-        val currentDate = mainViewModel.getDayWithOffset()
+        val currentDate = mainViewModel.getDateWithOffset()
         val currentDateId = getItemId(scheduleParams.dayList, currentDate)
         Log.d("TAG_FS", "currentGroup = ${currentGroupId.toString()}, currentDay = ${currentDateId.toString()}, index = ${index!!}")
         var currentSchedule = scheduleViewModel.getScheduleByGroupAndDay(currentGroupId, currentDateId, scheduleParams, APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE)

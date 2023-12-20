@@ -8,6 +8,7 @@ import com.example.scheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
 import com.example.scheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
 import com.example.scheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
 import com.example.scheduleapp.utils.Utils.addPairToFlatSchedule
+import com.example.scheduleapp.utils.Utils.applyBaseScheduleByNameAndDate
 import com.example.scheduleapp.utils.Utils.convertPairToArrayOfAddPairItem
 import com.example.scheduleapp.utils.Utils.getById
 import com.example.scheduleapp.utils.Utils.getEmptyId
@@ -474,5 +475,18 @@ class ScheduleFragmentViewModel : ViewModel() {
 
     fun getBaseScheduleName(baseScheduleId: Int = chosenBaseSchedule!!): String {
         return getById(baseScheduleId, savedFlatScheduleBase!!.nameList)!!.title!!
+    }
+
+    fun applyBaseSchedule(dayList: ArrayList<Data_IntDate>, date: Date, baseSchedule: FlatScheduleBase, baseScheduleName: String, day: String) {
+        val dateId = getItemId(dayList, date)
+        val nameId = getItemId(baseSchedule.nameList, baseScheduleName)
+
+        val dayOfWeek = (day.split(System.lineSeparator()))[0]
+        val dayId = APP_CALENDER_DAY_OF_WEEK.indexOf(dayOfWeek)
+
+        if (dateId == null || nameId == null) {
+            throw(Exception("No date or name ID was found during an attempt to apply a base schedule."))
+        }
+        applyBaseScheduleByNameAndDate(savedFlatScheduleDetailed!!, dateId, baseSchedule, nameId, dayId)
     }
 }

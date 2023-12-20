@@ -7,6 +7,8 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -14,9 +16,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
+import com.example.scheduleapp.R
 import com.example.scheduleapp.adapters.MainScreenAdapter
 import com.example.scheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
+import com.example.scheduleapp.data.Constants.APP_ADMIN_CHOOSE_BASE_SCHEDULE_TEXT
 import com.example.scheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
+import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_APPLY_BASE_SCHEDULE
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_MISSING_DAY
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_RESET_CHANGES
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
@@ -29,7 +34,6 @@ import com.example.scheduleapp.databinding.FragmentContainerBinding
 import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleDetailedEquals
 import com.example.scheduleapp.utils.Utils.changeSingleScheduleDay
 import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleBaseEquals
-import com.example.scheduleapp.utils.Utils.getById
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
 import com.google.android.material.tabs.TabLayoutMediator
@@ -66,12 +70,8 @@ class FragmentContainer : Fragment() {
     }
 
     private fun setupViewCurrentEditMode() {
-        if (scheduleViewModel.getSavedCurrentSchedule() == null) {
-            initDownloadObservers()
-            mainViewModel.downloadCurrentSchedule(currentDownloadStatus)
-        } else {
-            setupViewPager2()
-        }
+        initDownloadObservers()
+        mainViewModel.downloadCurrentSchedule(currentDownloadStatus)
 
         binding.saveButton.setOnClickListener {
             createPopupWindow(APP_ADMIN_WARNING_SAVE_CHANGES, true) {
@@ -79,7 +79,7 @@ class FragmentContainer : Fragment() {
                     mainViewModel.getParameters().dayList,
                     baseSchedule = mainViewModel.getCurrentSchedule(),
                     newSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
-                    mainViewModel.getDayWithOffset(mainViewModel.getChosenDayIndex())
+                    mainViewModel.getDateWithOffset(mainViewModel.getChosenDayIndex())
                 )
                 mainViewModel.uploadCurrentSchedule(currentUploadStatus, uploadSchedule) }
         }
@@ -89,13 +89,40 @@ class FragmentContainer : Fragment() {
                     mainViewModel.getParameters().dayList,
                     baseSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
                     newSchedule = mainViewModel.getCurrentSchedule(),
-                    mainViewModel.getDayWithOffset(mainViewModel.getChosenDayIndex())
+                    mainViewModel.getDateWithOffset(mainViewModel.getChosenDayIndex())
                 )
                 scheduleViewModel.saveCurrentSchedule(resetSchedule)
                 mainViewModel.performTimerEvent(
                     { setupViewPager2() },
                     50L) }
         }
+
+        val adapterArray = arrayListOf("")
+        mainViewModel.getBaseSchedule().nameList.forEach { adapterArray.add(it.title!!) }
+        binding.chooseScheduleSpinner.adapter = ArrayAdapter(binding.chooseScheduleSpinner.context, R.layout.spinner_item, adapterArray).also { adapter ->
+            adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+        }
+        binding.chooseScheduleSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val name = binding.chooseScheduleSpinner.getItemAtPosition(position).toString()
+                when(position == 0) {
+                    false -> {
+                        binding.chooseScheduleSpinner.setSelection(0)
+                        createPopupWindow(APP_ADMIN_WARNING_APPLY_BASE_SCHEDULE) {
+                            scheduleViewModel.applyBaseSchedule(mainViewModel.getParameters().dayList, mainViewModel.getDateWithOffset(), mainViewModel.getBaseSchedule(), name, mainViewModel.getDayToTab())
+                            mainViewModel.performTimerEvent(
+                                { setupViewPager2() },
+                                50L)
+                        }
+                    }
+                    true -> {}
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        binding.chooseScheduleSpinnerDefaultText.text = APP_ADMIN_CHOOSE_BASE_SCHEDULE_TEXT
+        binding.dayName.text = mainViewModel.getDayToTab()
     }
 
     private fun setupViewBaseEditMode() {
@@ -125,6 +152,10 @@ class FragmentContainer : Fragment() {
                     { setupViewPager2() },
                     50L) }
         }
+
+        binding.chooseScheduleSpinner.isEnabled = false
+        binding.chooseScheduleSpinnerDefaultText.text = scheduleViewModel.getBaseScheduleName()
+        binding.dayName.text = mainViewModel.getDayToTab()
     }
 
     @SuppressLint("SetTextI18n")
@@ -141,12 +172,6 @@ class FragmentContainer : Fragment() {
 
         for (i in 0 until groupArray.size) {
             binding.tabLayout.getTabAt(i)?.text = groupArray[i]
-        }
-        binding.dayName.text = mainViewModel.getDayToTab()
-        if (mainViewModel.getEditMode() == APP_ADMIN_BASE_SCHEDULE_EDIT_MODE) {
-            binding.dayName.text =
-                scheduleViewModel.getBaseScheduleName() +
-                        System.lineSeparator() + binding.dayName.text.toString()
         }
 
         initUploadObservers()
@@ -207,7 +232,9 @@ class FragmentContainer : Fragment() {
                 is DownloadStatus.Success<FlatScheduleDetailed> -> {
                     binding.progressBar.visibility = View.GONE
                     currentDownloadStatus.removeObservers(viewLifecycleOwner)
-                    scheduleViewModel.saveCurrentSchedule(mainViewModel.getCurrentSchedule())
+                    if (scheduleViewModel.getSavedCurrentSchedule() == null) {
+                        scheduleViewModel.saveCurrentSchedule(mainViewModel.getCurrentSchedule())
+                    }
                     setupViewPager2()
                 }
                 else -> {
@@ -309,7 +336,7 @@ class FragmentContainer : Fragment() {
                         mainViewModel.getParameters().dayList,
                         baseSchedule = mainViewModel.getCurrentSchedule(),
                         newSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
-                        mainViewModel.getDayWithOffset()
+                        mainViewModel.getDateWithOffset()
                     )
                 } catch (e: Exception) {
                     Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "The day ID was missing!")

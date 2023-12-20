@@ -32,8 +32,8 @@ class ChooseDateFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val mCalendar = Calendar.getInstance()
-        val minDate = viewModel.getDayWithOffset(0)
-        val maxDate = viewModel.getDayWithOffset(PAGE_COUNT-1)
+        val minDate = viewModel.getDateWithOffset(0)
+        val maxDate = viewModel.getDateWithOffset(PAGE_COUNT-1)
 
         mCalendar.set(minDate.year!!, minDate.month!!-1, minDate.day!!)
         binding.dateToCreateScheduleDatePicker.minDate = mCalendar.timeInMillis
