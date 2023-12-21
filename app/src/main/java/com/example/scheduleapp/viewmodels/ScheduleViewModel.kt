@@ -23,7 +23,7 @@ import com.example.scheduleapp.utils.Utils.removeScheduleItemById
 import kotlin.collections.ArrayList
 
 //@HiltViewModel
-class ScheduleFragmentViewModel : ViewModel() {
+class ScheduleViewModel : ViewModel() {
     private var savedFlatScheduleDetailed: FlatScheduleDetailed? = null
     private var savedFlatScheduleBase: FlatScheduleBase? = null
 

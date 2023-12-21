@@ -22,12 +22,12 @@ import com.example.scheduleapp.utils.Utils.checkIfItemArraysAreEqual
 import com.example.scheduleapp.utils.Utils.convertArrayOfAddPairItemToPair
 import com.example.scheduleapp.utils.Utils.getItemArrayDeepCopy
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
-import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
+import com.example.scheduleapp.viewmodels.ScheduleViewModel
 
 class AddPairFragment() : Fragment() {
     private lateinit var binding: FragmentAddPairBinding
     private val mainViewModel: MainActivityViewModel by activityViewModels()
-    private val scheduleViewModel: ScheduleFragmentViewModel by activityViewModels()
+    private val scheduleViewModel: ScheduleViewModel by activityViewModels()
     private lateinit var addPairRecyclerViewAdapter: AddPairRecyclerViewAdapter
 
     override fun onCreateView(

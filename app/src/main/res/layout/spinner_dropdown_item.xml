@@ -25,6 +25,7 @@
     android:layout_height="62dp"
     android:fontFamily="@font/roboto_light"
     android:paddingStart="13dp"
+    android:paddingEnd="13dp"
     android:paddingTop="19dp"
     android:paddingBottom="19dp"
     android:textColor="#FFFFFF"

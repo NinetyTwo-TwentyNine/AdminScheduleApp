@@ -6,8 +6,8 @@
     android:background="@drawable/border_spinner"
     android:fontFamily="@font/roboto_light"
     android:paddingStart="13dp"
+    android:paddingEnd="13dp"
     android:paddingTop="19dp"
-    android:text="Group"
     android:paddingBottom="19dp"
     android:textColor="#FFFFFF"
     android:textSize="20dp" />

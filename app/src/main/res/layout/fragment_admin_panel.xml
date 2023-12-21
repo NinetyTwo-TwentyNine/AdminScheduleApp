@@ -12,8 +12,7 @@
         style="@style/MainText"
         android:layout_width="320dp"
         android:layout_height="92dp"
-        android:text="Панель
-        администратора"
+        android:text="Панель администратора"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

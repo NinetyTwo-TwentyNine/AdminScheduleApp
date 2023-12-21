@@ -9,7 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
-import com.example.scheduleapp.R
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DAY_LIST_UPLOAD_FAILED
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DAY_LIST_UPLOAD_SUCCESS
 import com.example.scheduleapp.data.Constants.APP_PREFERENCES_AUTOUPDATE
 import com.example.scheduleapp.data.Constants.APP_PREFERENCES_STAY
 import com.example.scheduleapp.data.UploadStatus
@@ -62,7 +63,7 @@ class SettingsFragment : Fragment() {
     private fun logOut() {
         viewModel.signOut()
         viewModel.editPreferences(APP_PREFERENCES_STAY, false)
-        (activity as MainActivity).title = resources.getString(R.string.app_name)
+        //(activity as MainActivity).title = resources.getString(R.string.app_name)
 
         requireView().findNavController()
             .navigate(SettingsFragmentDirections.actionSettingsFragmentToLoginFragment())
@@ -86,7 +87,7 @@ class SettingsFragment : Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Failed to upload the Data: ${uploadStatus.message}",
+                        "$APP_ADMIN_TOAST_DAY_LIST_UPLOAD_FAILED: ${uploadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
                     binding.manualUpdateTrigger.isEnabled = true
@@ -95,7 +96,7 @@ class SettingsFragment : Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Succeeded in uploading the Data.",
+                        "$APP_ADMIN_TOAST_DAY_LIST_UPLOAD_SUCCESS.",
                         Toast.LENGTH_LONG
                     ).show()
                     binding.manualUpdateTrigger.isEnabled = true

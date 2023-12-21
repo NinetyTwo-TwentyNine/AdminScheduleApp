@@ -21,11 +21,14 @@ import com.example.scheduleapp.adapters.MainScreenAdapter
 import com.example.scheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
 import com.example.scheduleapp.data.Constants.APP_ADMIN_CHOOSE_BASE_SCHEDULE_TEXT
 import com.example.scheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_FAILED
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_APPLY_BASE_SCHEDULE
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_MISSING_DAY
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_RESET_CHANGES
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
+import com.example.scheduleapp.data.Constants.APP_TOAST_SCHEDULE_DOWNLOAD_FAILED
 import com.example.scheduleapp.data.DownloadStatus
 import com.example.scheduleapp.data.FlatScheduleDetailed
 import com.example.scheduleapp.data.UploadStatus
@@ -35,14 +38,14 @@ import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleDetailedEquals
 import com.example.scheduleapp.utils.Utils.changeSingleScheduleDay
 import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleBaseEquals
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
-import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
+import com.example.scheduleapp.viewmodels.ScheduleViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class FragmentContainer : Fragment() {
     private val mainViewModel: MainActivityViewModel by activityViewModels()
-    private val scheduleViewModel: ScheduleFragmentViewModel by activityViewModels()
+    private val scheduleViewModel: ScheduleViewModel by activityViewModels()
     private lateinit var mainScreenAdapter: MainScreenAdapter
     private lateinit var binding: FragmentContainerBinding
     private lateinit var popupBinding: BasicPopupWindowBinding
@@ -225,7 +228,7 @@ class FragmentContainer : Fragment() {
                     currentDownloadStatus.removeObservers(viewLifecycleOwner)
                     Toast.makeText(
                         activity,
-                        "Failed to download Schedule: ${downloadStatus.message}",
+                        "$APP_TOAST_SCHEDULE_DOWNLOAD_FAILED: ${downloadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -262,7 +265,7 @@ class FragmentContainer : Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Failed to upload the Data: ${uploadStatus.message}",
+                        "$APP_ADMIN_TOAST_DATA_UPLOAD_FAILED: ${uploadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
                     mainViewModel.performTimerEvent({
@@ -273,7 +276,7 @@ class FragmentContainer : Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Succeeded in uploading the Data.",
+                        "$APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS.",
                         Toast.LENGTH_LONG
                     ).show()
                     mainViewModel.performTimerEvent({
@@ -357,14 +360,5 @@ class FragmentContainer : Fragment() {
                 return null
             }
         }
-    }
-
-    override fun onDestroyView() {
-        if (mainViewModel.getEditMode() == APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE) {
-            if (checkIfFlatScheduleDetailedEquals(mainViewModel.getCurrentSchedule(), scheduleViewModel.getSavedCurrentSchedule()!!)) {
-                scheduleViewModel.clearCurrentSchedule()
-            }
-        }
-        super.onDestroyView()
     }
 }

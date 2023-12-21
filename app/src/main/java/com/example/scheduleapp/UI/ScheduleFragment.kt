@@ -16,14 +16,14 @@ import com.example.scheduleapp.data.Schedule
 import com.example.scheduleapp.databinding.FragmentScheduleBinding
 import com.example.scheduleapp.utils.Utils.getItemId
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
-import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
+import com.example.scheduleapp.viewmodels.ScheduleViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ScheduleFragment() : Fragment() {
     private var index: Int? = null
     private val mainViewModel: MainActivityViewModel by activityViewModels()
-    private val scheduleViewModel: ScheduleFragmentViewModel by activityViewModels()
+    private val scheduleViewModel: ScheduleViewModel by activityViewModels()
     private lateinit var binding: FragmentScheduleBinding
     private lateinit var scheduleRecyclerViewAdapter: ScheduleRecyclerViewAdapter
 

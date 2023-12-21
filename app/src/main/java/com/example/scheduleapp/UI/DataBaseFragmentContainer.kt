@@ -44,33 +44,5 @@ class DataBaseFragmentContainer : Fragment() {
         for (i in APP_ADMIN_PARAMETERS_LIST.indices) {
             binding.tabLayout.getTabAt(i)?.text = APP_ADMIN_PARAMETERS_LIST[i]
         }
-
-        /*binding.fragmentViewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                updateViewPager()
-            }
-        })*/
     }
-
-    /*fun setViewPagerEnabled(b: Boolean) {
-        binding.fragmentViewPager2.isUserInputEnabled = b
-    }
-
-    fun updateViewPager(b: Boolean? = null) {
-        if (b != null) {
-            setViewPagerEnabled(b)
-            return
-        }
-
-        setViewPagerEnabled(when(viewModel.uploadState.value) {
-            is UploadStatus.Progress -> false
-            is UploadStatus.WeakProgress -> false
-            else -> when(viewModel.parametersDownloadState.value) {
-                is DownloadStatus.Progress -> false
-                is DownloadStatus.WeakProgress -> false
-                else -> true
-            }
-        })
-    }*/
 }

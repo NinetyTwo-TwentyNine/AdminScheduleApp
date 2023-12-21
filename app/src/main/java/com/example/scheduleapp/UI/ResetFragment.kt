@@ -11,6 +11,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.example.scheduleapp.data.AuthenticationStatus
+import com.example.scheduleapp.data.Constants.APP_TOAST_RESET_SEND_FAILED
+import com.example.scheduleapp.data.Constants.APP_TOAST_RESET_SEND_SUCCESS
 import com.example.scheduleapp.databinding.FragmentResetBinding
 import com.example.scheduleapp.utils.Utils.getBlankStringsChecker
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
@@ -61,13 +63,13 @@ class ResetFragment : Fragment() {
                 is AuthenticationStatus.Success -> {
                     setButtonVisibility()
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(activity, "Reset message sent successfully.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, "$APP_TOAST_RESET_SEND_SUCCESS.", Toast.LENGTH_SHORT).show()
                     Log.d("TAG", "Successful send")
                 }
                 is AuthenticationStatus.Error -> {
                     setButtonVisibility()
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(activity, "Failed to send the reset message: ${authStatus.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(activity, "$APP_TOAST_RESET_SEND_FAILED: ${authStatus.message}", Toast.LENGTH_LONG).show()
                     Log.d("TAG", authStatus.message)
                 }
                 is AuthenticationStatus.Progress -> {

@@ -15,16 +15,19 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.scheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
 import com.example.scheduleapp.data.*
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_FAILED
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_ID_DELETION
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_RESET_CHANGES
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
-import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_SHOULD_UPLOAD
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_SHOULD_UPLOAD_SCHEDULE
+import com.example.scheduleapp.data.Constants.APP_TOAST_SCHEDULE_DOWNLOAD_FAILED
 import com.example.scheduleapp.databinding.BasicPopupWindowBinding
 import com.example.scheduleapp.databinding.FragmentChangeBasicScheduleBinding
 import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleBaseEquals
 import com.example.scheduleapp.utils.Utils.getPossibleId
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
-import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
+import com.example.scheduleapp.viewmodels.ScheduleViewModel
 
 class ChangeBasicScheduleFragment() : Fragment() {
     private lateinit var binding: FragmentChangeBasicScheduleBinding
@@ -32,7 +35,7 @@ class ChangeBasicScheduleFragment() : Fragment() {
     private lateinit var dbEditorRecyclerViewAdapter: AdminDBEditorRecyclerViewAdapter
 
     private val mainViewModel: MainActivityViewModel by activityViewModels()
-    private val scheduleViewModel: ScheduleFragmentViewModel by activityViewModels()
+    private val scheduleViewModel: ScheduleViewModel by activityViewModels()
 
     private lateinit var currentUploadStatus: MutableLiveData<UploadStatus>
     private lateinit var currentDownloadStatus: MutableLiveData<DownloadStatus<FlatScheduleBase>>
@@ -89,7 +92,7 @@ class ChangeBasicScheduleFragment() : Fragment() {
             } else {
                 Toast.makeText(
                     activity,
-                    APP_ADMIN_WARNING_SHOULD_UPLOAD,
+                    APP_ADMIN_TOAST_SHOULD_UPLOAD_SCHEDULE,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -241,7 +244,7 @@ class ChangeBasicScheduleFragment() : Fragment() {
                     currentDownloadStatus.removeObservers(viewLifecycleOwner)
                     Toast.makeText(
                         activity,
-                        "Failed to download Schedule: ${downloadStatus.message}",
+                        "$APP_TOAST_SCHEDULE_DOWNLOAD_FAILED: ${downloadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -278,7 +281,7 @@ class ChangeBasicScheduleFragment() : Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Failed to upload the Data: ${uploadStatus.message}",
+                        "$APP_ADMIN_TOAST_DATA_UPLOAD_FAILED: ${uploadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
                     mainViewModel.performTimerEvent({
@@ -289,7 +292,7 @@ class ChangeBasicScheduleFragment() : Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Succeeded in uploading the Data.",
+                        "$APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS.",
                         Toast.LENGTH_LONG
                     ).show()
                     mainViewModel.performTimerEvent({
@@ -298,12 +301,5 @@ class ChangeBasicScheduleFragment() : Fragment() {
                 }
             }
         }
-    }
-
-    override fun onDestroyView() {
-        if (checkIfFlatScheduleBaseEquals(mainViewModel.getBaseSchedule(), scheduleViewModel.getSavedBaseSchedule()!!, true)) {
-            scheduleViewModel.clearBaseSchedule()
-        }
-        super.onDestroyView()
     }
 }

@@ -16,6 +16,7 @@
             android:layout_height="match_parent"
             android:fontFamily="@font/roboto_light"
             android:paddingStart="13dp"
+            android:paddingEnd="13dp"
             android:paddingTop="9dp"
             android:paddingBottom="9dp"
             android:textColor="#FFFFFF"
@@ -27,6 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingStart="13dp"
+            android:paddingEnd="13dp"
             android:paddingTop="9dp"
             android:paddingBottom="9dp"
             android:layout_marginHorizontal="15dp"
@@ -43,6 +45,7 @@
         android:layout_height="62dp"
         android:fontFamily="@font/roboto_light"
         android:paddingStart="13dp"
+        android:paddingEnd="13dp"
         android:paddingTop="9dp"
         android:paddingBottom="9dp"
         android:textColor="#FFFFFF"
@@ -66,7 +69,7 @@
             android:layout_marginRight="5dp"
             android:layout_weight="50"
             android:enabled="false"
-            android:text="Reset the changes"
+            android:text="Убрать\nизменения"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
         <androidx.appcompat.widget.AppCompatButton
@@ -77,7 +80,7 @@
             android:layout_marginRight="10dp"
             android:layout_weight="50"
             android:enabled="false"
-            android:text="Upload the changes"
+            android:text="Сохранить\nизменения"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
     </LinearLayout>

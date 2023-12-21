@@ -24,7 +24,7 @@ import com.example.scheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_BASE_NAME_LI
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_CURRENT
 import com.example.scheduleapp.data.Constants.APP_BD_PATHS_TEACHER_LIST
 import com.example.scheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
-import com.example.scheduleapp.data.Constants.APP_WARNING_WEAK_CONNECTION
+import com.example.scheduleapp.data.Constants.APP_TOAST_WEAK_CONNECTION
 import com.example.scheduleapp.data.Date
 import com.example.scheduleapp.models.FirebaseRepository
 import com.example.scheduleapp.utils.Utils.checkIfItemArraysAreEqual
@@ -255,12 +255,12 @@ class MainActivityViewModel @Inject constructor(
 
     private fun <T> setDownloadTimeout(downloadStatus: MutableLiveData<DownloadStatus<T>>, time: Long): Timer {
         return performTimerEvent(
-            { downloadStatus.value = DownloadStatus.WeakProgress(APP_WARNING_WEAK_CONNECTION) }, time)
+            { downloadStatus.value = DownloadStatus.WeakProgress(APP_TOAST_WEAK_CONNECTION) }, time)
     }
 
     private fun setUploadTimeout(uploadState: MutableLiveData<UploadStatus>, time: Long): Timer {
         return performTimerEvent(
-            { uploadState.value = UploadStatus.WeakProgress(APP_WARNING_WEAK_CONNECTION) }, time
+            { uploadState.value = UploadStatus.WeakProgress(APP_TOAST_WEAK_CONNECTION) }, time
         )
     }
 

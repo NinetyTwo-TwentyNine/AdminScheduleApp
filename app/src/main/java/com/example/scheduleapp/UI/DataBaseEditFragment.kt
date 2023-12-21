@@ -13,8 +13,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.scheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_FAILED
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_ID_DELETION
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
+import com.example.scheduleapp.data.Constants.APP_TOAST_DATA_DOWNLOAD_FAILED
 import com.example.scheduleapp.data.Data_IntString
 import com.example.scheduleapp.data.DownloadStatus
 import com.example.scheduleapp.data.UploadStatus
@@ -23,7 +26,7 @@ import com.example.scheduleapp.databinding.FragmentDataBaseEditBinding
 import com.example.scheduleapp.utils.Utils.getItemArrayDeepCopy
 import com.example.scheduleapp.utils.Utils.getPossibleId
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
-import com.example.scheduleapp.viewmodels.ScheduleFragmentViewModel
+import com.example.scheduleapp.viewmodels.ScheduleViewModel
 import kotlin.collections.ArrayList
 
 
@@ -33,7 +36,7 @@ class DataBaseEditFragment: Fragment() {
     private lateinit var binding: FragmentDataBaseEditBinding
     private lateinit var popupBinding: BasicPopupWindowBinding
     private val mainViewModel: MainActivityViewModel by activityViewModels()
-    private val scheduleViewModel: ScheduleFragmentViewModel by activityViewModels()
+    private val scheduleViewModel: ScheduleViewModel by activityViewModels()
 
     private lateinit var addButtonCheck: (ArrayList<Int>)->Unit
     private lateinit var saveButtonCheck: ()->Unit
@@ -196,7 +199,7 @@ class DataBaseEditFragment: Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Failed to upload the Data: ${uploadStatus.message}",
+                        "$APP_ADMIN_TOAST_DATA_UPLOAD_FAILED: ${uploadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
                     mainViewModel.performTimerEvent({
@@ -207,7 +210,7 @@ class DataBaseEditFragment: Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Succeeded in uploading the Data.",
+                        "$APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS.",
                         Toast.LENGTH_LONG
                     ).show()
                     mainViewModel.performTimerEvent({
@@ -243,7 +246,7 @@ class DataBaseEditFragment: Fragment() {
                     currentDownloadStatus.removeObservers(viewLifecycleOwner)
                     Toast.makeText(
                         activity,
-                        "Failed to download the Data: ${downloadStatus.message}",
+                        "$APP_TOAST_DATA_DOWNLOAD_FAILED: ${downloadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
                 }

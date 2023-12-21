@@ -15,6 +15,8 @@ import com.example.scheduleapp.R
 import com.example.scheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_DELETE
 import com.example.scheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_OFF
 import com.example.scheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_ON
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_ITEM_CAN_NOT_BE_DELETED
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_TITLE_CAN_NOT_BE_SAVED
 import com.example.scheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
 import com.example.scheduleapp.data.Data_IntString
 import com.example.scheduleapp.databinding.BasicTextItemBinding
@@ -70,7 +72,7 @@ class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<I
                                 }
                             } else if ( !recycler.checkTitleValidity(title.text.toString(), item.id!!) ) {
                                 moreVertexSpinner.setSelection(1)
-                                Toast.makeText(moreVertexSpinner.context, "Can not save such a title.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(moreVertexSpinner.context, APP_ADMIN_TOAST_TITLE_CAN_NOT_BE_SAVED, Toast.LENGTH_SHORT).show()
                             } else {
                                 title.inputType = 0
                                 cardSpinner.isEnabled = (recycler.cardSpinnerFunc != null)
@@ -94,7 +96,7 @@ class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<I
                                 recycler.removeValueFromViewStates(item.id!!)
                             } else {
                                 moreVertexSpinner.setSelection(title.inputType)
-                                Toast.makeText(moreVertexSpinner.context, "Can not delete this item.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(moreVertexSpinner.context, APP_ADMIN_TOAST_ITEM_CAN_NOT_BE_DELETED, Toast.LENGTH_SHORT).show()
                             }
                         }
                         recycler.updateAddButton(recycler.viewStates)

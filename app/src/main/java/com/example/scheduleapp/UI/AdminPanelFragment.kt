@@ -9,13 +9,19 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DAY_LIST_UPLOAD_FAILED
+import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DAY_LIST_UPLOAD_SUCCESS
 import com.example.scheduleapp.data.Constants.APP_PREFERENCES_AUTOUPDATE
 import com.example.scheduleapp.data.UploadStatus
 import com.example.scheduleapp.databinding.FragmentAdminPanelBinding
+import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleBaseEquals
+import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleDetailedEquals
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
+import com.example.scheduleapp.viewmodels.ScheduleViewModel
 
 class AdminPanelFragment: Fragment() {
-    private val viewModel: MainActivityViewModel by activityViewModels()
+    private val mainViewModel: MainActivityViewModel by activityViewModels()
+    private val scheduleViewModel: ScheduleViewModel by activityViewModels()
     private lateinit var binding: FragmentAdminPanelBinding
     private lateinit var currentUploadStatus: MutableLiveData<UploadStatus>
 
@@ -31,9 +37,20 @@ class AdminPanelFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if (scheduleViewModel.getSavedBaseSchedule() != null) {
+            if (checkIfFlatScheduleBaseEquals(mainViewModel.getBaseSchedule(), scheduleViewModel.getSavedBaseSchedule()!!, true)) {
+                scheduleViewModel.clearBaseSchedule()
+            }
+        }
+        if (scheduleViewModel.getSavedCurrentSchedule() != null) {
+            if (checkIfFlatScheduleDetailedEquals(mainViewModel.getCurrentSchedule(), scheduleViewModel.getSavedCurrentSchedule()!!)) {
+                scheduleViewModel.clearCurrentSchedule()
+            }
+        }
+
         initUploadObservers()
-        if (viewModel.getPreference(APP_PREFERENCES_AUTOUPDATE, true)) {
-            if (!viewModel.updateAndUploadTheDayList(currentUploadStatus)) {
+        if (mainViewModel.getPreference(APP_PREFERENCES_AUTOUPDATE, true)) {
+            if (!mainViewModel.updateAndUploadTheDayList(currentUploadStatus)) {
                 setupView()
             }
         } else {
@@ -50,13 +67,13 @@ class AdminPanelFragment: Fragment() {
 
         binding.changingBasicSchedule.isEnabled = true
         binding.changingBasicSchedule.setOnClickListener{
-            viewModel.setBaseScheduleEditMode()
+            mainViewModel.setBaseScheduleEditMode()
             requireView().findNavController().navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToChangeBasicScheduleFragment())
         }
 
         binding.creatingSchedule.isEnabled = true
         binding.creatingSchedule.setOnClickListener{
-            viewModel.setCurrentScheduleEditMode()
+            mainViewModel.setCurrentScheduleEditMode()
             requireView().findNavController().navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToChooseDateFragment())
         }
     }
@@ -79,7 +96,7 @@ class AdminPanelFragment: Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Failed to upload the new day list: ${uploadStatus.message}",
+                        "$APP_ADMIN_TOAST_DAY_LIST_UPLOAD_FAILED: ${uploadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
                     currentUploadStatus.removeObservers(viewLifecycleOwner)
@@ -88,7 +105,7 @@ class AdminPanelFragment: Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(
                         activity,
-                        "Succeeded in updating the day list.",
+                        "$APP_ADMIN_TOAST_DAY_LIST_UPLOAD_SUCCESS.",
                         Toast.LENGTH_LONG
                     ).show()
                     currentUploadStatus.removeObservers(viewLifecycleOwner)

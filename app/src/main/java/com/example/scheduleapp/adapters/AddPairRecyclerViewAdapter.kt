@@ -21,9 +21,6 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
                                  private val cabinetList: ArrayList<String>,
                                  private val updateFunc: ()->Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    val TYPE_COMMON = 0
-    val TYPE_SPECIAL = 1
-
     private lateinit var binding: ScheduleAddItemBinding
     private lateinit var bindingSpecial: ScheduleAddSpecialItemBinding
 
@@ -94,14 +91,14 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        if (viewType == TYPE_COMMON) {
+        return if (viewType == TYPE_COMMON) {
             binding = ScheduleAddItemBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false)
-            return ItemViewHolder(binding, this)
+            ItemViewHolder(binding, this)
         } else {
             bindingSpecial = ScheduleAddSpecialItemBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false)
-            return SpecialItemViewHolder(bindingSpecial, this)
+            SpecialItemViewHolder(bindingSpecial, this)
         }
     }
 
@@ -154,7 +151,7 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
         differ.submitList(currentRecyclerList)
     }
 
-    val differCallback = object : DiffUtil.ItemCallback<AddPairItem>() {
+    private val differCallback = object : DiffUtil.ItemCallback<AddPairItem>() {
         override fun areContentsTheSame(
             oldItem: AddPairItem, newItem: AddPairItem
         ): Boolean {
@@ -167,6 +164,10 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
             return oldItem.id == newItem.id
         }
     }
-
     val differ = AsyncListDiffer(this, differCallback)
+
+    companion object {
+        const val TYPE_COMMON = 0
+        const val TYPE_SPECIAL = 1
+    }
 }
