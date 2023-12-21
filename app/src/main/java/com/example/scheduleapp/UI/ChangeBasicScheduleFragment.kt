@@ -14,14 +14,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.scheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
+import com.example.scheduleapp.data.*
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_ID_DELETION
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_RESET_CHANGES
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
 import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_SHOULD_UPLOAD
-import com.example.scheduleapp.data.Data_IntString
-import com.example.scheduleapp.data.DownloadStatus
-import com.example.scheduleapp.data.FlatScheduleBase
-import com.example.scheduleapp.data.UploadStatus
 import com.example.scheduleapp.databinding.BasicPopupWindowBinding
 import com.example.scheduleapp.databinding.FragmentChangeBasicScheduleBinding
 import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleBaseEquals
@@ -100,7 +97,8 @@ class ChangeBasicScheduleFragment() : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        dbEditorRecyclerViewAdapter = AdminDBEditorRecyclerViewAdapter(addButtonCheck, saveButtonCheck, 1, deleteFunction, moveToFragment)
+        dbEditorRecyclerViewAdapter = AdminDBEditorRecyclerViewAdapter(updateAddButton = addButtonCheck, updateSaveButton = saveButtonCheck,
+            1, deleteFunc = deleteFunction, cardSpinnerFunc = moveToFragment)
 
         val currentRecyclerList: ArrayList<Data_IntString> = arrayListOf()
         for (i in 0 until scheduleViewModel.getSavedBaseSchedule()!!.nameList.size) {
@@ -300,5 +298,12 @@ class ChangeBasicScheduleFragment() : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        if (checkIfFlatScheduleBaseEquals(mainViewModel.getBaseSchedule(), scheduleViewModel.getSavedBaseSchedule()!!, true)) {
+            scheduleViewModel.clearBaseSchedule()
+        }
+        super.onDestroyView()
     }
 }

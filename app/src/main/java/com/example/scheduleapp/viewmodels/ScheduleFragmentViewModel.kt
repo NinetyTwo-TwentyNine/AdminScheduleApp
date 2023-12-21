@@ -168,6 +168,28 @@ class ScheduleFragmentViewModel : ViewModel() {
         return Pair(same, missing_ids)
     }
 
+    fun checkIfParameterIsNecessary(reference: String, id: Int): Boolean {
+        when(reference) {
+            Constants.APP_BD_PATHS_DISCIPLINE_LIST -> {
+                savedFlatScheduleDetailed?.scheduleLesson?.forEach { if (it.specialId == id) { return true } }
+                savedFlatScheduleBase?.scheduleLesson?.forEach { if (it.specialId == id) { return true } }
+            }
+            Constants.APP_BD_PATHS_TEACHER_LIST -> {
+                savedFlatScheduleDetailed?.teacherLesson?.forEach { if (it.specialId == id) { return true } }
+                savedFlatScheduleBase?.teacherLesson?.forEach { if (it.specialId == id) { return true } }
+            }
+            Constants.APP_BD_PATHS_GROUP_LIST -> {
+                savedFlatScheduleDetailed?.scheduleGroup?.forEach { if (it.specialId == id) { return true } }
+                savedFlatScheduleBase?.scheduleGroup?.forEach { if (it.specialId == id) { return true } }
+            }
+            Constants.APP_BD_PATHS_CABINET_LIST -> {
+                savedFlatScheduleDetailed?.cabinetLesson?.forEach { if (it.specialId == id) { return true } }
+                savedFlatScheduleBase?.cabinetLesson?.forEach { if (it.specialId == id) { return true } }
+            }
+        }
+        return false
+    }
+
     private fun collectAllCurrentScheduleIds(): ArrayList<Int> {
         val scheduleIds = arrayListOf<Int>()
         for (i: Data_IntArray in savedFlatScheduleDetailed!!.scheduleDay) {
@@ -224,6 +246,10 @@ class ScheduleFragmentViewModel : ViewModel() {
         savedFlatScheduleDetailed = getFlatScheduleDetailedDeepCopy(newSchedule)
     }
 
+    fun clearCurrentSchedule() {
+        savedFlatScheduleDetailed = null
+    }
+
     fun getSavedBaseSchedule(): FlatScheduleBase? {
         return if (savedFlatScheduleBase == null) {
             null
@@ -234,6 +260,10 @@ class ScheduleFragmentViewModel : ViewModel() {
 
     fun saveBaseSchedule(newSchedule: FlatScheduleBase) {
         savedFlatScheduleBase = getFlatScheduleBaseDeepCopy(newSchedule)
+    }
+
+    fun clearBaseSchedule() {
+        savedFlatScheduleBase = null
     }
 
     fun chooseBaseSchedule(scheduleNum: Int) {

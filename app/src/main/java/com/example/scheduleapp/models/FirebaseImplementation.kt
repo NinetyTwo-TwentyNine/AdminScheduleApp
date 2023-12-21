@@ -1,15 +1,11 @@
 package com.example.scheduleapp.models
 
-import android.util.Log
-import com.example.scheduleapp.data.Data_IntString
-import com.example.scheduleapp.data.FlatScheduleDetailed
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.ktx.Firebase
 
 class FirebaseImplementation(
     private val fDatabase: FirebaseDatabase,

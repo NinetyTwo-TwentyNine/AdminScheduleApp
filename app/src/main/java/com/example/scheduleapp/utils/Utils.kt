@@ -840,7 +840,7 @@ object Utils {
         val subPair2 = pair.second
         val items = ArrayList(APP_ADMIN_EDIT_PAIR_ARRAY)
 
-        if (!subPair1.actuallyEquals(subPair2)) {
+        if (!checkIfScheduleDetailedEquals(subPair1, subPair2)) {
             convertScheduleDetailedToPairOfAddPairItem(subPair1, Pair(items[0], items[1]))
             convertScheduleDetailedToPairOfAddPairItem(subPair2, Pair(items[2], items[3]))
         } else {
@@ -966,6 +966,18 @@ object Utils {
     //================================================================================================================
     //Comparison-related stuff
     //================================================================================================================
+
+    fun checkIfScheduleDetailedEquals(item1: ScheduleDetailed, item2: ScheduleDetailed): Boolean {
+        return (item1.discipline1 == item2.discipline1 &&
+                item1.teacher1 == item2.teacher1 &&
+                item1.cabinet1 == item2.cabinet1 &&
+                item1.discipline2 == item2.discipline2 &&
+                item1.teacher2 == item2.teacher2 &&
+                item1.cabinet2 == item2.cabinet2 &&
+                item1.discipline3 == item2.discipline3 &&
+                item1.teacher3 == item2.teacher3 &&
+                item1.cabinet3 == item2.cabinet3)
+    }
 
     fun <T> checkIfItemArraysAreEqual(itemArray1: ArrayList<T>, itemArray2: ArrayList<T>): Boolean {
         if (itemArray1.size != itemArray2.size) {return false}

@@ -370,6 +370,28 @@ class MainActivityViewModel @Inject constructor(
         return table
     }
 
+    fun checkIfParameterIsNecessary(reference: String, id: Int): Boolean {
+        when(reference) {
+            APP_BD_PATHS_DISCIPLINE_LIST -> {
+                flatScheduleDetailed.scheduleLesson.forEach { if (it.specialId == id) { return true } }
+                flatScheduleBase.scheduleLesson.forEach { if (it.specialId == id) { return true } }
+            }
+            APP_BD_PATHS_TEACHER_LIST -> {
+                flatScheduleDetailed.teacherLesson.forEach { if (it.specialId == id) { return true } }
+                flatScheduleBase.teacherLesson.forEach { if (it.specialId == id) { return true } }
+            }
+            APP_BD_PATHS_GROUP_LIST -> {
+                flatScheduleDetailed.scheduleGroup.forEach { if (it.specialId == id) { return true } }
+                flatScheduleBase.scheduleGroup.forEach { if (it.specialId == id) { return true } }
+            }
+            APP_BD_PATHS_CABINET_LIST -> {
+                flatScheduleDetailed.cabinetLesson.forEach { if (it.specialId == id) { return true } }
+                flatScheduleBase.cabinetLesson.forEach { if (it.specialId == id) { return true } }
+            }
+        }
+        return false
+    }
+
     fun getDateWithOffset(index: Int = chosenDayIndex): Date {
         val position = index - PAGE_COUNT/2
         val c = Calendar.getInstance()

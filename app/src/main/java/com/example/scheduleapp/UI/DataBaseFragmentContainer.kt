@@ -1,24 +1,14 @@
 package com.example.scheduleapp.UI
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.viewpager.widget.PagerAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.example.scheduleapp.adapters.AdminDBEditorAdapter
-import com.example.scheduleapp.adapters.MainScreenAdapter
-import com.example.scheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
 import com.example.scheduleapp.data.Constants.APP_ADMIN_PARAMETERS_LIST
-import com.example.scheduleapp.data.DownloadStatus
-import com.example.scheduleapp.data.FlatScheduleDetailed
-import com.example.scheduleapp.data.UploadStatus
 import com.example.scheduleapp.databinding.FragmentDataBaseContainerBinding
-import com.example.scheduleapp.databinding.FragmentDataBaseEditBinding
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 

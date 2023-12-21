@@ -358,4 +358,13 @@ class FragmentContainer : Fragment() {
             }
         }
     }
+
+    override fun onDestroyView() {
+        if (mainViewModel.getEditMode() == APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE) {
+            if (checkIfFlatScheduleDetailedEquals(mainViewModel.getCurrentSchedule(), scheduleViewModel.getSavedCurrentSchedule()!!)) {
+                scheduleViewModel.clearCurrentSchedule()
+            }
+        }
+        super.onDestroyView()
+    }
 }

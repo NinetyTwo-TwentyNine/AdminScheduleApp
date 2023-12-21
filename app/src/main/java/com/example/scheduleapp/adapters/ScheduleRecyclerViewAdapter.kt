@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.scheduleapp.R
-import com.example.scheduleapp.data.Constants
 import com.example.scheduleapp.data.Constants.APP_ADMIN_SCHEDULE_ITEM_EDIT_OPTIONS_CLEAR
 import com.example.scheduleapp.data.Constants.APP_ADMIN_SCHEDULE_ITEM_EDIT_OPTIONS_TWEAK
 import com.example.scheduleapp.data.Schedule

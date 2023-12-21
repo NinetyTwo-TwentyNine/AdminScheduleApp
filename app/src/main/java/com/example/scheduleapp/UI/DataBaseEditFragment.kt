@@ -37,6 +37,7 @@ class DataBaseEditFragment: Fragment() {
 
     private lateinit var addButtonCheck: (ArrayList<Int>)->Unit
     private lateinit var saveButtonCheck: ()->Unit
+    private lateinit var checkIfDeletionIsPossible: (Int)->Boolean
 
     private lateinit var uploadRecyclerList: ArrayList<Data_IntString>
     private lateinit var currentDownloadStatus: MutableLiveData<DownloadStatus<ArrayList<Data_IntString>>>
@@ -80,7 +81,8 @@ class DataBaseEditFragment: Fragment() {
         }
 
         setupFunctions()
-        dbEditorRecyclerViewAdapter = AdminDBEditorRecyclerViewAdapter(addButtonCheck, saveButtonCheck, 2)
+        dbEditorRecyclerViewAdapter = AdminDBEditorRecyclerViewAdapter(updateAddButton = addButtonCheck, updateSaveButton = saveButtonCheck,
+            2, checkIfDeletionIsPossible = checkIfDeletionIsPossible)
         setupRecyclerView()
         initUploadObservers()
     }
@@ -97,6 +99,11 @@ class DataBaseEditFragment: Fragment() {
                 binding.addButton.isEnabled = array.isEmpty()
                 updateSaveButton()
             }, 50L)
+        }
+
+        checkIfDeletionIsPossible = {id ->
+            val reference = mainViewModel.getReferenceByIndex(index!!)
+            !(mainViewModel.checkIfParameterIsNecessary(reference, id) || scheduleViewModel.checkIfParameterIsNecessary(reference, id))
         }
     }
 

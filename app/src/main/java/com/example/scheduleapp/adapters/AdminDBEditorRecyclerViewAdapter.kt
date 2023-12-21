@@ -23,7 +23,8 @@ class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<I
                                        private val updateSaveButton: () -> Unit,
                                        private val minTextLength: Int,
                                        private val deleteFunc: ((Int)->Unit)? = null,
-                                       private val cardSpinnerFunc: ((Int, Int) -> Unit)? = null
+                                       private val cardSpinnerFunc: ((Int, Int)->Unit)? = null,
+                                       private val checkIfDeletionIsPossible: ((Int)->Boolean)? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     val viewStates: ArrayList<Int> = ArrayList()
     private lateinit var binding: BasicTextItemBinding
@@ -55,6 +56,7 @@ class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<I
                     cardSpinner.isEnabled = false
                 }
 
+
                 moreVertexSpinner.adapter = ArrayAdapter(moreVertexSpinner.context, R.layout.spinner_item, arrayListOf(APP_ADMIN_TABLE_EDIT_OPTIONS_OFF, APP_ADMIN_TABLE_EDIT_OPTIONS_ON, APP_ADMIN_TABLE_EDIT_OPTIONS_DELETE)).also { adapter ->
                     adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                 }
@@ -68,7 +70,7 @@ class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<I
                                 }
                             } else if ( !recycler.checkTitleValidity(title.text.toString(), item.id!!) ) {
                                 moreVertexSpinner.setSelection(1)
-                                Toast.makeText(moreVertexSpinner.context, "Can not save such a name.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(moreVertexSpinner.context, "Can not save such a title.", Toast.LENGTH_SHORT).show()
                             } else {
                                 title.inputType = 0
                                 cardSpinner.isEnabled = (recycler.cardSpinnerFunc != null)
@@ -82,8 +84,18 @@ class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<I
                             recycler.addValueToViewStates(item.id!!)
                         }
                         if (position == 2) {
-                            recycler.deleteCardView(adapterPosition, binding)
-                            recycler.removeValueFromViewStates(item.id!!)
+                            var shouldDelete = true
+                            if (recycler.checkIfDeletionIsPossible != null) {
+                                shouldDelete = recycler.checkIfDeletionIsPossible!!(item.id!!)
+                            }
+
+                            if (shouldDelete) {
+                                recycler.deleteCardView(adapterPosition, binding)
+                                recycler.removeValueFromViewStates(item.id!!)
+                            } else {
+                                moreVertexSpinner.setSelection(title.inputType)
+                                Toast.makeText(moreVertexSpinner.context, "Can not delete this item.", Toast.LENGTH_SHORT).show()
+                            }
                         }
                         recycler.updateAddButton(recycler.viewStates)
                     }

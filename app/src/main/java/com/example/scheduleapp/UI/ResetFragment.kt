@@ -1,15 +1,12 @@
 package com.example.scheduleapp.UI
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
@@ -17,7 +14,6 @@ import com.example.scheduleapp.data.AuthenticationStatus
 import com.example.scheduleapp.databinding.FragmentResetBinding
 import com.example.scheduleapp.utils.Utils.getBlankStringsChecker
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
-
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

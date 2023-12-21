@@ -1,25 +1,17 @@
 package com.example.scheduleapp.UI
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
-import com.example.scheduleapp.R
 import com.example.scheduleapp.data.AuthenticationStatus
 import com.example.scheduleapp.data.Constants.APP_MIN_PASSWORD_LENGTH
-import com.example.scheduleapp.data.Data_IntString
-import com.example.scheduleapp.data.DownloadStatus
 import com.example.scheduleapp.databinding.FragmentRegistrationBinding
 import com.example.scheduleapp.utils.Utils.getBlankStringsChecker
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
