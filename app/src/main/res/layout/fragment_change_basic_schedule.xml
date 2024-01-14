@@ -35,7 +35,7 @@
             android:layout_marginRight="5dp"
             android:layout_weight="50"
             android:enabled="false"
-            android:text="Убрать все изменения"
+            android:text="Отменить все изменения"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
         <androidx.appcompat.widget.AppCompatButton

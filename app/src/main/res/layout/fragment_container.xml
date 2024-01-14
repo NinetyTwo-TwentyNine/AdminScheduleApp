@@ -69,7 +69,7 @@
             android:layout_marginRight="5dp"
             android:layout_weight="50"
             android:enabled="false"
-            android:text="Убрать\nизменения"
+            android:text="Отменить\nизменения"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
         <androidx.appcompat.widget.AppCompatButton

@@ -20,8 +20,8 @@ object Constants {
     const val APP_BD_PATHS_DISCIPLINE_LIST = "${APP_BD_PATHS_BASE_PARAMETERS}/lessonList"
     const val APP_BD_PATHS_DATE_LIST = "${APP_BD_PATHS_BASE_PARAMETERS}/dayList"
 
-    const val APP_ADMIN_TABLE_EDIT_OPTIONS_OFF = "Выключить перезапись"
-    const val APP_ADMIN_TABLE_EDIT_OPTIONS_ON = "Включить перезапись"
+    const val APP_ADMIN_TABLE_EDIT_OPTIONS_OFF = "Выключить изменение названия"
+    const val APP_ADMIN_TABLE_EDIT_OPTIONS_ON = "Включить изменение названия"
     const val APP_ADMIN_TABLE_EDIT_OPTIONS_DELETE = "Удалить"
 
     const val APP_ADMIN_SCHEDULE_ITEM_EDIT_OPTIONS_CLEAR = "Очистить"
@@ -57,7 +57,7 @@ object Constants {
 
     const val APP_ADMIN_WARNING_MISSING_DAY = "Внимание! Для данной даты не было найдено ID!\nВозможно, стоит обновить список дней."
     const val APP_ADMIN_WARNING_SAVE_CHANGES = "Вы уверены, что хотите сохранить эти изменения?"
-    const val APP_ADMIN_WARNING_RESET_CHANGES = "Вы уверены, что хотите убрать эти изменения?"
+    const val APP_ADMIN_WARNING_RESET_CHANGES = "Вы уверены, что хотите отменить эти изменения?"
     const val APP_ADMIN_WARNING_ID_DELETION = "Некоторые ID были удалены."
     const val APP_ADMIN_WARNING_APPLY_BASE_SCHEDULE = "Вы уверены, что хотите применить это расписание?\nЛюбые совпадающие элементы расписания будут перезаписаны."
 
