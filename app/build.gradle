@@ -67,6 +67,7 @@ dependencies {
 
     //CardView
     implementation "androidx.cardview:cardview:1.0.0"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.10"
 }
 
 kapt {

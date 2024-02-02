@@ -1,5 +1,6 @@
 package com.example.scheduleapp.utils
 
+import android.bluetooth.BluetoothSocket
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -102,6 +103,18 @@ object Utils {
     //Deep copy creation
     //================================================================================================================
 
+    fun getDataIntDateDeepCopy(origItem: Data_IntDate): Data_IntDate {
+        return Data_IntDate(
+            id = origItem.id,
+            date = Date(origItem.date?.year, origItem.date?.month, origItem.date?.day) )
+    }
+
+    fun getDataIntArrayDeepCopy(origItem: Data_IntArray): Data_IntArray {
+        return Data_IntArray(
+            specialId = origItem.specialId,
+            scheduleId = (origItem.scheduleId.clone() as ArrayList<Int>) )
+    }
+
     fun getDataIntIntIntArrayArrayDeepCopy(origItem: Data_IntIntIntArrayArray): Data_IntIntIntArrayArray {
         return Data_IntIntIntArrayArray(
             scheduleId = origItem.scheduleId,
@@ -111,64 +124,19 @@ object Utils {
             specialId = origItem.specialId)
     }
 
-    @JvmName("getArrayOfDataIntDateDeepCopy")
-    fun getItemArrayDeepCopy(origArr: ArrayList<Data_IntDate>): ArrayList<Data_IntDate> {
-        val newArr = arrayListOf<Data_IntDate>()
-        origArr.forEach { newArr.add(
-            Data_IntDate(it.id, Date(it.date?.year, it.date?.month, it.date?.day))
-            //it.copy()
-        ) }
-        return newArr
-    }
-
-    @JvmName("getArrayOfDataIntStringDeepCopy")
-    fun getItemArrayDeepCopy(origArr: ArrayList<Data_IntString>): ArrayList<Data_IntString> {
-        val newArr = arrayListOf<Data_IntString>()
-        origArr.forEach { newArr.add(
-            //Data_IntString(it.id, it.title)
-            it.copy()
-        ) }
-        return newArr
-    }
-
-    @JvmName("getArrayOfDataIntArrayDeepCopy")
-    fun getItemArrayDeepCopy(origArr: ArrayList<Data_IntArray>): ArrayList<Data_IntArray> {
-        val newArr = arrayListOf<Data_IntArray>()
-        origArr.forEach { newArr.add(
-            Data_IntArray(it.specialId, (it.scheduleId.clone() as ArrayList<Int>) )
-            //it.copy()
-        ) }
-        return newArr
-    }
-
-    @JvmName("getArrayOfDataIntIntIntArrayArrayDeepCopy")
-    fun getItemArrayDeepCopy(origArr: ArrayList<Data_IntIntIntArrayArray>): ArrayList<Data_IntIntIntArrayArray> {
-        val newArr = arrayListOf<Data_IntIntIntArrayArray>()
-        origArr.forEach { newArr.add(
-            getDataIntIntIntArrayArrayDeepCopy(it)
-            //it.copy()
-        ) }
-        return newArr
-    }
-
-    @JvmName("getArrayOfAddPairItemDeepCopy")
-    fun getItemArrayDeepCopy(origArr: ArrayList<AddPairItem>): ArrayList<AddPairItem> {
-        val newArr = arrayListOf<AddPairItem>()
-        origArr.forEach { newArr.add(
-            /*AddPairItem(
-            pairName = it.pairName,
-            teacher = it.teacher,
-            teacherSecond = it.teacherSecond,
-            teacherThird = it.teacherThird,
-            cabinet = it.cabinet,
-            cabinetSecond = it.cabinetSecond,
-            cabinetThird = it.cabinetThird,
-            subGroup = it.subGroup,
-            type = it.type,
-            id = it.id,
-            visibility = it.visibility)*/
-            it.copy()
-        ) }
+    @Suppress("UNCHECKED_CAST")
+    fun <T> getItemArrayDeepCopy(origArr: ArrayList<T>): ArrayList<T> {
+        val newArr: ArrayList<T> = arrayListOf()
+        origArr.forEach { item ->
+            when(item!!::class.java) {
+                Data_IntDate::class.java -> newArr.add(getDataIntDateDeepCopy(item as Data_IntDate) as T)
+                Data_IntArray::class.java -> newArr.add(getDataIntArrayDeepCopy(item as Data_IntArray) as T)
+                Data_IntIntIntArrayArray::class.java -> newArr.add(getDataIntIntIntArrayArrayDeepCopy(item as Data_IntIntIntArrayArray) as T)
+                Data_IntString::class.java -> newArr.add((item as Data_IntString).copy() as T)
+                AddPairItem::class.java -> newArr.add((item as AddPairItem).copy() as T)
+                else -> throw(Exception("Attempt to duplicate an unexpected class."))
+            }
+        }
         return newArr
     }
 
@@ -618,7 +586,7 @@ object Utils {
                 }
             }
             arrayToRemove.forEach {
-                removeScheduleItemById(returnSchedule, it, canRemoveScheduleId = (dateIdArray == null && nameIdArray == null))
+                removeScheduleItemById(returnSchedule, it, canRemoveScheduleId = (dateIdArray == null || nameIdArray == null))
             }
             if (dateIdArray != null && nameIdArray != null) {
                 nameIdArray.scheduleId.forEach {
@@ -966,6 +934,19 @@ object Utils {
     //================================================================================================================
     //Comparison-related stuff
     //================================================================================================================
+
+    fun checkIfAddPairItemsAreEqual(item1: AddPairItem, item2: AddPairItem): Boolean {
+        return (item1.pairName == item2.pairName &&
+                item1.teacher == item2.teacher &&
+                item1.cabinet == item2.cabinet &&
+                item1.teacherSecond == item2.teacherSecond &&
+                item1.cabinetSecond == item2.cabinetSecond &&
+                item1.teacherThird == item2.teacherThird &&
+                item1.cabinetThird == item2.cabinetThird &&
+                item1.subGroup == item2.subGroup &&
+                item1.type == item2.type &&
+                item1.visibility == item2.visibility)
+    }
 
     fun checkIfScheduleDetailedEquals(item1: ScheduleDetailed, item2: ScheduleDetailed): Boolean {
         return (item1.discipline1 == item2.discipline1 &&

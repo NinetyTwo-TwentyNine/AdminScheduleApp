@@ -104,12 +104,9 @@ class AddPairFragment() : Fragment() {
             }
         }
 
-        addPairRecyclerViewAdapter.differ.submitList(addPairArray)
-        binding.apply {
-            schedulesRecyclerView.apply {
-                layoutManager = LinearLayoutManager(activity)
-                adapter = addPairRecyclerViewAdapter
-            }
+        addPairRecyclerViewAdapter.run {
+            differ.submitList(addPairArray)
+            notifyDataSetChanged()
         }
 
         updateSaveButton()
@@ -121,16 +118,19 @@ class AddPairFragment() : Fragment() {
         val addPairArray = ArrayList(addPairRecyclerViewAdapter.differ.currentList)
 
         var formatCheck = true
+        var allElementsAreEmpty = true
+        var baseElementIsEmpty: Boolean? = null
         addPairArray.forEach {
             if (it.visibility && formatCheck) {
-                if ((it.id + 1) % 2 == 0) {
+                if (it.id % 2 != 0) {
                     val subGroupIsEmpty = it.subGroup.isEmpty()
                     val emptyStrings = (it.cabinetSecond.isEmpty() && it.teacherSecond.isEmpty() && it.cabinetThird.isEmpty() && it.teacherThird.isEmpty())
-                    val wrongChoices = ( (it.cabinetSecond.isEmpty() && it.cabinetThird.isNotEmpty()) || (it.teacherSecond.isEmpty() && it.teacherThird.isNotEmpty())
-                                        || (it.cabinetThird.isNotEmpty() && it.teacherThird.isEmpty()) || (it.cabinetThird.isEmpty() && it.teacherThird.isNotEmpty()))
-                    if ( (subGroupIsEmpty && emptyStrings) || (!subGroupIsEmpty && !emptyStrings) || wrongChoices) {
+                    val wrongChoices = ( (it.cabinetSecond.isEmpty() xor it.teacherSecond.isEmpty()) || (it.cabinetThird.isEmpty() xor it.teacherThird.isEmpty()) )
+                    if ( (subGroupIsEmpty && emptyStrings && !baseElementIsEmpty!!) || (!subGroupIsEmpty && !emptyStrings) || wrongChoices ) {
                         formatCheck = false
                         Log.d("ADMIN_PAIR_FORMAT_CHECKER", "Format of element number ${it.id} is wrong.")
+                    } else if (!emptyStrings) {
+                        allElementsAreEmpty = false
                     }
                 } else {
                     val someEmptyStrings = (it.cabinet.isEmpty() || it.teacher.isEmpty() || it.pairName.isEmpty())
@@ -138,9 +138,18 @@ class AddPairFragment() : Fragment() {
                     if (someEmptyStrings && someNonemptyStrings) {
                         formatCheck = false
                         Log.d("ADMIN_PAIR_FORMAT_CHECKER", "Format of element number ${it.id} is wrong.")
+                    } else {
+                        baseElementIsEmpty = someEmptyStrings
+                        if (someNonemptyStrings) {
+                            allElementsAreEmpty = false
+                        }
                     }
                 }
             }
+        }
+        if ((binding.optionalEnable.isChecked || binding.subPairEnable.isChecked) && allElementsAreEmpty) {
+            formatCheck = false
+            Log.d("ADMIN_PAIR_FORMAT_CHECKER", "Format is wrong: All elements are empty despite there being several of them. (Why would you need more than one of them then?)")
         }
 
         if (!formatCheck) {

@@ -14,6 +14,7 @@ import com.example.scheduleapp.R
 import com.example.scheduleapp.data.AddPairItem
 import com.example.scheduleapp.databinding.ScheduleAddItemBinding
 import com.example.scheduleapp.databinding.ScheduleAddSpecialItemBinding
+import com.example.scheduleapp.utils.Utils.checkIfAddPairItemsAreEqual
 
 
 class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
@@ -116,7 +117,7 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
         return differ.currentList.size
     }
 
-    fun setupSpinner(spinner: Spinner, defaultText: TextView, choices: ArrayList<String>, stringToChange: String, editItem: (Int)->Unit) {
+    fun setupSpinner(spinner: Spinner, defaultText: TextView, choices: ArrayList<String>, initialVal: String, editItem: (Int)->Unit) {
         if (!choices.contains("")) {
             choices.add(0, "")
         }
@@ -129,15 +130,13 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
                     true -> View.VISIBLE
                     false -> View.GONE
                 }
-                if (spinner.getItemAtPosition(position).toString() != stringToChange) {
-                    editItem(position)
-                }
+                editItem(position)
                 updateFunc()
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
         for (i in 0 until choices.count()) {
-            if (spinner.getItemAtPosition(i).toString() == stringToChange) {
+            if (spinner.getItemAtPosition(i).toString() == initialVal) {
                 spinner.setSelection(i)
                 break
             }
@@ -155,7 +154,7 @@ class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,
         override fun areContentsTheSame(
             oldItem: AddPairItem, newItem: AddPairItem
         ): Boolean {
-            return oldItem.equals(newItem)
+            return checkIfAddPairItemsAreEqual(oldItem, newItem)
         }
 
         override fun areItemsTheSame(
