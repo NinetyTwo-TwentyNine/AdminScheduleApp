@@ -1,11 +1,9 @@
 package com.example.scheduleapp.utils
 
-import android.bluetooth.BluetoothSocket
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.widget.EditText
-import com.example.scheduleapp.data.AddPairItem
 import com.example.scheduleapp.data.*
 import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_PAIR_ARRAY
 

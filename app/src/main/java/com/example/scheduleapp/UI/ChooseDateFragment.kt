@@ -12,9 +12,6 @@ import com.example.scheduleapp.databinding.FragmentChooseDateBinding
 import com.example.scheduleapp.viewmodels.MainActivityViewModel
 import java.util.*
 
-/**
- * Main admin screen to choose group and date to set schedule.
- */
 class ChooseDateFragment : Fragment() {
     private val viewModel: MainActivityViewModel by activityViewModels()
     private lateinit var binding: FragmentChooseDateBinding
