@@ -1,4 +1,4 @@
-package com.example.scheduleapp.UI
+package com.example.adminscheduleapp.UI
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,13 +9,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
-import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DAY_LIST_UPLOAD_FAILED
-import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DAY_LIST_UPLOAD_SUCCESS
-import com.example.scheduleapp.data.Constants.APP_PREFERENCES_AUTOUPDATE
-import com.example.scheduleapp.data.Constants.APP_PREFERENCES_STAY
-import com.example.scheduleapp.data.UploadStatus
-import com.example.scheduleapp.databinding.FragmentSettingsBinding
-import com.example.scheduleapp.viewmodels.MainActivityViewModel
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_DAY_LIST_UPLOAD_FAILED
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_DAY_LIST_UPLOAD_SUCCESS
+import com.example.adminscheduleapp.data.Constants.APP_PREFERENCES_AUTOUPDATE
+import com.example.adminscheduleapp.data.Constants.APP_PREFERENCES_STAY
+import com.example.adminscheduleapp.data.UploadStatus
+import com.example.adminscheduleapp.databinding.FragmentSettingsBinding
+import com.example.adminscheduleapp.viewmodels.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

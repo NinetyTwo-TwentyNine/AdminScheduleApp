@@ -1,4 +1,4 @@
-package com.example.scheduleapp.data
+package com.example.adminscheduleapp.data
 
 data class Date (
     var year : Int?   = null,

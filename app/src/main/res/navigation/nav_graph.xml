@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/adminPanelFragment"
-        android:name="com.example.scheduleapp.UI.AdminPanelFragment"
+        android:name="com.example.adminscheduleapp.UI.AdminPanelFragment"
         android:label="AdminPanelFragment"
         tools:layout="@layout/fragment_admin_panel" >
         <action
@@ -24,7 +24,7 @@
 
     <fragment
         android:id="@+id/chooseDateFragment"
-        android:name="com.example.scheduleapp.UI.ChooseDateFragment"
+        android:name="com.example.adminscheduleapp.UI.ChooseDateFragment"
         android:label="ChooseDateFragment"
         tools:layout="@layout/fragment_choose_date" >
         <action
@@ -40,7 +40,7 @@
 
     <fragment
         android:id="@+id/fragmentContainer"
-        android:name="com.example.scheduleapp.UI.FragmentContainer"
+        android:name="com.example.adminscheduleapp.UI.FragmentContainer"
         android:label="FragmentContainer"
         tools:layout="@layout/fragment_container" >
         <action
@@ -53,7 +53,7 @@
 
     <fragment
         android:id="@+id/addPairFragment"
-        android:name="com.example.scheduleapp.UI.AddPairFragment"
+        android:name="com.example.adminscheduleapp.UI.AddPairFragment"
         android:label="AddPairFragment"
         tools:layout="@layout/fragment_add_pair">
         <action
@@ -67,7 +67,7 @@
 
     <fragment
         android:id="@+id/changeBasicScheduleFragment"
-        android:name="com.example.scheduleapp.UI.ChangeBasicScheduleFragment"
+        android:name="com.example.adminscheduleapp.UI.ChangeBasicScheduleFragment"
         android:label="ChangeBasicScheduleFragment"
         tools:layout="@layout/fragment_change_basic_schedule">
         <action
@@ -83,7 +83,7 @@
 
     <fragment
         android:id="@+id/dbFragmentContainer"
-        android:name="com.example.scheduleapp.UI.DataBaseFragmentContainer"
+        android:name="com.example.adminscheduleapp.UI.DataBaseFragmentContainer"
         android:label="DataBaseFragmentContainer"
         tools:layout="@layout/fragment_data_base_container" >
         <action
@@ -96,7 +96,7 @@
 
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.scheduleapp.UI.SettingsFragment"
+        android:name="com.example.adminscheduleapp.UI.SettingsFragment"
         android:label="SettingsFragment"
         tools:layout="@layout/fragment_settings" >
         <action
@@ -108,7 +108,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.scheduleapp.UI.LoginFragment"
+        android:name="com.example.adminscheduleapp.UI.LoginFragment"
         android:label="loginFragment"
         tools:layout="@layout/fragment_login" >
         <action
@@ -130,7 +130,7 @@
 
     <fragment
         android:id="@+id/registrationFragment"
-        android:name="com.example.scheduleapp.UI.RegistrationFragment"
+        android:name="com.example.adminscheduleapp.UI.RegistrationFragment"
         android:label="RegistrationFragment"
         tools:layout="@layout/fragment_registration" >
         <action
@@ -142,7 +142,7 @@
 
     <fragment
         android:id="@+id/resetFragment"
-        android:name="com.example.scheduleapp.UI.ResetFragment"
+        android:name="com.example.adminscheduleapp.UI.ResetFragment"
         android:label="ResetFragment"
         tools:layout="@layout/fragment_reset" >
         <action

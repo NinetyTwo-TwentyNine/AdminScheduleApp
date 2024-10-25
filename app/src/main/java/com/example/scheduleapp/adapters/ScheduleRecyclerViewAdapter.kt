@@ -1,4 +1,4 @@
-package com.example.scheduleapp.adapters
+package com.example.adminscheduleapp.adapters
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -9,11 +9,11 @@ import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.scheduleapp.R
-import com.example.scheduleapp.data.Constants.APP_ADMIN_SCHEDULE_ITEM_EDIT_OPTIONS_CLEAR
-import com.example.scheduleapp.data.Constants.APP_ADMIN_SCHEDULE_ITEM_EDIT_OPTIONS_TWEAK
-import com.example.scheduleapp.data.Schedule
-import com.example.scheduleapp.databinding.ScheduleItemBinding
+import com.example.adminscheduleapp.R
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_SCHEDULE_ITEM_EDIT_OPTIONS_CLEAR
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_SCHEDULE_ITEM_EDIT_OPTIONS_TWEAK
+import com.example.adminscheduleapp.data.Schedule
+import com.example.adminscheduleapp.databinding.ScheduleItemBinding
 
 
 class ScheduleRecyclerViewAdapter(private val editFunction: (Int) -> Unit,

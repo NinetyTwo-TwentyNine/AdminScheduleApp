@@ -1,25 +1,35 @@
-package com.example.scheduleapp.viewmodels
+package com.example.adminscheduleapp.viewmodels
 
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.scheduleapp.data.*
-import com.example.scheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
-import com.example.scheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
-import com.example.scheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
-import com.example.scheduleapp.utils.Utils.addPairToFlatSchedule
-import com.example.scheduleapp.utils.Utils.applyBaseScheduleByNameAndDate
-import com.example.scheduleapp.utils.Utils.convertPairToArrayOfAddPairItem
-import com.example.scheduleapp.utils.Utils.getById
-import com.example.scheduleapp.utils.Utils.getEmptyId
-import com.example.scheduleapp.utils.Utils.getFlatScheduleBaseDeepCopy
-import com.example.scheduleapp.utils.Utils.getFlatScheduleDetailedDeepCopy
-import com.example.scheduleapp.utils.Utils.getItemArrayDeepCopy
-import com.example.scheduleapp.utils.Utils.getItemId
-import com.example.scheduleapp.utils.Utils.getScheduleIdByGroupAndDate
-import com.example.scheduleapp.utils.Utils.getScheduleIdByGroupDateAndBaseScheduleId
-import com.example.scheduleapp.utils.Utils.moveDataFromScheduleToArray
-import com.example.scheduleapp.utils.Utils.removeScheduleItemById
+import com.example.adminscheduleapp.data.AddPairItem
+import com.example.adminscheduleapp.data.Constants
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
+import com.example.adminscheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
+import com.example.adminscheduleapp.data.Data_IntArray
+import com.example.adminscheduleapp.data.Data_IntDate
+import com.example.adminscheduleapp.data.Data_IntString
+import com.example.adminscheduleapp.data.Date
+import com.example.adminscheduleapp.data.FlatScheduleBase
+import com.example.adminscheduleapp.data.FlatScheduleDetailed
+import com.example.adminscheduleapp.data.FlatScheduleParameters
+import com.example.adminscheduleapp.data.Schedule
+import com.example.adminscheduleapp.data.ScheduleDetailed
+import com.example.adminscheduleapp.utils.Utils.addPairToFlatSchedule
+import com.example.adminscheduleapp.utils.Utils.applyBaseScheduleByNameAndDate
+import com.example.adminscheduleapp.utils.Utils.convertPairToArrayOfAddPairItem
+import com.example.adminscheduleapp.utils.Utils.getById
+import com.example.adminscheduleapp.utils.Utils.getEmptyId
+import com.example.adminscheduleapp.utils.Utils.getFlatScheduleBaseDeepCopy
+import com.example.adminscheduleapp.utils.Utils.getFlatScheduleDetailedDeepCopy
+import com.example.adminscheduleapp.utils.Utils.getItemArrayDeepCopy
+import com.example.adminscheduleapp.utils.Utils.getItemId
+import com.example.adminscheduleapp.utils.Utils.getScheduleIdByGroupAndDate
+import com.example.adminscheduleapp.utils.Utils.getScheduleIdByGroupDateAndBaseScheduleId
+import com.example.adminscheduleapp.utils.Utils.moveDataFromScheduleToArray
+import com.example.adminscheduleapp.utils.Utils.removeScheduleItemById
 import kotlin.collections.ArrayList
 
 //@HiltViewModel

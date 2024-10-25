@@ -1,4 +1,4 @@
-package com.example.scheduleapp.UI
+package com.example.adminscheduleapp.UI
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -7,9 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
-import com.example.scheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
-import com.example.scheduleapp.databinding.FragmentChooseDateBinding
-import com.example.scheduleapp.viewmodels.MainActivityViewModel
+import com.example.adminscheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
+import com.example.adminscheduleapp.databinding.FragmentChooseDateBinding
+import com.example.adminscheduleapp.viewmodels.MainActivityViewModel
+import com.example.adminscheduleapp.data.Date
 import java.util.*
 
 class ChooseDateFragment : Fragment() {
@@ -39,7 +40,7 @@ class ChooseDateFragment : Fragment() {
         binding.dateToCreateScheduleDatePicker.maxDate = mCalendar.timeInMillis
 
         binding.goNextButton.setOnClickListener {
-            viewModel.chooseDay(com.example.scheduleapp.data.Date(binding.dateToCreateScheduleDatePicker.year, binding.dateToCreateScheduleDatePicker.month+1, binding.dateToCreateScheduleDatePicker.dayOfMonth))
+            viewModel.chooseDay(Date(binding.dateToCreateScheduleDatePicker.year, binding.dateToCreateScheduleDatePicker.month+1, binding.dateToCreateScheduleDatePicker.dayOfMonth))
             requireView().findNavController()
                 .navigate(ChooseDateFragmentDirections.actionChooseDateFragmentToFragmentContainer())
         }

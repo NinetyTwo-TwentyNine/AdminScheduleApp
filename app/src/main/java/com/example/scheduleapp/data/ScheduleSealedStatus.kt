@@ -1,4 +1,4 @@
-package com.example.scheduleapp.data
+package com.example.adminscheduleapp.data
 
 sealed class AuthenticationStatus {
 

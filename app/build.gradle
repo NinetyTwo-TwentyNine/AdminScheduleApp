@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.scheduleapp'
+    namespace 'com.example.adminscheduleapp'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.scheduleapp"
+        applicationId "com.example.adminscheduleapp"
         minSdk 24
         targetSdk 33
         versionCode 1

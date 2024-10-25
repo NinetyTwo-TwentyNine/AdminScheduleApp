@@ -1,10 +1,10 @@
-package com.example.scheduleapp.di
+package com.example.adminscheduleapp.di
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.scheduleapp.data.Constants
-import com.example.scheduleapp.models.FirebaseImplementation
-import com.example.scheduleapp.models.FirebaseRepository
+import com.example.adminscheduleapp.data.Constants
+import com.example.adminscheduleapp.models.FirebaseImplementation
+import com.example.adminscheduleapp.models.FirebaseRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import dagger.Module

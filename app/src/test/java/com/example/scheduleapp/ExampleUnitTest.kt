@@ -1,4 +1,4 @@
-package com.example.scheduleapp
+package com.example.adminscheduleapp
 
 import org.junit.Test
 

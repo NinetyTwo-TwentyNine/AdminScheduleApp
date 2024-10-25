@@ -1,6 +1,6 @@
-package com.example.scheduleapp.data
+package com.example.adminscheduleapp.data
 
-import com.example.scheduleapp.utils.Utils.getItemArrayDeepCopy
+import com.example.adminscheduleapp.utils.Utils.getItemArrayDeepCopy
 
 object Constants {
     const val APP_MIN_PASSWORD_LENGTH = 8

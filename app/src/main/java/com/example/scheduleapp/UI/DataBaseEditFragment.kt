@@ -1,4 +1,4 @@
-package com.example.scheduleapp.UI
+package com.example.adminscheduleapp.UI
 
 import android.os.Bundle
 import android.view.Gravity
@@ -12,21 +12,21 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.scheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
-import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_FAILED
-import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS
-import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_ID_DELETION
-import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
-import com.example.scheduleapp.data.Constants.APP_TOAST_DATA_DOWNLOAD_FAILED
-import com.example.scheduleapp.data.Data_IntString
-import com.example.scheduleapp.data.DownloadStatus
-import com.example.scheduleapp.data.UploadStatus
-import com.example.scheduleapp.databinding.BasicPopupWindowBinding
-import com.example.scheduleapp.databinding.FragmentDataBaseEditBinding
-import com.example.scheduleapp.utils.Utils.getItemArrayDeepCopy
-import com.example.scheduleapp.utils.Utils.getPossibleId
-import com.example.scheduleapp.viewmodels.MainActivityViewModel
-import com.example.scheduleapp.viewmodels.ScheduleViewModel
+import com.example.adminscheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_FAILED
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_WARNING_ID_DELETION
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
+import com.example.adminscheduleapp.data.Constants.APP_TOAST_DATA_DOWNLOAD_FAILED
+import com.example.adminscheduleapp.data.Data_IntString
+import com.example.adminscheduleapp.data.DownloadStatus
+import com.example.adminscheduleapp.data.UploadStatus
+import com.example.adminscheduleapp.databinding.BasicPopupWindowBinding
+import com.example.adminscheduleapp.databinding.FragmentDataBaseEditBinding
+import com.example.adminscheduleapp.utils.Utils.getItemArrayDeepCopy
+import com.example.adminscheduleapp.utils.Utils.getPossibleId
+import com.example.adminscheduleapp.viewmodels.MainActivityViewModel
+import com.example.adminscheduleapp.viewmodels.ScheduleViewModel
 import kotlin.collections.ArrayList
 
 

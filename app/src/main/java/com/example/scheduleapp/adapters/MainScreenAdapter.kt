@@ -1,8 +1,8 @@
-package com.example.scheduleapp.adapters
+package com.example.adminscheduleapp.adapters
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.scheduleapp.UI.ScheduleFragment
+import com.example.adminscheduleapp.UI.ScheduleFragment
 
 class MainScreenAdapter(fragment: Fragment, private val itemCount: Int) :
     FragmentStateAdapter(fragment) {

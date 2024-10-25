@@ -1,4 +1,4 @@
-package com.example.scheduleapp.adapters
+package com.example.adminscheduleapp.adapters
 
 import android.annotation.SuppressLint
 import android.text.SpannableStringBuilder
@@ -11,15 +11,15 @@ import android.widget.Toast
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.scheduleapp.R
-import com.example.scheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_DELETE
-import com.example.scheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_OFF
-import com.example.scheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_ON
-import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_ITEM_CAN_NOT_BE_DELETED
-import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_TITLE_CAN_NOT_BE_SAVED
-import com.example.scheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
-import com.example.scheduleapp.data.Data_IntString
-import com.example.scheduleapp.databinding.BasicTextItemBinding
+import com.example.adminscheduleapp.R
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_DELETE
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_OFF
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TABLE_EDIT_OPTIONS_ON
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_ITEM_CAN_NOT_BE_DELETED
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_TITLE_CAN_NOT_BE_SAVED
+import com.example.adminscheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
+import com.example.adminscheduleapp.data.Data_IntString
+import com.example.adminscheduleapp.databinding.BasicTextItemBinding
 
 class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<Int>) -> Unit,
                                        private val updateSaveButton: () -> Unit,

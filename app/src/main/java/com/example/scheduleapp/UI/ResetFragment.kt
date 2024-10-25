@@ -1,4 +1,4 @@
-package com.example.scheduleapp.UI
+package com.example.adminscheduleapp.UI
 
 import android.os.Bundle
 import android.util.Log
@@ -10,12 +10,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
-import com.example.scheduleapp.data.AuthenticationStatus
-import com.example.scheduleapp.data.Constants.APP_TOAST_RESET_SEND_FAILED
-import com.example.scheduleapp.data.Constants.APP_TOAST_RESET_SEND_SUCCESS
-import com.example.scheduleapp.databinding.FragmentResetBinding
-import com.example.scheduleapp.utils.Utils.getBlankStringsChecker
-import com.example.scheduleapp.viewmodels.MainActivityViewModel
+import com.example.adminscheduleapp.data.AuthenticationStatus
+import com.example.adminscheduleapp.data.Constants.APP_TOAST_RESET_SEND_FAILED
+import com.example.adminscheduleapp.data.Constants.APP_TOAST_RESET_SEND_SUCCESS
+import com.example.adminscheduleapp.databinding.FragmentResetBinding
+import com.example.adminscheduleapp.utils.Utils.getBlankStringsChecker
+import com.example.adminscheduleapp.viewmodels.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

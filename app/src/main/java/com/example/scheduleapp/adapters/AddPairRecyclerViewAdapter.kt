@@ -1,4 +1,4 @@
-package com.example.scheduleapp.adapters
+package com.example.adminscheduleapp.adapters
 
 import android.view.LayoutInflater
 import android.view.View
@@ -10,11 +10,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.scheduleapp.R
-import com.example.scheduleapp.data.AddPairItem
-import com.example.scheduleapp.databinding.ScheduleAddItemBinding
-import com.example.scheduleapp.databinding.ScheduleAddSpecialItemBinding
-import com.example.scheduleapp.utils.Utils.checkIfAddPairItemsAreEqual
+import com.example.adminscheduleapp.R
+import com.example.adminscheduleapp.data.AddPairItem
+import com.example.adminscheduleapp.databinding.ScheduleAddItemBinding
+import com.example.adminscheduleapp.databinding.ScheduleAddSpecialItemBinding
+import com.example.adminscheduleapp.utils.Utils.checkIfAddPairItemsAreEqual
 
 
 class AddPairRecyclerViewAdapter(private val disciplineList: ArrayList<String>,

@@ -1,4 +1,4 @@
-package com.example.scheduleapp.UI
+package com.example.adminscheduleapp.UI
 
 import android.os.Bundle
 import android.util.Log
@@ -8,15 +8,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.scheduleapp.adapters.ScheduleRecyclerViewAdapter
-import com.example.scheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
-import com.example.scheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
-import com.example.scheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
-import com.example.scheduleapp.data.Schedule
-import com.example.scheduleapp.databinding.FragmentScheduleBinding
-import com.example.scheduleapp.utils.Utils.getItemId
-import com.example.scheduleapp.viewmodels.MainActivityViewModel
-import com.example.scheduleapp.viewmodels.ScheduleViewModel
+import com.example.adminscheduleapp.adapters.ScheduleRecyclerViewAdapter
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
+import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
+import com.example.adminscheduleapp.data.Schedule
+import com.example.adminscheduleapp.databinding.FragmentScheduleBinding
+import com.example.adminscheduleapp.utils.Utils.getItemId
+import com.example.adminscheduleapp.viewmodels.MainActivityViewModel
+import com.example.adminscheduleapp.viewmodels.ScheduleViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

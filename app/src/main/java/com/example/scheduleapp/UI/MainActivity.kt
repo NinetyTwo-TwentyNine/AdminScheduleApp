@@ -1,4 +1,4 @@
-package com.example.scheduleapp.UI
+package com.example.adminscheduleapp.UI
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -10,12 +10,12 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
-import com.example.scheduleapp.R
-import com.example.scheduleapp.data.Constants.APP_PREFERENCES_AUTOUPDATE
-import com.example.scheduleapp.data.Constants.APP_PREFERENCES_STAY
-import com.example.scheduleapp.data.Constants.APP_TOAST_NOT_SIGNED_IN
-import com.example.scheduleapp.databinding.ActivityMainBinding
-import com.example.scheduleapp.viewmodels.MainActivityViewModel
+import com.example.adminscheduleapp.R
+import com.example.adminscheduleapp.data.Constants.APP_PREFERENCES_AUTOUPDATE
+import com.example.adminscheduleapp.data.Constants.APP_PREFERENCES_STAY
+import com.example.adminscheduleapp.data.Constants.APP_TOAST_NOT_SIGNED_IN
+import com.example.adminscheduleapp.databinding.ActivityMainBinding
+import com.example.adminscheduleapp.viewmodels.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

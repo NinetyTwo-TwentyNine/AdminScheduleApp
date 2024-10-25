@@ -1,11 +1,11 @@
-package com.example.scheduleapp.utils
+package com.example.adminscheduleapp.utils
 
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.widget.EditText
-import com.example.scheduleapp.data.*
-import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_PAIR_ARRAY
+import com.example.adminscheduleapp.data.*
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_EDIT_PAIR_ARRAY
 
 object Utils {
 

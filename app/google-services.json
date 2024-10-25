@@ -38,7 +38,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:293616630042:android:65177c43b1ef86f36f54a3",
         "android_client_info": {
-          "package_name": "com.example.scheduleapp"
+          "package_name": "com.example.adminscheduleapp"
         }
       },
       "oauth_client": [

@@ -1,4 +1,4 @@
-package com.example.scheduleapp.UI
+package com.example.adminscheduleapp.UI
 
 import android.os.Bundle
 import android.view.Gravity
@@ -13,21 +13,21 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.scheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
-import com.example.scheduleapp.data.*
-import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_FAILED
-import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS
-import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_ID_DELETION
-import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_RESET_CHANGES
-import com.example.scheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
-import com.example.scheduleapp.data.Constants.APP_ADMIN_TOAST_SHOULD_UPLOAD_SCHEDULE
-import com.example.scheduleapp.data.Constants.APP_TOAST_SCHEDULE_DOWNLOAD_FAILED
-import com.example.scheduleapp.databinding.BasicPopupWindowBinding
-import com.example.scheduleapp.databinding.FragmentChangeBasicScheduleBinding
-import com.example.scheduleapp.utils.Utils.checkIfFlatScheduleBaseEquals
-import com.example.scheduleapp.utils.Utils.getPossibleId
-import com.example.scheduleapp.viewmodels.MainActivityViewModel
-import com.example.scheduleapp.viewmodels.ScheduleViewModel
+import com.example.adminscheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
+import com.example.adminscheduleapp.data.*
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_FAILED
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_WARNING_ID_DELETION
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_WARNING_RESET_CHANGES
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_SHOULD_UPLOAD_SCHEDULE
+import com.example.adminscheduleapp.data.Constants.APP_TOAST_SCHEDULE_DOWNLOAD_FAILED
+import com.example.adminscheduleapp.databinding.BasicPopupWindowBinding
+import com.example.adminscheduleapp.databinding.FragmentChangeBasicScheduleBinding
+import com.example.adminscheduleapp.utils.Utils.checkIfFlatScheduleBaseEquals
+import com.example.adminscheduleapp.utils.Utils.getPossibleId
+import com.example.adminscheduleapp.viewmodels.MainActivityViewModel
+import com.example.adminscheduleapp.viewmodels.ScheduleViewModel
 
 class ChangeBasicScheduleFragment() : Fragment() {
     private lateinit var binding: FragmentChangeBasicScheduleBinding

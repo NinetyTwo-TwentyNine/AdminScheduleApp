@@ -1,4 +1,4 @@
-package com.example.scheduleapp.UI
+package com.example.adminscheduleapp.UI
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -9,20 +9,20 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.scheduleapp.adapters.AddPairRecyclerViewAdapter
-import com.example.scheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
-import com.example.scheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
-import com.example.scheduleapp.data.Constants.APP_ADMIN_EDIT_PAIR_ARRAY
-import com.example.scheduleapp.data.Constants.APP_BD_PATHS_CABINET_LIST
-import com.example.scheduleapp.data.Constants.APP_BD_PATHS_DISCIPLINE_LIST
-import com.example.scheduleapp.data.Constants.APP_BD_PATHS_TEACHER_LIST
-import com.example.scheduleapp.data.ScheduleDetailed
-import com.example.scheduleapp.databinding.FragmentAddPairBinding
-import com.example.scheduleapp.utils.Utils.checkIfItemArraysAreEqual
-import com.example.scheduleapp.utils.Utils.convertArrayOfAddPairItemToPair
-import com.example.scheduleapp.utils.Utils.getItemArrayDeepCopy
-import com.example.scheduleapp.viewmodels.MainActivityViewModel
-import com.example.scheduleapp.viewmodels.ScheduleViewModel
+import com.example.adminscheduleapp.adapters.AddPairRecyclerViewAdapter
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_EDIT_PAIR_ARRAY
+import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_CABINET_LIST
+import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_DISCIPLINE_LIST
+import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_TEACHER_LIST
+import com.example.adminscheduleapp.data.ScheduleDetailed
+import com.example.adminscheduleapp.databinding.FragmentAddPairBinding
+import com.example.adminscheduleapp.utils.Utils.checkIfItemArraysAreEqual
+import com.example.adminscheduleapp.utils.Utils.convertArrayOfAddPairItemToPair
+import com.example.adminscheduleapp.utils.Utils.getItemArrayDeepCopy
+import com.example.adminscheduleapp.viewmodels.MainActivityViewModel
+import com.example.adminscheduleapp.viewmodels.ScheduleViewModel
 
 class AddPairFragment() : Fragment() {
     private lateinit var binding: FragmentAddPairBinding
