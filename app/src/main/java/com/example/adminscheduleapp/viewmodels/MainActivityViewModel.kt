@@ -24,6 +24,7 @@ import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_BASE_NA
 import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_CURRENT
 import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_TEACHER_LIST
 import com.example.adminscheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
+import com.example.adminscheduleapp.data.Constants.APP_PREFERENCES_PUSHES
 import com.example.adminscheduleapp.data.Constants.APP_TOAST_WEAK_CONNECTION
 import com.example.adminscheduleapp.data.Date
 import com.example.adminscheduleapp.models.FirebaseRepository
@@ -287,6 +288,11 @@ class MainActivityViewModel @Inject constructor(
 
     fun uploadCurrentSchedule(uploadState: MutableLiveData<UploadStatus>, flatSchedule: FlatScheduleDetailed) {
         cleanScheduleFromUnnecessaryDates(flatSchedule)
+        if (getPreference(APP_PREFERENCES_PUSHES, true)) {
+            flatSchedule.version = Calendar.getInstance().timeInMillis
+        } else {
+            flatSchedule.version = flatScheduleDetailed.version
+        }
         uploadData(uploadState, APP_BD_PATHS_SCHEDULE_CURRENT, flatSchedule) { updateCurrentSchedule(flatSchedule) }
     }
 

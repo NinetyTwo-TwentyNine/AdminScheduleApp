@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import com.example.adminscheduleapp.R
 import com.example.adminscheduleapp.data.Constants.APP_PREFERENCES_AUTOUPDATE
+import com.example.adminscheduleapp.data.Constants.APP_PREFERENCES_PUSHES
 import com.example.adminscheduleapp.data.Constants.APP_PREFERENCES_STAY
 import com.example.adminscheduleapp.data.Constants.APP_TOAST_NOT_SIGNED_IN
 import com.example.adminscheduleapp.databinding.ActivityMainBinding
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.editPreferences(APP_PREFERENCES_STAY, viewModel.getPreference(APP_PREFERENCES_STAY, true))
         viewModel.editPreferences(APP_PREFERENCES_AUTOUPDATE, viewModel.getPreference(APP_PREFERENCES_AUTOUPDATE, true))
+        viewModel.editPreferences(APP_PREFERENCES_PUSHES, viewModel.getPreference(APP_PREFERENCES_PUSHES, true))
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

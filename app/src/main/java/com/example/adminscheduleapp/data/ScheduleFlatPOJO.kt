@@ -12,7 +12,8 @@ data class FlatScheduleDetailed (
     var scheduleGroup : ArrayList<Data_IntArray> = arrayListOf(),
     var scheduleLesson : ArrayList<Data_IntIntIntArrayArray> = arrayListOf(),
     var cabinetLesson  : ArrayList<Data_IntIntIntArrayArray>  = arrayListOf(),
-    var teacherLesson  : ArrayList<Data_IntIntIntArrayArray>  = arrayListOf()
+    var teacherLesson  : ArrayList<Data_IntIntIntArrayArray>  = arrayListOf(),
+    var version  : Long?  = null
 )
 
 data class FlatScheduleBase (

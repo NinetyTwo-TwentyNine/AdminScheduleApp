@@ -144,7 +144,8 @@ object Utils {
             scheduleGroup = getItemArrayDeepCopy(origSchedule.scheduleGroup),
             scheduleLesson = getItemArrayDeepCopy(origSchedule.scheduleLesson),
             cabinetLesson = getItemArrayDeepCopy(origSchedule.cabinetLesson),
-            teacherLesson = getItemArrayDeepCopy(origSchedule.teacherLesson)
+            teacherLesson = getItemArrayDeepCopy(origSchedule.teacherLesson),
+            version = origSchedule.version
         )
     }
 
