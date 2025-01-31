@@ -50,6 +50,7 @@ class AdminDBEditorRecyclerViewAdapter(private val updateAddButton: (ArrayList<I
                         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                             if (position != 0 && title.inputType != 1) {
                                 recycler.cardSpinnerFunc!!(position, item.id!!)
+                                cardSpinner.setSelection(0)
                             }
                         }
                         override fun onNothingSelected(parent: AdapterView<*>?) { }

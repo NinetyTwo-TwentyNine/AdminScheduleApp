@@ -128,8 +128,20 @@ class ChangeBasicScheduleFragment() : Fragment() {
         binding.addButton.isEnabled = true
         binding.addButton.setOnClickListener {
             val currentRecyclerList = ArrayList(dbEditorRecyclerViewAdapter.differ.currentList)
+
             val new_id = getPossibleId(currentRecyclerList)
-            val new_title = "Базовое расписание $new_id"
+            var new_title_number = new_id
+            var new_title = "Базовое расписание $new_title_number"
+
+            val namesList = arrayListOf<String>()
+            currentRecyclerList.forEach {
+                namesList.add(it.title!!)
+            }
+            while (namesList.contains(new_title)) {
+                new_title_number++
+                new_title = "Базовое расписание $new_title_number"
+            }
+
             currentRecyclerList.add(0, Data_IntString(new_id, new_title))
             scheduleViewModel.addNewBaseSchedule(new_id, new_title)
 

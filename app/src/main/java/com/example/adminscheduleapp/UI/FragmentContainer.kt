@@ -49,7 +49,6 @@ class FragmentContainer : Fragment() {
     private lateinit var mainScreenAdapter: MainScreenAdapter
     private lateinit var binding: FragmentContainerBinding
     private lateinit var popupBinding: BasicPopupWindowBinding
-    private lateinit var currentDownloadStatus: MutableLiveData<DownloadStatus<FlatScheduleDetailed>>
     private lateinit var currentUploadStatus: MutableLiveData<UploadStatus>
 
     private var dontEverShowDayWarning = false
@@ -73,8 +72,7 @@ class FragmentContainer : Fragment() {
     }
 
     private fun setupViewCurrentEditMode() {
-        initDownloadObservers()
-        mainViewModel.downloadCurrentSchedule(currentDownloadStatus)
+        setupViewPager2()
 
         binding.saveButton.setOnClickListener {
             createPopupWindow(APP_ADMIN_WARNING_SAVE_CHANGES, true) {
@@ -205,45 +203,6 @@ class FragmentContainer : Fragment() {
 
         popupWindow.setOnDismissListener {
             updateResetAndSaveButtons()
-        }
-    }
-
-    private fun initDownloadObservers() {
-        currentDownloadStatus = MutableLiveData()
-        currentDownloadStatus.observe(viewLifecycleOwner) { downloadStatus ->
-
-            when (downloadStatus) {
-                is DownloadStatus.Progress -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                }
-                is DownloadStatus.WeakProgress -> {
-                    Toast.makeText(
-                        activity,
-                        downloadStatus.message,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                is DownloadStatus.Error -> {
-                    binding.progressBar.visibility = View.GONE
-                    currentDownloadStatus.removeObservers(viewLifecycleOwner)
-                    Toast.makeText(
-                        activity,
-                        "$APP_TOAST_SCHEDULE_DOWNLOAD_FAILED: ${downloadStatus.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                is DownloadStatus.Success<FlatScheduleDetailed> -> {
-                    binding.progressBar.visibility = View.GONE
-                    currentDownloadStatus.removeObservers(viewLifecycleOwner)
-                    if (scheduleViewModel.getSavedCurrentSchedule() == null) {
-                        scheduleViewModel.saveCurrentSchedule(mainViewModel.getCurrentSchedule())
-                    }
-                    setupViewPager2()
-                }
-                else -> {
-                    throw IllegalStateException()
-                }
-            }
         }
     }
 

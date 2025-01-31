@@ -1,12 +1,14 @@
 package com.example.adminscheduleapp.viewmodels
 
-
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.adminscheduleapp.data.AddPairItem
-import com.example.adminscheduleapp.data.Constants
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
+import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_CABINET_LIST
+import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_DISCIPLINE_LIST
+import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
+import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_TEACHER_LIST
 import com.example.adminscheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
 import com.example.adminscheduleapp.data.Data_IntArray
 import com.example.adminscheduleapp.data.Data_IntDate
@@ -19,6 +21,7 @@ import com.example.adminscheduleapp.data.Schedule
 import com.example.adminscheduleapp.data.ScheduleDetailed
 import com.example.adminscheduleapp.utils.Utils.addPairToFlatSchedule
 import com.example.adminscheduleapp.utils.Utils.applyBaseScheduleByNameAndDate
+import com.example.adminscheduleapp.utils.Utils.convertArrayOfAddPairItemToPair
 import com.example.adminscheduleapp.utils.Utils.convertPairToArrayOfAddPairItem
 import com.example.adminscheduleapp.utils.Utils.getById
 import com.example.adminscheduleapp.utils.Utils.getEmptyId
@@ -30,7 +33,6 @@ import com.example.adminscheduleapp.utils.Utils.getScheduleIdByGroupAndDate
 import com.example.adminscheduleapp.utils.Utils.getScheduleIdByGroupDateAndBaseScheduleId
 import com.example.adminscheduleapp.utils.Utils.moveDataFromScheduleToArray
 import com.example.adminscheduleapp.utils.Utils.removeScheduleItemById
-import kotlin.collections.ArrayList
 
 //@HiltViewModel
 class ScheduleViewModel : ViewModel() {
@@ -180,19 +182,19 @@ class ScheduleViewModel : ViewModel() {
 
     fun checkIfParameterIsNecessary(reference: String, id: Int): Boolean {
         when(reference) {
-            Constants.APP_BD_PATHS_DISCIPLINE_LIST -> {
+            APP_BD_PATHS_DISCIPLINE_LIST -> {
                 savedFlatScheduleDetailed?.scheduleLesson?.forEach { if (it.specialId == id) { return true } }
                 savedFlatScheduleBase?.scheduleLesson?.forEach { if (it.specialId == id) { return true } }
             }
-            Constants.APP_BD_PATHS_TEACHER_LIST -> {
+            APP_BD_PATHS_TEACHER_LIST -> {
                 savedFlatScheduleDetailed?.teacherLesson?.forEach { if (it.specialId == id) { return true } }
                 savedFlatScheduleBase?.teacherLesson?.forEach { if (it.specialId == id) { return true } }
             }
-            Constants.APP_BD_PATHS_GROUP_LIST -> {
+            APP_BD_PATHS_GROUP_LIST -> {
                 savedFlatScheduleDetailed?.scheduleGroup?.forEach { if (it.specialId == id) { return true } }
                 savedFlatScheduleBase?.scheduleGroup?.forEach { if (it.specialId == id) { return true } }
             }
-            Constants.APP_BD_PATHS_CABINET_LIST -> {
+            APP_BD_PATHS_CABINET_LIST -> {
                 savedFlatScheduleDetailed?.cabinetLesson?.forEach { if (it.specialId == id) { return true } }
                 savedFlatScheduleBase?.cabinetLesson?.forEach { if (it.specialId == id) { return true } }
             }
@@ -298,7 +300,7 @@ class ScheduleViewModel : ViewModel() {
             savedFlatScheduleDetailed!!.scheduleDay.add(Data_IntArray(currentDateId, arrayListOf()))
         }
         if (getById(currentGroupId!!, savedFlatScheduleDetailed!!.scheduleGroup) == null) {
-            savedFlatScheduleDetailed!!.scheduleGroup.add(Data_IntArray(currentDateId, arrayListOf()))
+            savedFlatScheduleDetailed!!.scheduleGroup.add(Data_IntArray(currentGroupId, arrayListOf()))
         }
 
         var scheduleId: Int? = getScheduleIdByGroupAndDate(savedFlatScheduleDetailed!!, currentDateId, currentGroupId)
@@ -336,7 +338,7 @@ class ScheduleViewModel : ViewModel() {
             savedFlatScheduleBase!!.scheduleDay.add(Data_IntArray(dayId, arrayListOf()))
         }
         if (getById(currentGroupId!!, savedFlatScheduleBase!!.scheduleGroup) == null) {
-            savedFlatScheduleBase!!.scheduleGroup.add(Data_IntArray(dayId, arrayListOf()))
+            savedFlatScheduleBase!!.scheduleGroup.add(Data_IntArray(currentGroupId, arrayListOf()))
         }
         if (getById(chosenBaseSchedule!!, savedFlatScheduleBase!!.scheduleName) == null) {
             savedFlatScheduleBase!!.scheduleName.add(Data_IntArray(chosenBaseSchedule!!, arrayListOf()))
@@ -463,21 +465,25 @@ class ScheduleViewModel : ViewModel() {
         return true
     }
 
-    fun saveScheduleEdits(scheduleParams: FlatScheduleParameters, pair: Pair<ScheduleDetailed, ScheduleDetailed>, editMode: Int) {
+    fun saveScheduleEdits(scheduleParams: FlatScheduleParameters, pair: ArrayList<AddPairItem>, editMode: Int) {
+        val subPair1 = ScheduleDetailed(chosenPairNumber!! * 2 + 1)
+        val subPair2 = ScheduleDetailed(chosenPairNumber!! * 2 + 2)
+        convertArrayOfAddPairItemToPair(pair, Pair(subPair1, subPair2))
+
         when (editMode) {
             APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> {
                 removeScheduleItemById(savedFlatScheduleDetailed!!, chosenScheduleId!!, chosenPairNumber!!+1, false)
-                addPairToFlatSchedule(savedFlatScheduleDetailed!!, scheduleParams, chosenScheduleId!!, pair)
+                addPairToFlatSchedule(savedFlatScheduleDetailed!!, scheduleParams, chosenScheduleId!!, Pair(subPair1, subPair2))
             }
             APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> {
                 removeScheduleItemById(savedFlatScheduleBase!!, chosenScheduleId!!, chosenPairNumber!!+1, false)
-                addPairToFlatSchedule(savedFlatScheduleBase!!, scheduleParams, chosenScheduleId!!, pair)
+                addPairToFlatSchedule(savedFlatScheduleBase!!, scheduleParams, chosenScheduleId!!, Pair(subPair1, subPair2))
             }
             else -> {
                 throw(IllegalStateException("Unknown edit mode."))
             }
         }
-        chosenScheduleItem = convertPairToArrayOfAddPairItem(Pair(pair.first, pair.second))
+        chosenScheduleItem = pair
         chosenScheduleIdIsNew = false
     }
 

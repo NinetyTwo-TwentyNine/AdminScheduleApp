@@ -16,10 +16,8 @@ import com.example.adminscheduleapp.data.Constants.APP_ADMIN_EDIT_PAIR_ARRAY
 import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_CABINET_LIST
 import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_DISCIPLINE_LIST
 import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_TEACHER_LIST
-import com.example.adminscheduleapp.data.ScheduleDetailed
 import com.example.adminscheduleapp.databinding.FragmentAddPairBinding
 import com.example.adminscheduleapp.utils.Utils.checkIfItemArraysAreEqual
-import com.example.adminscheduleapp.utils.Utils.convertArrayOfAddPairItemToPair
 import com.example.adminscheduleapp.utils.Utils.getItemArrayDeepCopy
 import com.example.adminscheduleapp.viewmodels.MainActivityViewModel
 import com.example.adminscheduleapp.viewmodels.ScheduleViewModel
@@ -45,11 +43,8 @@ class AddPairFragment() : Fragment() {
         binding.optionalEnable.setOnCheckedChangeListener { v, checked -> updateRecyclerView() }
 
         binding.saveButton.setOnClickListener {
-            val subPair1 = ScheduleDetailed(scheduleViewModel.getChosenPairNum()!! * 2 + 1)
-            val subPair2 = ScheduleDetailed(scheduleViewModel.getChosenPairNum()!! * 2 + 2)
-
-            convertArrayOfAddPairItemToPair(ArrayList(addPairRecyclerViewAdapter.differ.currentList), Pair(subPair1, subPair2))
-            scheduleViewModel.saveScheduleEdits(mainViewModel.getParameters(), Pair(subPair1, subPair2), mainViewModel.getEditMode())
+            val addPairArray = ArrayList(addPairRecyclerViewAdapter.differ.currentList)
+            scheduleViewModel.saveScheduleEdits(mainViewModel.getParameters(), addPairArray, mainViewModel.getEditMode())
             it.isEnabled = false
         }
 
