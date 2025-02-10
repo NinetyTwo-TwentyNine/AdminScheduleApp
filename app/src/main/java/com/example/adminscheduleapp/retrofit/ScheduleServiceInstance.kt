@@ -24,9 +24,9 @@ class ScheduleServiceInstance {
                             HttpLoggingInterceptor.Level.BASIC
                         )
                     )
-                        .connectTimeout(10000L, MILLISECONDS)
-                        .readTimeout(10000L, MILLISECONDS)
-                        .writeTimeout(10000L, MILLISECONDS).build()
+                        .connectTimeout(16000L, MILLISECONDS)
+                        .readTimeout(16000L, MILLISECONDS)
+                        .writeTimeout(16000L, MILLISECONDS).build()
                 )
                 .build()
 
