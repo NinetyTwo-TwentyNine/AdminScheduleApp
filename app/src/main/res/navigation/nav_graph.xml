@@ -60,6 +60,9 @@
             android:id="@+id/action_addPairFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
         <action
+            android:id="@+id/action_addPairFragment_to_fragmentContainer"
+            app:popUpTo="@id/fragmentContainer" />
+        <action
             android:id="@+id/action_addPairFragment_to_adminPanelFragment"
             app:destination="@id/adminPanelFragment" />
     </fragment>

@@ -4,8 +4,10 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.adminscheduleapp.adapters.MainScreenAdapter.Companion.PAGE_COUNT
-import com.example.adminscheduleapp.data.*
+import com.example.adminscheduleapp.data.AddPairItem
+import com.example.adminscheduleapp.data.AuthenticationStatus
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_CABINET_NAME
@@ -13,48 +15,46 @@ import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_DISCIPLI
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_GROUP_NAME
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_LIST
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_TEACHER_NAME
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_BASE
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_BASE_PARAMETERS
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_CABINET_LIST
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_DATE_LIST
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_DISCIPLINE_LIST
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_BASE
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_BASE_NAME_LIST
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_SCHEDULE_CURRENT
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_TEACHER_LIST
 import com.example.adminscheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
-import com.example.adminscheduleapp.data.Constants.APP_PREFERENCES_PUSHES
 import com.example.adminscheduleapp.data.Constants.APP_TOAST_WEAK_CONNECTION
+import com.example.adminscheduleapp.data.Data_IntString
 import com.example.adminscheduleapp.data.Date
+import com.example.adminscheduleapp.data.DownloadStatus
+import com.example.adminscheduleapp.data.FlatSchedule
+import com.example.adminscheduleapp.data.FlatScheduleAnswer
+import com.example.adminscheduleapp.data.FlatScheduleBase
+import com.example.adminscheduleapp.data.FlatScheduleDetailed
+import com.example.adminscheduleapp.data.FlatScheduleParameters
+import com.example.adminscheduleapp.data.ScheduleDetailed
+import com.example.adminscheduleapp.data.UploadStatus
 import com.example.adminscheduleapp.models.FirebaseRepository
-import com.example.adminscheduleapp.utils.Utils.checkIfItemArraysAreEqual
-import com.example.adminscheduleapp.utils.Utils.getById
+import com.example.adminscheduleapp.retrofit.ScheduleService
+import com.example.adminscheduleapp.utils.Utils.convertArrayOfAddPairItemToPair
 import com.example.adminscheduleapp.utils.Utils.getFlatScheduleBaseDeepCopy
 import com.example.adminscheduleapp.utils.Utils.getFlatScheduleDetailedDeepCopy
 import com.example.adminscheduleapp.utils.Utils.getItemArrayDeepCopy
-import com.example.adminscheduleapp.utils.Utils.getPossibleId
-import com.example.adminscheduleapp.utils.Utils.removeScheduleItemById
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.database.DataSnapshot
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.example.adminscheduleapp.utils.Utils.getItemId
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
-import java.util.*
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.InputMismatchException
+import java.util.Timer
+import java.util.TimerTask
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val rImplementation: FirebaseRepository,
-    private val sPreferences: SharedPreferences
+    private val sPreferences: SharedPreferences,
+    private val sService: ScheduleService
 ) : ViewModel() {
     private var flatScheduleDetailed = FlatScheduleDetailed()
     private var flatScheduleBase = FlatScheduleBase()
     private var flatScheduleParameters = FlatScheduleParameters()
     private var chosenDayIndex = PAGE_COUNT/2
     private var editMode: Int = APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
+    private var shouldStagePair: Boolean = false
 
     init {
         Log.d("TAG", "Created a view model for the outer app segment successfully.")
@@ -73,21 +73,15 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun getReferenceByIndex(id: Int): String {
-        return when(APP_ADMIN_PARAMETERS_LIST[id]) {
-            APP_ADMIN_PARAMETERS_DISCIPLINE_NAME -> APP_BD_PATHS_DISCIPLINE_LIST
-            APP_ADMIN_PARAMETERS_TEACHER_NAME -> APP_BD_PATHS_TEACHER_LIST
-            APP_ADMIN_PARAMETERS_GROUP_NAME -> APP_BD_PATHS_GROUP_LIST
-            APP_ADMIN_PARAMETERS_CABINET_NAME -> APP_BD_PATHS_CABINET_LIST
-            else -> {throw(IllegalStateException("Specific reference not found."))}
-        }
+        return APP_ADMIN_PARAMETERS_LIST[id]
     }
 
     fun getParametersByReference(reference: String, link: Boolean = false): ArrayList<Data_IntString> {
         val table = when(reference) {
-            APP_BD_PATHS_DISCIPLINE_LIST -> flatScheduleParameters.lessonList
-            APP_BD_PATHS_TEACHER_LIST -> flatScheduleParameters.teacherList
-            APP_BD_PATHS_GROUP_LIST -> flatScheduleParameters.groupList
-            APP_BD_PATHS_CABINET_LIST -> flatScheduleParameters.cabinetList
+            APP_ADMIN_PARAMETERS_DISCIPLINE_NAME -> flatScheduleParameters.lessonList
+            APP_ADMIN_PARAMETERS_TEACHER_NAME -> flatScheduleParameters.teacherList
+            APP_ADMIN_PARAMETERS_GROUP_NAME -> flatScheduleParameters.groupList
+            APP_ADMIN_PARAMETERS_CABINET_NAME -> flatScheduleParameters.cabinetList
             else -> arrayListOf()
         }
 
@@ -124,122 +118,268 @@ class MainActivityViewModel @Inject constructor(
         flatScheduleBase = getFlatScheduleBaseDeepCopy(newFlatSchedule)
     }
 
+
+    fun setNextUpload(should: Boolean) {
+        shouldStagePair = should
+    }
+
+    fun shouldDataBeUploaded(): Boolean {
+        return shouldStagePair
+    }
+
+
     fun <T> downloadParametersList(parametersDownloadState: MutableLiveData<DownloadStatus<T>>, reference: String? = null) {
         parametersDownloadState.value = DownloadStatus.Progress
         val timer = setDownloadTimeout(parametersDownloadState, 5000L)
 
-        if (reference == null) {
-            val listener = getParametersDownloadListener(parametersDownloadState, timer, APP_BD_PATHS_BASE_PARAMETERS)
-            rImplementation.downloadByReference(APP_BD_PATHS_BASE_PARAMETERS)
-                .addOnCompleteListener(listener)
-        } else {
-            val listener = getParametersDownloadListener(parametersDownloadState, timer, reference)
-            rImplementation.downloadByReference(reference)
-                .addOnCompleteListener(listener)
+        viewModelScope.launch {
+            try {
+                var scheduleResponse: T
+                if (reference == null) {
+                    scheduleResponse = (sService.getScheduleParameters() as T)
+                    flatScheduleParameters = scheduleResponse as FlatScheduleParameters
+                } else if (APP_ADMIN_PARAMETERS_LIST.indexOf(reference) != -1) {
+                    scheduleResponse = (sService.getSpecificParameters(APP_ADMIN_PARAMETERS_LIST.indexOf(reference)) as T)
+                    updateParametersByReference(reference, scheduleResponse as ArrayList<Data_IntString>)
+                } else {
+                    throw(InputMismatchException("No matching reference was found to initiate the download: $reference."))
+                }
+                Log.d("APP_DEBUGGER_SCHEDULE", "Download successful: $scheduleResponse.")
+                parametersDownloadState.value = DownloadStatus.Success(scheduleResponse)
+            } catch (e: Exception) {
+                Log.d("APP_DEBUGGER_SCHEDULE", "Failed attempt to download and convert schedule data. Error = ${e.message}.")
+                parametersDownloadState.value = DownloadStatus.Error(e.message!!)
+            } finally {
+                timer.cancel()
+                Log.d("APP_DEBUGGER_SCHEDULE", "End of an attempt to download schedule data.")
+            }
         }
     }
 
-    fun downloadCurrentSchedule(scheduleDownloadState: MutableLiveData<DownloadStatus<FlatScheduleDetailed>>) {
-        scheduleDownloadState.value = DownloadStatus.Progress
-        val timer = setDownloadTimeout(scheduleDownloadState, 8000L)
+    fun uploadParameters(uploadState: MutableLiveData<UploadStatus>, index: Int, paramsArr: ArrayList<Data_IntString>) {
+        val downloadableParamsArray = getItemArrayDeepCopy(paramsArr)
 
-        val listener = getScheduleDownloadListener(scheduleDownloadState, timer, false)
-        rImplementation.downloadByReference(APP_BD_PATHS_SCHEDULE_CURRENT)
-            .addOnCompleteListener(listener)
-    }
-
-    fun downloadBaseSchedule(scheduleDownloadState: MutableLiveData<DownloadStatus<FlatScheduleBase>>) {
-        scheduleDownloadState.value = DownloadStatus.Progress
-        val timer = setDownloadTimeout(scheduleDownloadState, 8000L)
-
-        val listener = getScheduleDownloadListener(scheduleDownloadState, timer, true)
-        rImplementation.downloadByReference(APP_BD_PATHS_SCHEDULE_BASE)
-            .addOnCompleteListener(listener)
+        val timer = setUploadTimeout(uploadState, 5000L)
+        viewModelScope.launch {
+            try {
+                sService.uploadSpecificParameters(index, downloadableParamsArray)
+                Log.d("APP_DEBUGGER", "Upload successful.")
+                uploadState.value = UploadStatus.Success
+            } catch (e: Exception) {
+                Log.d("APP_DEBUGGER", "Failed attempt to upload parameters (index = $index). Error = ${e.message}.")
+                uploadState.value = UploadStatus.Error(e.message!!)
+            }
+        }.invokeOnCompletion {
+            Log.d("APP_DEBUGGER", "Upload parameters function finished.")
+            timer.cancel()
+        }
+        updateParametersByIndex(index, paramsArr)
     }
 
     fun downloadEverything(scheduleDownloadState: MutableLiveData<DownloadStatus<FlatSchedule>>) {
         scheduleDownloadState.value = DownloadStatus.Progress
         val timer = setDownloadTimeout(scheduleDownloadState, 8000L)
 
-        val listener = getEverythingDownloadListener(scheduleDownloadState, timer)
-        rImplementation.downloadByReference(APP_BD_PATHS_BASE)
-            .addOnCompleteListener(listener)
-    }
-
-    private fun <T> getDownloadListener(downloadState: MutableLiveData<DownloadStatus<T>>, timer: Timer, reference: String): OnCompleteListener<DataSnapshot> {
-        val listener = OnCompleteListener<DataSnapshot> { task ->
-            timer.cancel()
-            if (task.isSuccessful) {
-                Log.d("TAG", "Successfully downloaded data from the database:")
-                Log.d("TAG", task.result.value.toString())
-
-                try {
-                    when (reference) {
-                        APP_BD_PATHS_BASE -> {
-                            val flatScheduleAll = Gson().fromJson(
-                                task.result.value.toString(),
-                                FlatSchedule::class.java
-                            )
-                            flatScheduleBase = flatScheduleAll.BaseSchedules
-                            flatScheduleDetailed = flatScheduleAll.CurrentSchedules
-                            flatScheduleParameters = flatScheduleAll.BaseParameters
-                            downloadState.value = DownloadStatus.Success(flatScheduleAll as T)
-                        }
-                        APP_BD_PATHS_SCHEDULE_CURRENT -> {
-                            flatScheduleDetailed = Gson().fromJson(
-                                task.result.value.toString(),
-                                FlatScheduleDetailed::class.java
-                            )
-                            downloadState.value = DownloadStatus.Success(flatScheduleDetailed as T)
-                        }
-                        APP_BD_PATHS_SCHEDULE_BASE -> {
-                            flatScheduleBase = Gson().fromJson(
-                                task.result.value.toString(),
-                                FlatScheduleBase::class.java
-                            )
-                            downloadState.value = DownloadStatus.Success(flatScheduleBase as T)
-                        }
-                        APP_BD_PATHS_BASE_PARAMETERS -> {
-                            flatScheduleParameters = Gson().fromJson(
-                                task.result.value.toString(),
-                                FlatScheduleParameters::class.java
-                            )
-                            downloadState.value = DownloadStatus.Success(flatScheduleParameters as T)
-                        }
-                        else -> {
-                            val table: ArrayList<Data_IntString> = Gson().fromJson(
-                                task.result.value.toString(),
-                                object : TypeToken<ArrayList<Data_IntString>>() {}.type
-                            )
-                            updateParametersByReference(reference, table)
-                            downloadState.value = DownloadStatus.Success(table as T)
-                        }
-                    }
-                    Log.d("TAG", "Successfully read and converted the data.")
-                } catch (e: Exception) {
-                    downloadState.value = DownloadStatus.Error(e.message.toString())
-                    Log.d("TAG", "Failed to convert the data: ${e.message}")
-                }
-            } else {
-                downloadState.value = DownloadStatus.Error("Connection or network error.")
-                Log.d("TAG", "Failed to download data from the database.")
+        viewModelScope.launch {
+            try {
+                val scheduleResponse = sService.getEntireSchedule()
+                flatScheduleParameters = scheduleResponse.BaseParameters
+                updateCurrentSchedule(scheduleResponse.CurrentSchedules)
+                updateBaseSchedule(scheduleResponse.BaseSchedules)
+                Log.d("APP_DEBUGGER_SCHEDULE", "Download successful: $scheduleResponse.")
+                scheduleDownloadState.value = DownloadStatus.Success(scheduleResponse)
+            } catch (e: Exception) {
+                Log.d("APP_DEBUGGER_SCHEDULE", "Failed attempt to download and convert schedule data. Error = ${e.message}.")
+                scheduleDownloadState.value = DownloadStatus.Error(e.message!!)
+            } finally {
+                timer.cancel()
+                Log.d("APP_DEBUGGER_SCHEDULE", "End of an attempt to download schedule data.")
             }
         }
-        return listener
     }
-    private fun <T> getParametersDownloadListener(downloadState: MutableLiveData<DownloadStatus<T>>, timer: Timer, reference: String): OnCompleteListener<DataSnapshot> {
-        return getDownloadListener(downloadState, timer, reference)
-    }
-    private fun <T> getScheduleDownloadListener(downloadState: MutableLiveData<DownloadStatus<T>>, timer: Timer, baseSchedule: Boolean): OnCompleteListener<DataSnapshot> {
-        return if (baseSchedule) {
-            getDownloadListener(downloadState, timer, APP_BD_PATHS_SCHEDULE_BASE)
-        } else {
-            getDownloadListener(downloadState, timer, APP_BD_PATHS_SCHEDULE_CURRENT)
+
+
+    private inline fun <reified T> processScheduleResponse(scheduleResponse: FlatScheduleAnswer<T>, scheduleViewModel: ScheduleViewModel) {
+        when (T::class.java) {
+            FlatScheduleDetailed::class.java -> {
+                if (scheduleResponse.scheduleCurrent != null) {
+                    updateCurrentSchedule(scheduleResponse.scheduleCurrent!! as FlatScheduleDetailed)
+                }
+                if (scheduleResponse.scheduleStaged != null) {
+                    scheduleViewModel.saveCurrentSchedule(scheduleResponse.scheduleStaged!! as FlatScheduleDetailed)
+                }
+                scheduleViewModel.updateCurrentScheduleComparisonStatus(Pair(scheduleResponse.comparisonGeneral, scheduleResponse.comparisonSpecific))
+            }
+            FlatScheduleBase::class.java -> {
+                if (scheduleResponse.scheduleCurrent != null) {
+                    updateBaseSchedule(scheduleResponse.scheduleCurrent!! as FlatScheduleBase)
+                }
+                if (scheduleResponse.scheduleStaged != null) {
+                    scheduleViewModel.saveBaseSchedule(scheduleResponse.scheduleStaged!! as FlatScheduleBase)
+                }
+                scheduleViewModel.updateBaseScheduleComparisonStatus(Pair(scheduleResponse.comparisonGeneral, scheduleResponse.comparisonSpecific))
+            }
+            else -> {
+                throw(InputMismatchException("Attempt to process schedule response of an unknown type: ${T::class.java}."))
+            }
         }
     }
-    private fun getEverythingDownloadListener(downloadState: MutableLiveData<DownloadStatus<FlatSchedule>>, timer: Timer): OnCompleteListener<DataSnapshot> {
-        return getDownloadListener(downloadState, timer, APP_BD_PATHS_BASE)
+
+    private inline fun <reified T> processScheduleUploadResult(scheduleUploadState: MutableLiveData<UploadStatus>, scheduleResponse: FlatScheduleAnswer<T>, scheduleViewModel: ScheduleViewModel) {
+        processScheduleResponse(scheduleResponse, scheduleViewModel)
+        scheduleUploadState.value = UploadStatus.Success
     }
+
+    private inline fun <reified T> processScheduleDownloadResult(scheduleDownloadState: MutableLiveData<DownloadStatus<T>>, scheduleResponse: FlatScheduleAnswer<T>, scheduleViewModel: ScheduleViewModel) {
+        val info: T
+        if (scheduleResponse.scheduleCurrent != null && scheduleResponse.scheduleStaged == null) {
+            info = scheduleResponse.scheduleCurrent!!
+        } else if (scheduleResponse.scheduleCurrent == null && scheduleResponse.scheduleStaged != null) {
+            info = scheduleResponse.scheduleStaged!!
+        } else if (scheduleResponse.scheduleStaged != null) {
+            info = scheduleResponse.scheduleStaged!!
+        } else {
+            throw(RuntimeException("Got a schedule response with no schedule data in it: ${scheduleResponse} (processScheduleDownloadResult)."))
+        }
+        processScheduleResponse(scheduleResponse, scheduleViewModel)
+        scheduleDownloadState.value = DownloadStatus.Success(info)
+    }
+
+
+    private inline fun <reified T> downloadFunctionGeneric(scheduleDownloadState: MutableLiveData<DownloadStatus<T>>, scheduleViewModel: ScheduleViewModel, progressTime: Long, crossinline initFunc: suspend ()->FlatScheduleAnswer<T>) {
+        scheduleDownloadState.value = DownloadStatus.Progress
+        val timer = setDownloadTimeout(scheduleDownloadState, progressTime)
+
+        viewModelScope.launch {
+            try {
+                val scheduleResponse = initFunc()
+                Log.d("APP_DEBUGGER_SCHEDULE", "Download successful: $scheduleResponse.")
+                processScheduleDownloadResult(scheduleDownloadState, scheduleResponse, scheduleViewModel)
+            } catch (e: Exception) {
+                Log.d("APP_DEBUGGER_SCHEDULE", "Failed attempt to download and convert schedule data. Error = ${e.message}.")
+                scheduleDownloadState.value = DownloadStatus.Error(e.message!!)
+            } finally {
+                timer.cancel()
+                Log.d("APP_DEBUGGER_SCHEDULE", "End of an attempt to download schedule data.")
+            }
+        }
+    }
+
+    fun downloadCurrentSchedule(scheduleDownloadState: MutableLiveData<DownloadStatus<FlatScheduleDetailed>>, scheduleViewModel: ScheduleViewModel, dateId: Int = -1) {
+        val initFunc: suspend ()->FlatScheduleAnswer<FlatScheduleDetailed> = {
+            sService.getScheduleCurrent(dateId)
+        }
+        downloadFunctionGeneric(scheduleDownloadState, scheduleViewModel, 8000L, initFunc)
+    }
+
+    fun downloadBaseSchedule(scheduleDownloadState: MutableLiveData<DownloadStatus<FlatScheduleBase>>, scheduleViewModel: ScheduleViewModel, dayNum: Int = -1, nameId: Int = -1) {
+        val initFunc: suspend ()->FlatScheduleAnswer<FlatScheduleBase> = {
+            sService.getScheduleBase(nameId, dayNum)
+        }
+        downloadFunctionGeneric(scheduleDownloadState, scheduleViewModel, 8000L, initFunc)
+    }
+
+
+    private inline fun <reified T> uploadFunctionGeneric(scheduleUploadState: MutableLiveData<UploadStatus>, scheduleViewModel: ScheduleViewModel, progressTime: Long, crossinline initFunc: suspend ()->FlatScheduleAnswer<T>) {
+        scheduleUploadState.value = UploadStatus.Progress
+        val timer = setUploadTimeout(scheduleUploadState, progressTime)
+
+        viewModelScope.launch {
+            try {
+                val scheduleResponse = initFunc()
+                Log.d("APP_DEBUGGER_SCHEDULE", "Download successful: $scheduleResponse.")
+                processScheduleUploadResult(scheduleUploadState, scheduleResponse, scheduleViewModel)
+            } catch (e: Exception) {
+                Log.d("APP_DEBUGGER_SCHEDULE", "Failed attempt to download and convert schedule data. Error = ${e.message}.")
+                scheduleUploadState.value = UploadStatus.Error(e.message!!)
+            } finally {
+                timer.cancel()
+                Log.d("APP_DEBUGGER_SCHEDULE", "End of an attempt to download schedule data.")
+            }
+        }
+    }
+
+    fun stageCurrentSchedulePair(scheduleUploadState: MutableLiveData<UploadStatus>, scheduleViewModel: ScheduleViewModel, groupId: Int, dateId: Int, pairNum: Int, body: ArrayList<AddPairItem>? = null) {
+        val subPair1 = ScheduleDetailed(pairNum * 2 + 1)
+        val subPair2 = ScheduleDetailed(pairNum * 2 + 2)
+        if (body != null) {
+            convertArrayOfAddPairItemToPair(body, Pair(subPair1, subPair2))
+        }
+
+        val initFunc: suspend ()->FlatScheduleAnswer<FlatScheduleDetailed> = {
+            sService.stageCurrentSchedulePair(groupId, dateId, Pair(subPair1, subPair2))
+        }
+        uploadFunctionGeneric(scheduleUploadState, scheduleViewModel, 8000L, initFunc)
+    }
+
+    fun applyBaseScheduleToCurrent(scheduleUploadState: MutableLiveData<UploadStatus>, scheduleViewModel: ScheduleViewModel, date: Date = getDateWithOffset(), baseScheduleName: String, day: String = getDayToTab()) {
+        val dateId = getItemId(flatScheduleParameters.dayList, date)
+        val nameId = getItemId(flatScheduleBase.nameList, baseScheduleName)
+
+        val dayOfWeek = (day.split(System.lineSeparator()))[0]
+        val dayId = APP_CALENDER_DAY_OF_WEEK.indexOf(dayOfWeek)
+
+        val initFunc: suspend ()->FlatScheduleAnswer<FlatScheduleDetailed> = {
+            sService.applyBaseScheduleToCurrent(nameId!!, dayId, dateId!!)
+        }
+        uploadFunctionGeneric(scheduleUploadState, scheduleViewModel, 8000L, initFunc)
+    }
+
+    fun stageBaseSchedulePair(scheduleUploadState: MutableLiveData<UploadStatus>, scheduleViewModel: ScheduleViewModel, groupId: Int, dayNum: Int, pairNum: Int, nameId: Int, body: ArrayList<AddPairItem>? = null) {
+        val subPair1 = ScheduleDetailed(pairNum * 2 + 1)
+        val subPair2 = ScheduleDetailed(pairNum * 2 + 2)
+        if (body != null) {
+            convertArrayOfAddPairItemToPair(body, Pair(subPair1, subPair2))
+        }
+        Log.d("APP_DEBUGGER", "Sending schedule pair: ${Pair(subPair1, subPair2)}.")
+
+        val initFunc: suspend ()->FlatScheduleAnswer<FlatScheduleBase> = {
+            sService.stageBaseSchedulePair(groupId, dayNum, nameId, Pair(subPair1, subPair2))
+        }
+        uploadFunctionGeneric(scheduleUploadState, scheduleViewModel, 8000L, initFunc)
+    }
+
+    fun stageBaseScheduleList(scheduleUploadState: MutableLiveData<UploadStatus>, scheduleViewModel: ScheduleViewModel, body: Data_IntString) {
+        val initFunc: suspend ()->FlatScheduleAnswer<FlatScheduleBase> = {
+            sService.stageBaseScheduleList(body)
+        }
+        uploadFunctionGeneric(scheduleUploadState, scheduleViewModel, 8000L, initFunc)
+    }
+
+
+    fun applyStagedChangesToScheduleCurrent(scheduleUploadState: MutableLiveData<UploadStatus>, scheduleViewModel: ScheduleViewModel, dateId: Int = -1, updateVersion: Boolean = true) {
+        val initFunc: suspend ()->FlatScheduleAnswer<FlatScheduleDetailed> = {
+            if (updateVersion) {
+                sService.applyStagedChangesToScheduleCurrent(dateId)
+            } else {
+                sService.applyStagedChangesToScheduleCurrent(dateId, 0)
+            }
+        }
+        uploadFunctionGeneric(scheduleUploadState, scheduleViewModel, 8000L, initFunc)
+    }
+
+    fun applyStagedChangesToScheduleBase(scheduleUploadState: MutableLiveData<UploadStatus>, scheduleViewModel: ScheduleViewModel, dayNum: Int = -1, nameId: Int = -1) {
+        val initFunc: suspend ()->FlatScheduleAnswer<FlatScheduleBase> = {
+            sService.applyStagedChangesToScheduleBase(dayNum, nameId)
+        }
+        uploadFunctionGeneric(scheduleUploadState, scheduleViewModel, 8000L, initFunc)
+    }
+
+    fun resetStagedChangesToScheduleCurrent(scheduleUploadState: MutableLiveData<UploadStatus>, scheduleViewModel: ScheduleViewModel, dateId: Int = -1) {
+        val initFunc: suspend ()->FlatScheduleAnswer<FlatScheduleDetailed> = {
+            sService.resetStagedChangesToScheduleCurrent(dateId)
+        }
+        uploadFunctionGeneric(scheduleUploadState, scheduleViewModel, 8000L, initFunc)
+    }
+
+    fun resetStagedChangesToScheduleBase(scheduleUploadState: MutableLiveData<UploadStatus>, scheduleViewModel: ScheduleViewModel, dayNum: Int = -1, nameId: Int = -1) {
+        val initFunc: suspend ()->FlatScheduleAnswer<FlatScheduleBase> = {
+            sService.resetStagedChangesToScheduleBase(dayNum, nameId)
+        }
+        uploadFunctionGeneric(scheduleUploadState, scheduleViewModel, 8000L, initFunc)
+    }
+
+
 
     fun performTimerEvent(function: ()->Unit, time: Long): Timer {
         val event_timer = Timer()
@@ -265,99 +405,6 @@ class MainActivityViewModel @Inject constructor(
         )
     }
 
-    private fun <T> uploadData(uploadState: MutableLiveData<UploadStatus>, reference: String, info: T, updateFunc: ()->Unit) {
-        uploadState.value = UploadStatus.Progress
-        val timer = setUploadTimeout(uploadState, 5000L)
-
-        rImplementation.uploadByReference(reference, info).addOnCompleteListener { task ->
-            timer.cancel()
-            if (task.isSuccessful) {
-                uploadState.value = UploadStatus.Success
-                updateFunc()
-            } else {
-                uploadState.value = UploadStatus.Error(task.exception!!.message.toString())
-            }
-        }
-    }
-
-    fun uploadParameters(uploadState: MutableLiveData<UploadStatus>, index: Int, paramsArr: ArrayList<Data_IntString>) {
-        val downloadableParamsArray = getItemArrayDeepCopy(paramsArr)
-        downloadableParamsArray.forEach { it.title = "'${it.title!!}'" }
-        uploadData(uploadState, getReferenceByIndex(index), downloadableParamsArray) { updateParametersByIndex(index, paramsArr) }
-    }
-
-    fun uploadCurrentSchedule(uploadState: MutableLiveData<UploadStatus>, flatSchedule: FlatScheduleDetailed) {
-        cleanScheduleFromUnnecessaryDates(flatSchedule)
-        if (getPreference(APP_PREFERENCES_PUSHES, true)) {
-            flatSchedule.version = Calendar.getInstance().timeInMillis
-        } else {
-            flatSchedule.version = flatScheduleDetailed.version
-        }
-        uploadData(uploadState, APP_BD_PATHS_SCHEDULE_CURRENT, flatSchedule) { updateCurrentSchedule(flatSchedule) }
-    }
-
-    fun uploadBaseSchedule(uploadState: MutableLiveData<UploadStatus>, flatSchedule: FlatScheduleBase) {
-        val uploadSchedule = getFlatScheduleBaseDeepCopy(flatSchedule)
-        uploadSchedule.nameList.forEach { it.title = "'${it.title!!}'" }
-        uploadData(uploadState, APP_BD_PATHS_SCHEDULE_BASE, uploadSchedule) { updateBaseSchedule(flatSchedule) }
-    }
-
-    fun uploadBaseScheduleNames(uploadState: MutableLiveData<UploadStatus>, flatSchedule: FlatScheduleBase) {
-        val uploadNameList = getItemArrayDeepCopy(flatSchedule.nameList)
-        uploadNameList.forEach { it.title = "'${it.title!!}'" }
-        uploadData(uploadState, APP_BD_PATHS_SCHEDULE_BASE_NAME_LIST, uploadNameList) { flatScheduleBase.nameList = getItemArrayDeepCopy(flatSchedule.nameList) }
-    }
-
-    private fun cleanScheduleFromUnnecessaryDates(flatSchedule: FlatScheduleDetailed) {
-        val arrayToRemove: ArrayList<Int> = arrayListOf()
-        flatSchedule.scheduleDay.forEach {curData ->
-            val curDate = getById(curData.specialId!!, flatScheduleParameters.dayList)
-            if (curDate == null) {
-                curData.scheduleId.forEach {
-                    if (!arrayToRemove.contains(it)) {
-                        arrayToRemove.add(it)
-                    }
-                }
-            }
-        }
-
-        arrayToRemove.forEach {
-            removeScheduleItemById(flatSchedule, it)
-        }
-    }
-
-    fun updateAndUploadTheDayList(uploadState: MutableLiveData<UploadStatus>): Boolean {
-        val dayList = getItemArrayDeepCopy(flatScheduleParameters.dayList)
-
-        for (i in 0 until PAGE_COUNT) {
-            val date = getDateWithOffset(i)
-            var dateExists = false
-            dayList.forEach {
-                if (it.date!! == date) {
-                    dateExists = true
-                }
-            }
-
-            if (!dateExists) {
-                val newIndex = getPossibleId(dayList)
-                dayList.add(Data_IntDate(newIndex, date))
-            }
-        }
-
-        val arrayToRemove: ArrayList<Data_IntDate> = arrayListOf()
-        dayList.forEach {
-            if (getDateIndex(it.date!!) == -1) {
-                arrayToRemove.add(it)
-            }
-        }
-        arrayToRemove.forEach { dayList.remove(it) }
-        arrayToRemove.clear()
-
-        if (checkIfItemArraysAreEqual(flatScheduleParameters.dayList, dayList)) { return false }
-        uploadData(uploadState, APP_BD_PATHS_DATE_LIST, dayList) { flatScheduleParameters.dayList = dayList }
-        return true
-    }
-
     fun getCurrentSchedule(): FlatScheduleDetailed {
         return getFlatScheduleDetailedDeepCopy(flatScheduleDetailed)
     }
@@ -378,19 +425,19 @@ class MainActivityViewModel @Inject constructor(
 
     fun checkIfParameterIsNecessary(reference: String, id: Int): Boolean {
         when(reference) {
-            APP_BD_PATHS_DISCIPLINE_LIST -> {
+            APP_ADMIN_PARAMETERS_DISCIPLINE_NAME -> {
                 flatScheduleDetailed.scheduleLesson.forEach { if (it.specialId == id) { return true } }
                 flatScheduleBase.scheduleLesson.forEach { if (it.specialId == id) { return true } }
             }
-            APP_BD_PATHS_TEACHER_LIST -> {
+            APP_ADMIN_PARAMETERS_TEACHER_NAME -> {
                 flatScheduleDetailed.teacherLesson.forEach { if (it.specialId == id) { return true } }
                 flatScheduleBase.teacherLesson.forEach { if (it.specialId == id) { return true } }
             }
-            APP_BD_PATHS_GROUP_LIST -> {
+            APP_ADMIN_PARAMETERS_GROUP_NAME -> {
                 flatScheduleDetailed.scheduleGroup.forEach { if (it.specialId == id) { return true } }
                 flatScheduleBase.scheduleGroup.forEach { if (it.specialId == id) { return true } }
             }
-            APP_BD_PATHS_CABINET_LIST -> {
+            APP_ADMIN_PARAMETERS_CABINET_NAME -> {
                 flatScheduleDetailed.cabinetLesson.forEach { if (it.specialId == id) { return true } }
                 flatScheduleBase.cabinetLesson.forEach { if (it.specialId == id) { return true } }
             }

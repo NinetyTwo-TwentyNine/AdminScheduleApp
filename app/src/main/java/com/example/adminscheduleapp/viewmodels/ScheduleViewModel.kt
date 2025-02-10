@@ -5,13 +5,12 @@ import androidx.lifecycle.ViewModel
 import com.example.adminscheduleapp.data.AddPairItem
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_CABINET_LIST
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_DISCIPLINE_LIST
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_TEACHER_LIST
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_CABINET_NAME
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_DISCIPLINE_NAME
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_GROUP_NAME
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_TEACHER_NAME
 import com.example.adminscheduleapp.data.Constants.APP_CALENDER_DAY_OF_WEEK
 import com.example.adminscheduleapp.data.Data_IntArray
-import com.example.adminscheduleapp.data.Data_IntDate
 import com.example.adminscheduleapp.data.Data_IntString
 import com.example.adminscheduleapp.data.Date
 import com.example.adminscheduleapp.data.FlatScheduleBase
@@ -19,9 +18,6 @@ import com.example.adminscheduleapp.data.FlatScheduleDetailed
 import com.example.adminscheduleapp.data.FlatScheduleParameters
 import com.example.adminscheduleapp.data.Schedule
 import com.example.adminscheduleapp.data.ScheduleDetailed
-import com.example.adminscheduleapp.utils.Utils.addPairToFlatSchedule
-import com.example.adminscheduleapp.utils.Utils.applyBaseScheduleByNameAndDate
-import com.example.adminscheduleapp.utils.Utils.convertArrayOfAddPairItemToPair
 import com.example.adminscheduleapp.utils.Utils.convertPairToArrayOfAddPairItem
 import com.example.adminscheduleapp.utils.Utils.getById
 import com.example.adminscheduleapp.utils.Utils.getEmptyId
@@ -32,12 +28,14 @@ import com.example.adminscheduleapp.utils.Utils.getItemId
 import com.example.adminscheduleapp.utils.Utils.getScheduleIdByGroupAndDate
 import com.example.adminscheduleapp.utils.Utils.getScheduleIdByGroupDateAndBaseScheduleId
 import com.example.adminscheduleapp.utils.Utils.moveDataFromScheduleToArray
-import com.example.adminscheduleapp.utils.Utils.removeScheduleItemById
 
 //@HiltViewModel
 class ScheduleViewModel : ViewModel() {
     private var savedFlatScheduleDetailed: FlatScheduleDetailed? = null
+    private var scheduleCurrentComparisonStatus: Pair<Boolean?, Boolean?> = Pair(null, null)
+
     private var savedFlatScheduleBase: FlatScheduleBase? = null
+    private var scheduleBaseComparisonStatus: Pair<Boolean?, Boolean?> = Pair(null, null)
 
     private var chosenBaseSchedule: Int? = null
     private var chosenScheduleItem: ArrayList<AddPairItem>? = null
@@ -177,24 +175,25 @@ class ScheduleViewModel : ViewModel() {
             }
         }
 
+        Log.d("APP_DEBUGGER", "Comparison function result: ${Pair(same, missing_ids)}.")
         return Pair(same, missing_ids)
     }
 
     fun checkIfParameterIsNecessary(reference: String, id: Int): Boolean {
         when(reference) {
-            APP_BD_PATHS_DISCIPLINE_LIST -> {
+            APP_ADMIN_PARAMETERS_DISCIPLINE_NAME -> {
                 savedFlatScheduleDetailed?.scheduleLesson?.forEach { if (it.specialId == id) { return true } }
                 savedFlatScheduleBase?.scheduleLesson?.forEach { if (it.specialId == id) { return true } }
             }
-            APP_BD_PATHS_TEACHER_LIST -> {
+            APP_ADMIN_PARAMETERS_TEACHER_NAME -> {
                 savedFlatScheduleDetailed?.teacherLesson?.forEach { if (it.specialId == id) { return true } }
                 savedFlatScheduleBase?.teacherLesson?.forEach { if (it.specialId == id) { return true } }
             }
-            APP_BD_PATHS_GROUP_LIST -> {
+            APP_ADMIN_PARAMETERS_GROUP_NAME -> {
                 savedFlatScheduleDetailed?.scheduleGroup?.forEach { if (it.specialId == id) { return true } }
                 savedFlatScheduleBase?.scheduleGroup?.forEach { if (it.specialId == id) { return true } }
             }
-            APP_BD_PATHS_CABINET_LIST -> {
+            APP_ADMIN_PARAMETERS_CABINET_NAME -> {
                 savedFlatScheduleDetailed?.cabinetLesson?.forEach { if (it.specialId == id) { return true } }
                 savedFlatScheduleBase?.cabinetLesson?.forEach { if (it.specialId == id) { return true } }
             }
@@ -246,6 +245,17 @@ class ScheduleViewModel : ViewModel() {
         return scheduleIds
     }
 
+    private fun updateScheduleComparisonStatus(oldStatus: Pair<Boolean?, Boolean?>, newStatus: Pair<Boolean?, Boolean?>): Pair<Boolean?, Boolean?> {
+        var resultStatus = oldStatus
+        if (newStatus.first != null) {
+            resultStatus = Pair(newStatus.first, resultStatus.second)
+        }
+        if (newStatus.second != null) {
+            resultStatus = Pair(resultStatus.first, newStatus.second)
+        }
+        return resultStatus
+    }
+
     fun getSavedCurrentSchedule(): FlatScheduleDetailed? {
         return if (savedFlatScheduleDetailed == null) {
             null
@@ -254,13 +264,26 @@ class ScheduleViewModel : ViewModel() {
         }
     }
 
-    fun saveCurrentSchedule(newSchedule: FlatScheduleDetailed) {
+    fun saveCurrentSchedule(newSchedule: FlatScheduleDetailed, newStatus: Pair<Boolean?, Boolean?>? = null) {
         savedFlatScheduleDetailed = getFlatScheduleDetailedDeepCopy(newSchedule)
+        if (newStatus != null) {
+            updateCurrentScheduleComparisonStatus(newStatus)
+        }
+    }
+
+    fun updateCurrentScheduleComparisonStatus(newStatus: Pair<Boolean?, Boolean?>) {
+        scheduleCurrentComparisonStatus = updateScheduleComparisonStatus(scheduleCurrentComparisonStatus, newStatus)
+    }
+
+    fun isStagedScheduleCurrentSame(): Pair<Boolean?, Boolean?> {
+        return scheduleCurrentComparisonStatus
     }
 
     fun clearCurrentSchedule() {
         savedFlatScheduleDetailed = null
+        scheduleCurrentComparisonStatus = Pair(null, null)
     }
+
 
     fun getSavedBaseSchedule(): FlatScheduleBase? {
         return if (savedFlatScheduleBase == null) {
@@ -270,12 +293,24 @@ class ScheduleViewModel : ViewModel() {
         }
     }
 
-    fun saveBaseSchedule(newSchedule: FlatScheduleBase) {
+    fun saveBaseSchedule(newSchedule: FlatScheduleBase, newStatus: Pair<Boolean?, Boolean?>? = null) {
         savedFlatScheduleBase = getFlatScheduleBaseDeepCopy(newSchedule)
+        if (newStatus != null) {
+            updateBaseScheduleComparisonStatus(newStatus)
+        }
+    }
+
+    fun updateBaseScheduleComparisonStatus(newStatus: Pair<Boolean?, Boolean?>) {
+        scheduleBaseComparisonStatus = updateScheduleComparisonStatus(scheduleBaseComparisonStatus, newStatus)
+    }
+
+    fun isStagedScheduleBaseSame(): Pair<Boolean?, Boolean?> {
+        return scheduleBaseComparisonStatus
     }
 
     fun clearBaseSchedule() {
         savedFlatScheduleBase = null
+        scheduleBaseComparisonStatus = Pair(null, null)
     }
 
     fun chooseBaseSchedule(scheduleNum: Int) {
@@ -403,113 +438,8 @@ class ScheduleViewModel : ViewModel() {
         return chosenGroup
     }
 
-    fun removeScheduleItemCurrent(scheduleParams: FlatScheduleParameters, currentDate: Date, currentGroup: String, number: Int): Boolean {
-        val currentGroupId = getItemId(scheduleParams.groupList, currentGroup)
-        val currentDateId = getItemId(scheduleParams.dayList, currentDate)
-
-        if (currentDateId == null) {
-            Log.d("ADMIN_EDITOR_CHECKER", "No date ID was found (${currentDate}).")
-            return false
-        }
-
-        var scheduleId: Int? = null
-        val firstScheduleArray = getById(currentDateId, savedFlatScheduleDetailed!!.scheduleDay)
-        val secondScheduleArray = getById(currentGroupId!!, savedFlatScheduleDetailed!!.scheduleGroup)
-        if (firstScheduleArray == null || secondScheduleArray == null) {
-            Log.d("ADMIN_EDITOR_CHECKER", "No date or group array was found.")
-            return true
-        }
-
-        for (item in firstScheduleArray.scheduleId) {
-            if (secondScheduleArray.scheduleId.contains(item)) {
-                scheduleId = item
-                break
-            }
-        }
-
-        if (scheduleId == null) {
-            Log.d("ADMIN_EDITOR_CHECKER", "No schedule ID was found.")
-            return true
-        }
-
-        removeScheduleItemById(savedFlatScheduleDetailed!!, scheduleId, number+1, true)
-        return true
-    }
-
-    fun removeScheduleItemBase(scheduleParams: FlatScheduleParameters, currentDayId: Int, currentGroup: String, number: Int): Boolean {
-        val currentGroupId = getItemId(scheduleParams.groupList, currentGroup)
-
-
-        var scheduleId: Int? = null
-        val firstScheduleArray = getById(currentDayId, savedFlatScheduleBase!!.scheduleDay)
-        val secondScheduleArray = getById(currentGroupId!!, savedFlatScheduleBase!!.scheduleGroup)
-        val thirdScheduleArray = getById(chosenBaseSchedule!!, savedFlatScheduleBase!!.scheduleName)
-        if (firstScheduleArray == null || secondScheduleArray == null || thirdScheduleArray == null) {
-            Log.d("ADMIN_EDITOR_CHECKER", "No date or group array was found.")
-            return true
-        }
-
-        for (item in firstScheduleArray.scheduleId) {
-            if (secondScheduleArray.scheduleId.contains(item) && thirdScheduleArray.scheduleId.contains(item)) {
-                scheduleId = item
-                break
-            }
-        }
-
-        if (scheduleId == null) {
-            Log.d("ADMIN_EDITOR_CHECKER", "No schedule ID was found.")
-            return true
-        }
-
-        removeScheduleItemById(savedFlatScheduleBase!!, scheduleId, number+1, true)
-        return true
-    }
-
-    fun saveScheduleEdits(scheduleParams: FlatScheduleParameters, pair: ArrayList<AddPairItem>, editMode: Int) {
-        val subPair1 = ScheduleDetailed(chosenPairNumber!! * 2 + 1)
-        val subPair2 = ScheduleDetailed(chosenPairNumber!! * 2 + 2)
-        convertArrayOfAddPairItemToPair(pair, Pair(subPair1, subPair2))
-
-        when (editMode) {
-            APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> {
-                removeScheduleItemById(savedFlatScheduleDetailed!!, chosenScheduleId!!, chosenPairNumber!!+1, false)
-                addPairToFlatSchedule(savedFlatScheduleDetailed!!, scheduleParams, chosenScheduleId!!, Pair(subPair1, subPair2))
-            }
-            APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> {
-                removeScheduleItemById(savedFlatScheduleBase!!, chosenScheduleId!!, chosenPairNumber!!+1, false)
-                addPairToFlatSchedule(savedFlatScheduleBase!!, scheduleParams, chosenScheduleId!!, Pair(subPair1, subPair2))
-            }
-            else -> {
-                throw(IllegalStateException("Unknown edit mode."))
-            }
-        }
-        chosenScheduleItem = pair
-        chosenScheduleIdIsNew = false
-    }
-
-    fun addNewBaseSchedule(newId: Int, newTitle: String) {
-        savedFlatScheduleBase!!.nameList.add(Data_IntString(newId, newTitle))
-    }
-
-    fun removeBaseSchedule(baseScheduleId: Int) {
-        val idsArray: ArrayList<Int> = arrayListOf()
-        savedFlatScheduleBase!!.nameList.forEach { idsArray.add(it.id!!) }
-        if (!idsArray.contains(baseScheduleId)) {
-            throw(Exception("Attempt to remove a base schedule with an unknown ID!"))
-        }
-        idsArray.clear()
-
-        val nameIdArray = getById(baseScheduleId, savedFlatScheduleBase!!.scheduleName)
-        if (nameIdArray != null) {
-            nameIdArray.scheduleId.forEach { idsArray.add(it) }
-            Log.d("NON-CRASH_DEBUGGER_ULT", idsArray.toString())
-            idsArray.forEach { removeScheduleItemById(savedFlatScheduleBase!!, it) }
-        }
-        savedFlatScheduleBase!!.nameList.remove(getById(baseScheduleId, savedFlatScheduleBase!!.nameList))
-    }
-
-    fun saveBaseScheduleNames(newNameList: ArrayList<Data_IntString>) {
-        savedFlatScheduleBase!!.nameList = getItemArrayDeepCopy(newNameList)
+    fun saveNewPair(pair: ArrayList<AddPairItem>) {
+        chosenScheduleItem = getItemArrayDeepCopy(pair)
     }
 
     fun checkBaseScheduleIdValidity(baseFlatSchedule: FlatScheduleBase, baseScheduleId: Int = chosenBaseSchedule!!): Boolean {
@@ -521,18 +451,5 @@ class ScheduleViewModel : ViewModel() {
 
     fun getBaseScheduleName(baseScheduleId: Int = chosenBaseSchedule!!): String {
         return getById(baseScheduleId, savedFlatScheduleBase!!.nameList)!!.title!!
-    }
-
-    fun applyBaseSchedule(dayList: ArrayList<Data_IntDate>, date: Date, baseSchedule: FlatScheduleBase, baseScheduleName: String, day: String) {
-        val dateId = getItemId(dayList, date)
-        val nameId = getItemId(baseSchedule.nameList, baseScheduleName)
-
-        val dayOfWeek = (day.split(System.lineSeparator()))[0]
-        val dayId = APP_CALENDER_DAY_OF_WEEK.indexOf(dayOfWeek)
-
-        if (dateId == null || nameId == null) {
-            throw(Exception("No date or name ID was found during an attempt to apply a base schedule."))
-        }
-        applyBaseScheduleByNameAndDate(savedFlatScheduleDetailed!!, dateId, baseSchedule, nameId, dayId)
     }
 }

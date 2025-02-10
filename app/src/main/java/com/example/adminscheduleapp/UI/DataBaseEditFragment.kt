@@ -120,6 +120,10 @@ class DataBaseEditFragment: Fragment() {
                 adapter = dbEditorRecyclerViewAdapter
             }
         }
+
+        if (currentRecyclerList.isEmpty()) {
+            binding.addButton.isEnabled = true
+        }
     }
 
     private fun createPopupWindow() {

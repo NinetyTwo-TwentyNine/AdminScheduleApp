@@ -1,6 +1,7 @@
 package com.example.adminscheduleapp.UI
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -14,18 +15,19 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.adminscheduleapp.adapters.AdminDBEditorRecyclerViewAdapter
-import com.example.adminscheduleapp.data.*
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_FAILED
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_SHOULD_UPLOAD_SCHEDULE
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_WARNING_ID_DELETION
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_WARNING_RESET_CHANGES
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
-import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_SHOULD_UPLOAD_SCHEDULE
 import com.example.adminscheduleapp.data.Constants.APP_TOAST_SCHEDULE_DOWNLOAD_FAILED
+import com.example.adminscheduleapp.data.Data_IntString
+import com.example.adminscheduleapp.data.DownloadStatus
+import com.example.adminscheduleapp.data.FlatScheduleBase
+import com.example.adminscheduleapp.data.UploadStatus
 import com.example.adminscheduleapp.databinding.BasicPopupWindowBinding
 import com.example.adminscheduleapp.databinding.FragmentChangeBasicScheduleBinding
-import com.example.adminscheduleapp.utils.Utils.checkIfFlatScheduleBaseEquals
-import com.example.adminscheduleapp.utils.Utils.getPossibleId
 import com.example.adminscheduleapp.viewmodels.MainActivityViewModel
 import com.example.adminscheduleapp.viewmodels.ScheduleViewModel
 
@@ -45,6 +47,9 @@ class ChangeBasicScheduleFragment() : Fragment() {
     private lateinit var deleteFunction: (Int)->Unit
     private lateinit var moveToFragment: (Int, Int)->Unit
 
+    private var shouldMoveToNextFragment: Boolean = false
+    private var shouldRestartRecyclerView: Boolean = false
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -58,14 +63,19 @@ class ChangeBasicScheduleFragment() : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initDownloadObservers()
-        mainViewModel.downloadBaseSchedule(currentDownloadStatus)
+        mainViewModel.downloadBaseSchedule(currentDownloadStatus, scheduleViewModel)
     }
 
     private fun setupFunctions() {
         saveButtonCheck = {
-            val currentRecyclerList = ArrayList(dbEditorRecyclerViewAdapter.differ.currentList)
-            scheduleViewModel.saveBaseScheduleNames(currentRecyclerList)
             mainViewModel.performTimerEvent({
+                val currentScheduleList = ArrayList(dbEditorRecyclerViewAdapter.differ.currentList)
+                for (item in currentScheduleList) {
+                    if (scheduleViewModel.getBaseScheduleName(item.id!!) != item.title!!) {
+                        mainViewModel.stageBaseScheduleList(currentUploadStatus, scheduleViewModel, item)
+                        break
+                    }
+                }
                 updateResetAndSaveButtons()
             }, 50L)
         }
@@ -78,17 +88,18 @@ class ChangeBasicScheduleFragment() : Fragment() {
         }
 
         deleteFunction = {
-            mainViewModel.performTimerEvent({
-                scheduleViewModel.removeBaseSchedule(it)
-            }, 50L)
+            Log.d("APP_DEBUGGER", "Trying to delete a schedule: ${Data_IntString(it)}.")
+            mainViewModel.stageBaseScheduleList(currentUploadStatus, scheduleViewModel, Data_IntString(it))
         }
 
         moveToFragment = { dayNum, scheduleNum ->
             if (scheduleViewModel.checkBaseScheduleIdValidity(mainViewModel.getBaseSchedule(), scheduleNum)) {
                 mainViewModel.chooseDay(dayNum)
                 scheduleViewModel.chooseBaseSchedule(scheduleNum)
-                requireView().findNavController()
-                    .navigate(ChangeBasicScheduleFragmentDirections.actionChangeBasicScheduleFragmentToFragmentContainer())
+
+                initDownloadObservers()
+                shouldMoveToNextFragment = true
+                mainViewModel.downloadBaseSchedule(currentDownloadStatus, scheduleViewModel, dayNum, scheduleNum)
             } else {
                 Toast.makeText(
                     activity,
@@ -104,8 +115,8 @@ class ChangeBasicScheduleFragment() : Fragment() {
             1, deleteFunc = deleteFunction, cardSpinnerFunc = moveToFragment)
 
         val currentRecyclerList: ArrayList<Data_IntString> = arrayListOf()
-        for (i in 0 until scheduleViewModel.getSavedBaseSchedule()!!.nameList.size) {
-            currentRecyclerList.add(scheduleViewModel.getSavedBaseSchedule()!!.nameList[i])
+        for (schedule in scheduleViewModel.getSavedBaseSchedule()!!.nameList) {
+            currentRecyclerList.add(schedule)
         }
         dbEditorRecyclerViewAdapter.differ.submitList(currentRecyclerList)
         binding.apply {
@@ -118,39 +129,19 @@ class ChangeBasicScheduleFragment() : Fragment() {
 
     private fun updateRecyclerView() {
         val currentRecyclerList: ArrayList<Data_IntString> = arrayListOf()
-        for (i in 0 until scheduleViewModel.getSavedBaseSchedule()!!.nameList.size) {
-            currentRecyclerList.add(scheduleViewModel.getSavedBaseSchedule()!!.nameList[i])
+        for (schedule in scheduleViewModel.getSavedBaseSchedule()!!.nameList) {
+            currentRecyclerList.add(schedule)
         }
         dbEditorRecyclerViewAdapter.differ.submitList(currentRecyclerList)
+        mainViewModel.performTimerEvent({
+            updateResetAndSaveButtons()
+        }, 50L)
     }
 
     private fun setupView() {
         binding.addButton.isEnabled = true
         binding.addButton.setOnClickListener {
-            val currentRecyclerList = ArrayList(dbEditorRecyclerViewAdapter.differ.currentList)
-
-            val new_id = getPossibleId(currentRecyclerList)
-            var new_title_number = new_id
-            var new_title = "Базовое расписание $new_title_number"
-
-            val namesList = arrayListOf<String>()
-            currentRecyclerList.forEach {
-                namesList.add(it.title!!)
-            }
-            while (namesList.contains(new_title)) {
-                new_title_number++
-                new_title = "Базовое расписание $new_title_number"
-            }
-
-            currentRecyclerList.add(0, Data_IntString(new_id, new_title))
-            scheduleViewModel.addNewBaseSchedule(new_id, new_title)
-
-            //dbEditorRecyclerViewAdapter.notifyItemChanged(0)
-            dbEditorRecyclerViewAdapter.differ.submitList(currentRecyclerList)
-
-            mainViewModel.performTimerEvent(
-                {binding.changeBasicSchedule.scrollToPosition(0)},
-                50L)
+            mainViewModel.stageBaseScheduleList(currentUploadStatus, scheduleViewModel, Data_IntString())
         }
 
         binding.saveButton.setOnClickListener {
@@ -160,20 +151,14 @@ class ChangeBasicScheduleFragment() : Fragment() {
                 text = APP_ADMIN_WARNING_ID_DELETION + "\n" + text
             }
             createPopupWindow(text, true) {
-                if (checkIfFlatScheduleBaseEquals(mainViewModel.getBaseSchedule(), scheduleViewModel.getSavedBaseSchedule()!!, false) && !namelist_comparison.first) {
-                    mainViewModel.uploadBaseScheduleNames(currentUploadStatus, scheduleViewModel.getSavedBaseSchedule()!!)
-                } else {
-                    mainViewModel.uploadBaseSchedule(currentUploadStatus, scheduleViewModel.getSavedBaseSchedule()!!)
-                }
+                mainViewModel.applyStagedChangesToScheduleBase(currentUploadStatus, scheduleViewModel)
             }
         }
         binding.resetButton.setOnClickListener {
             val text = APP_ADMIN_WARNING_RESET_CHANGES
             createPopupWindow(text) {
-                scheduleViewModel.saveBaseSchedule(mainViewModel.getBaseSchedule())
-                mainViewModel.performTimerEvent(
-                    { setupRecyclerView() },
-                    50L) }
+                shouldRestartRecyclerView = true
+                mainViewModel.resetStagedChangesToScheduleBase(currentUploadStatus, scheduleViewModel) }
         }
 
         setupFunctions()
@@ -203,7 +188,10 @@ class ChangeBasicScheduleFragment() : Fragment() {
             return
         }
 
-        val comparison = checkIfFlatScheduleBaseEquals(mainViewModel.getBaseSchedule(), scheduleViewModel.getSavedBaseSchedule()!!, true)
+        val comparison = scheduleViewModel.isStagedScheduleBaseSame().first
+        if (comparison == null) {
+            throw(AssertionError("Null comparison result when updating reset&save buttons."))
+        }
         binding.saveButton.isEnabled = !comparison
         binding.resetButton.isEnabled = !comparison
     }
@@ -259,14 +247,19 @@ class ChangeBasicScheduleFragment() : Fragment() {
                         "$APP_TOAST_SCHEDULE_DOWNLOAD_FAILED: ${downloadStatus.message}",
                         Toast.LENGTH_LONG
                     ).show()
+                    shouldMoveToNextFragment = false
                 }
                 is DownloadStatus.Success<FlatScheduleBase> -> {
                     binding.progressBar.visibility = View.GONE
                     currentDownloadStatus.removeObservers(viewLifecycleOwner)
-                    if (scheduleViewModel.getSavedBaseSchedule() == null) {
-                        scheduleViewModel.saveBaseSchedule(mainViewModel.getBaseSchedule())
+
+                    if (shouldMoveToNextFragment) {
+                        shouldMoveToNextFragment = false
+                        requireView().findNavController()
+                            .navigate(ChangeBasicScheduleFragmentDirections.actionChangeBasicScheduleFragmentToFragmentContainer())
+                    } else {
+                        setupView()
                     }
-                    setupView()
                 }
                 else -> {
                     throw IllegalStateException()
@@ -297,8 +290,7 @@ class ChangeBasicScheduleFragment() : Fragment() {
                         Toast.LENGTH_LONG
                     ).show()
                     mainViewModel.performTimerEvent({
-                        updateRecyclerView()
-                    }, 50L)
+                            updateRecyclerView() }, 50L)
                 }
                 is UploadStatus.Success -> {
                     binding.progressBar.visibility = View.GONE
@@ -308,7 +300,12 @@ class ChangeBasicScheduleFragment() : Fragment() {
                         Toast.LENGTH_LONG
                     ).show()
                     mainViewModel.performTimerEvent({
-                        updateRecyclerView()
+                        if (shouldRestartRecyclerView) {
+                            shouldRestartRecyclerView = false
+                            setupRecyclerView()
+                        } else {
+                            updateRecyclerView()
+                        }
                     }, 50L)
                 }
             }

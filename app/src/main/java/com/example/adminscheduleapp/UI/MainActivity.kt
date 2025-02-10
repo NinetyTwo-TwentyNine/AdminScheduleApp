@@ -11,7 +11,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import com.example.adminscheduleapp.R
-import com.example.adminscheduleapp.data.Constants.APP_PREFERENCES_AUTOUPDATE
 import com.example.adminscheduleapp.data.Constants.APP_PREFERENCES_PUSHES
 import com.example.adminscheduleapp.data.Constants.APP_PREFERENCES_STAY
 import com.example.adminscheduleapp.data.Constants.APP_TOAST_NOT_SIGNED_IN
@@ -32,7 +31,6 @@ class MainActivity : AppCompatActivity() {
         supportActionBar!!.setBackgroundDrawable(ColorDrawable(Color.parseColor("#05080D")))
 
         viewModel.editPreferences(APP_PREFERENCES_STAY, viewModel.getPreference(APP_PREFERENCES_STAY, true))
-        viewModel.editPreferences(APP_PREFERENCES_AUTOUPDATE, viewModel.getPreference(APP_PREFERENCES_AUTOUPDATE, true))
         viewModel.editPreferences(APP_PREFERENCES_PUSHES, viewModel.getPreference(APP_PREFERENCES_PUSHES, true))
     }
 

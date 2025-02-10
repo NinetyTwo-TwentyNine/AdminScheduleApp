@@ -16,6 +16,7 @@ import com.example.adminscheduleapp.viewmodels.MainActivityViewModel
 import com.example.adminscheduleapp.data.Date
 import com.example.adminscheduleapp.data.DownloadStatus
 import com.example.adminscheduleapp.data.FlatScheduleDetailed
+import com.example.adminscheduleapp.utils.Utils.getItemId
 import com.example.adminscheduleapp.viewmodels.ScheduleViewModel
 import java.util.*
 
@@ -36,8 +37,8 @@ class ChooseDateFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupView()
         initDownloadObservers()
-        mainViewModel.downloadCurrentSchedule(currentDownloadStatus)
     }
 
     private fun setupView() {
@@ -56,8 +57,8 @@ class ChooseDateFragment : Fragment() {
 
         binding.goNextButton.setOnClickListener {
             mainViewModel.chooseDay(Date(binding.dateToCreateScheduleDatePicker.year, binding.dateToCreateScheduleDatePicker.month+1, binding.dateToCreateScheduleDatePicker.dayOfMonth))
-            requireView().findNavController()
-                .navigate(ChooseDateFragmentDirections.actionChooseDateFragmentToFragmentContainer())
+            val currentDateId = getItemId(mainViewModel.getParameters().dayList, mainViewModel.getDateWithOffset())
+            mainViewModel.downloadCurrentSchedule(currentDownloadStatus, scheduleViewModel, currentDateId!!)
         }
     }
 
@@ -90,10 +91,8 @@ class ChooseDateFragment : Fragment() {
                 is DownloadStatus.Success<FlatScheduleDetailed> -> {
                     binding.progressBar.visibility = View.GONE
                     currentDownloadStatus.removeObservers(viewLifecycleOwner)
-                    if (scheduleViewModel.getSavedCurrentSchedule() == null) {
-                        scheduleViewModel.saveCurrentSchedule(mainViewModel.getCurrentSchedule())
-                    }
-                    setupView()
+                    requireView().findNavController()
+                        .navigate(ChooseDateFragmentDirections.actionChooseDateFragmentToFragmentContainer())
                 }
                 else -> {
                     throw IllegalStateException()

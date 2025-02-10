@@ -1,5 +1,12 @@
 package com.example.adminscheduleapp.data
 
+data class FlatScheduleAnswer<T>(
+    var scheduleCurrent : T? = null,
+    var scheduleStaged : T? = null,
+    var comparisonGeneral : Boolean? = null,
+    var comparisonSpecific : Boolean? = null
+)
+
 
 data class FlatSchedule(
     var BaseParameters : FlatScheduleParameters = FlatScheduleParameters(),

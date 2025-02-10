@@ -5,8 +5,9 @@ import android.content.SharedPreferences
 import com.example.adminscheduleapp.data.Constants
 import com.example.adminscheduleapp.models.FirebaseImplementation
 import com.example.adminscheduleapp.models.FirebaseRepository
+import com.example.adminscheduleapp.retrofit.ScheduleService
+import com.example.adminscheduleapp.retrofit.ScheduleServiceInstance
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,19 +27,19 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(): FirebaseDatabase{
-        return FirebaseDatabase.getInstance()
-    }
-
-    @Provides
-    @Singleton
     fun providePreferences(@ApplicationContext context: Context): SharedPreferences {
         return context.getSharedPreferences(Constants.APP_PREFERENCES, Context.MODE_PRIVATE)
     }
 
     @Provides
     @Singleton
-    fun provideRepository(fAuth: FirebaseAuth, fDatabase: FirebaseDatabase): FirebaseRepository {
-        return FirebaseImplementation(fDatabase, fAuth)
+    fun provideRepository(fAuth: FirebaseAuth): FirebaseRepository {
+        return FirebaseImplementation(fAuth)
+    }
+
+    @Provides
+    @Singleton
+    fun provideService(): ScheduleService {
+        return ScheduleServiceInstance.createService(ScheduleService::class.java)
     }
 }

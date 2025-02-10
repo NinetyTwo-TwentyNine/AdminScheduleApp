@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.adminscheduleapp.adapters.ScheduleRecyclerViewAdapter
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_GROUP_NAME
 import com.example.adminscheduleapp.data.Schedule
 import com.example.adminscheduleapp.databinding.FragmentScheduleBinding
 import com.example.adminscheduleapp.utils.Utils.getItemId
@@ -53,7 +53,7 @@ class ScheduleFragment() : Fragment() {
 
     private fun setupViewCurrentEditMode() {
         val scheduleParams = mainViewModel.getParameters()
-        val currentGroup = mainViewModel.getParametersList(APP_BD_PATHS_GROUP_LIST)[index!!]
+        val currentGroup = mainViewModel.getParametersList(APP_ADMIN_PARAMETERS_GROUP_NAME)[index!!]
         val currentGroupId = getItemId(scheduleParams.groupList, currentGroup)
         val currentDate = mainViewModel.getDateWithOffset()
         val currentDateId = getItemId(scheduleParams.dayList, currentDate)
@@ -61,19 +61,12 @@ class ScheduleFragment() : Fragment() {
         var currentSchedule = scheduleViewModel.getScheduleByGroupAndDay(currentGroupId, currentDateId, scheduleParams, APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE)
 
         editButtonFunction = {number ->
-            if (scheduleViewModel.chooseScheduleItemCurrent(scheduleParams, currentDate, currentGroup, number, baseSchedule = mainViewModel.getCurrentSchedule())) {
+            if (scheduleViewModel.chooseScheduleItemCurrent(scheduleParams, currentDate, currentGroup, number, mainViewModel.getCurrentSchedule())) {
                 (this.parentFragment as FragmentContainer).moveToAddPairFragment()
             }
         }
         clearButtonFunction = {number ->
-            if (scheduleViewModel.removeScheduleItemCurrent(scheduleParams, currentDate, currentGroup, number)) {
-                currentSchedule = scheduleViewModel.getScheduleByGroupAndDay(currentGroupId, currentDateId, scheduleParams, APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE)
-                setupRecyclerView(currentSchedule)
-
-                mainViewModel.performTimerEvent(
-                    {binding.schedulesRecyclerView.scrollToPosition(number + 1)},
-                    50L)
-            }
+            (this.parentFragment as FragmentContainer).clearChosenPair(currentDateId!!, currentGroupId!!, number)
         }
 
         setupRecyclerView(currentSchedule)
@@ -81,7 +74,7 @@ class ScheduleFragment() : Fragment() {
 
     private fun setupViewBaseEditMode() {
         val scheduleParams = mainViewModel.getParameters()
-        val currentGroup = mainViewModel.getParametersList(APP_BD_PATHS_GROUP_LIST)[index!!]
+        val currentGroup = mainViewModel.getParametersList(APP_ADMIN_PARAMETERS_GROUP_NAME)[index!!]
         val currentGroupId = getItemId(scheduleParams.groupList, currentGroup)
         val currentDayId = mainViewModel.getChosenDayIndex()
         Log.d("TAG_FS", "currentGroup = ${currentGroupId.toString()}, currentDay = ${currentDayId}, index = ${index!!}")
@@ -93,14 +86,7 @@ class ScheduleFragment() : Fragment() {
             }
         }
         clearButtonFunction = {number ->
-            if (scheduleViewModel.removeScheduleItemBase(scheduleParams, currentDayId, currentGroup, number)) {
-                currentSchedule = scheduleViewModel.getScheduleByGroupAndDay(currentGroupId, currentDayId, scheduleParams, APP_ADMIN_BASE_SCHEDULE_EDIT_MODE)
-                setupRecyclerView(currentSchedule)
-
-                mainViewModel.performTimerEvent(
-                    {binding.schedulesRecyclerView.scrollToPosition(number + 1)},
-                    50L)
-            }
+            (this.parentFragment as FragmentContainer).clearChosenPair(mainViewModel.getChosenDayIndex(), currentGroupId!!, number)
         }
 
         setupRecyclerView(currentSchedule)

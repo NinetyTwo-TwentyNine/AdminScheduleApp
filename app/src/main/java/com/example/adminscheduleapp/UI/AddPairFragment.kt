@@ -8,14 +8,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.adminscheduleapp.adapters.AddPairRecyclerViewAdapter
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_EDIT_PAIR_ARRAY
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_CABINET_LIST
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_DISCIPLINE_LIST
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_TEACHER_LIST
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_CABINET_NAME
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_DISCIPLINE_NAME
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_TEACHER_NAME
 import com.example.adminscheduleapp.databinding.FragmentAddPairBinding
 import com.example.adminscheduleapp.utils.Utils.checkIfItemArraysAreEqual
 import com.example.adminscheduleapp.utils.Utils.getItemArrayDeepCopy
@@ -43,8 +44,9 @@ class AddPairFragment() : Fragment() {
         binding.optionalEnable.setOnCheckedChangeListener { v, checked -> updateRecyclerView() }
 
         binding.saveButton.setOnClickListener {
-            val addPairArray = ArrayList(addPairRecyclerViewAdapter.differ.currentList)
-            scheduleViewModel.saveScheduleEdits(mainViewModel.getParameters(), addPairArray, mainViewModel.getEditMode())
+            scheduleViewModel.saveNewPair(ArrayList(addPairRecyclerViewAdapter.differ.currentList))
+            mainViewModel.setNextUpload(true)
+            requireView().findNavController().navigate(AddPairFragmentDirections.actionAddPairFragmentToFragmentContainer())
             it.isEnabled = false
         }
 
@@ -58,9 +60,9 @@ class AddPairFragment() : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        val discipline_params_list = mainViewModel.getParametersList(APP_BD_PATHS_DISCIPLINE_LIST)
-        val teacher_params_list = mainViewModel.getParametersList(APP_BD_PATHS_TEACHER_LIST)
-        val cabinet_params_list = mainViewModel.getParametersList(APP_BD_PATHS_CABINET_LIST)
+        val discipline_params_list = mainViewModel.getParametersList(APP_ADMIN_PARAMETERS_DISCIPLINE_NAME)
+        val teacher_params_list = mainViewModel.getParametersList(APP_ADMIN_PARAMETERS_TEACHER_NAME)
+        val cabinet_params_list = mainViewModel.getParametersList(APP_ADMIN_PARAMETERS_CABINET_NAME)
 
         teacher_params_list.sort()
         discipline_params_list.sort()
@@ -156,15 +158,5 @@ class AddPairFragment() : Fragment() {
         Log.d("ADMIN_PAIR_FORMAT_CHECKER", "Current array: " + System.lineSeparator() + addPairArray.toString())
         binding.saveButton.isEnabled = !checkIfItemArraysAreEqual(addPairArray, scheduleViewModel.getChosenScheduleItem()!!)
         Log.d("ADMIN_PAIR_FORMAT_CHECKER", "Are they the same? ${!binding.saveButton.isEnabled}.")
-    }
-
-    override fun onDestroyView() {
-        if (scheduleViewModel.chosenScheduleIdIsNew!!) {
-            when(mainViewModel.getEditMode()) {
-                APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> scheduleViewModel.removeScheduleItemCurrent(mainViewModel.getParameters(), mainViewModel.getDateWithOffset(), scheduleViewModel.getChosenGroup()!!, scheduleViewModel.getChosenPairNum()!!)
-                APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> scheduleViewModel.removeScheduleItemBase(mainViewModel.getParameters(), mainViewModel.getChosenDayIndex(), scheduleViewModel.getChosenGroup()!!, scheduleViewModel.getChosenPairNum()!!)
-            }
-        }
-        super.onDestroyView()
     }
 }

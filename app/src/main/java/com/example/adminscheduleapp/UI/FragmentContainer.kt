@@ -21,22 +21,16 @@ import com.example.adminscheduleapp.adapters.MainScreenAdapter
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_BASE_SCHEDULE_EDIT_MODE
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_CHOOSE_BASE_SCHEDULE_TEXT
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE
+import com.example.adminscheduleapp.data.Constants.APP_ADMIN_PARAMETERS_GROUP_NAME
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_FAILED
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_WARNING_APPLY_BASE_SCHEDULE
-import com.example.adminscheduleapp.data.Constants.APP_ADMIN_WARNING_MISSING_DAY
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_WARNING_RESET_CHANGES
 import com.example.adminscheduleapp.data.Constants.APP_ADMIN_WARNING_SAVE_CHANGES
-import com.example.adminscheduleapp.data.Constants.APP_BD_PATHS_GROUP_LIST
-import com.example.adminscheduleapp.data.Constants.APP_TOAST_SCHEDULE_DOWNLOAD_FAILED
-import com.example.adminscheduleapp.data.DownloadStatus
-import com.example.adminscheduleapp.data.FlatScheduleDetailed
 import com.example.adminscheduleapp.data.UploadStatus
 import com.example.adminscheduleapp.databinding.BasicPopupWindowBinding
 import com.example.adminscheduleapp.databinding.FragmentContainerBinding
-import com.example.adminscheduleapp.utils.Utils.checkIfFlatScheduleDetailedEquals
-import com.example.adminscheduleapp.utils.Utils.changeSingleScheduleDay
-import com.example.adminscheduleapp.utils.Utils.checkIfFlatScheduleBaseEquals
+import com.example.adminscheduleapp.utils.Utils.getItemId
 import com.example.adminscheduleapp.viewmodels.MainActivityViewModel
 import com.example.adminscheduleapp.viewmodels.ScheduleViewModel
 import com.google.android.material.tabs.TabLayoutMediator
@@ -50,8 +44,6 @@ class FragmentContainer : Fragment() {
     private lateinit var binding: FragmentContainerBinding
     private lateinit var popupBinding: BasicPopupWindowBinding
     private lateinit var currentUploadStatus: MutableLiveData<UploadStatus>
-
-    private var dontEverShowDayWarning = false
 
 
     override fun onCreateView(
@@ -73,29 +65,18 @@ class FragmentContainer : Fragment() {
 
     private fun setupViewCurrentEditMode() {
         setupViewPager2()
+        initUploadObservers()
 
+        val currentDateId = getItemId(mainViewModel.getParameters().dayList, mainViewModel.getDateWithOffset())
         binding.saveButton.setOnClickListener {
             createPopupWindow(APP_ADMIN_WARNING_SAVE_CHANGES, true) {
-                val uploadSchedule = changeSingleScheduleDay(
-                    mainViewModel.getParameters().dayList,
-                    baseSchedule = mainViewModel.getCurrentSchedule(),
-                    newSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
-                    mainViewModel.getDateWithOffset(mainViewModel.getChosenDayIndex())
-                )
-                mainViewModel.uploadCurrentSchedule(currentUploadStatus, uploadSchedule) }
+                mainViewModel.applyStagedChangesToScheduleCurrent(currentUploadStatus, scheduleViewModel, currentDateId!!)
+            }
         }
         binding.resetButton.setOnClickListener {
             createPopupWindow(APP_ADMIN_WARNING_RESET_CHANGES) {
-                val resetSchedule = changeSingleScheduleDay(
-                    mainViewModel.getParameters().dayList,
-                    baseSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
-                    newSchedule = mainViewModel.getCurrentSchedule(),
-                    mainViewModel.getDateWithOffset(mainViewModel.getChosenDayIndex())
-                )
-                scheduleViewModel.saveCurrentSchedule(resetSchedule)
-                mainViewModel.performTimerEvent(
-                    { setupViewPager2() },
-                    50L) }
+                mainViewModel.resetStagedChangesToScheduleCurrent(currentUploadStatus, scheduleViewModel, currentDateId!!)
+            }
         }
 
         val adapterArray = arrayListOf("")
@@ -110,10 +91,7 @@ class FragmentContainer : Fragment() {
                     false -> {
                         binding.chooseScheduleSpinner.setSelection(0)
                         createPopupWindow(APP_ADMIN_WARNING_APPLY_BASE_SCHEDULE) {
-                            scheduleViewModel.applyBaseSchedule(mainViewModel.getParameters().dayList, mainViewModel.getDateWithOffset(), mainViewModel.getBaseSchedule(), name, mainViewModel.getDayToTab())
-                            mainViewModel.performTimerEvent(
-                                { setupViewPager2() },
-                                50L)
+                            mainViewModel.applyBaseScheduleToCurrent(currentUploadStatus, scheduleViewModel, baseScheduleName = name)
                         }
                     }
                     true -> {}
@@ -124,44 +102,41 @@ class FragmentContainer : Fragment() {
 
         binding.chooseScheduleSpinnerDefaultText.text = APP_ADMIN_CHOOSE_BASE_SCHEDULE_TEXT
         binding.dayName.text = mainViewModel.getDayToTab()
+
+        if (mainViewModel.shouldDataBeUploaded()) {
+            mainViewModel.setNextUpload(false)
+            val groupId = getItemId(mainViewModel.getParameters().groupList, scheduleViewModel.getChosenGroup())
+            mainViewModel.stageCurrentSchedulePair(currentUploadStatus, scheduleViewModel, groupId = groupId!!, dateId = currentDateId!!, pairNum = scheduleViewModel.getChosenPairNum()!!, scheduleViewModel.getChosenScheduleItem()!!)
+        }
     }
 
     private fun setupViewBaseEditMode() {
-        dontEverShowDayWarning = true
         setupViewPager2()
+        initUploadObservers()
 
         binding.saveButton.setOnClickListener {
             createPopupWindow(APP_ADMIN_WARNING_SAVE_CHANGES, true) {
-                val uploadSchedule = changeSingleScheduleDay(
-                    dateId = mainViewModel.getChosenDayIndex(),
-                    baseSchedule = mainViewModel.getBaseSchedule(),
-                    newSchedule = scheduleViewModel.getSavedBaseSchedule()!!,
-                    nameId = scheduleViewModel.getChosenBaseSchedule()!!
-                )
-                mainViewModel.uploadBaseSchedule(currentUploadStatus, uploadSchedule) }
+                mainViewModel.applyStagedChangesToScheduleBase(currentUploadStatus, scheduleViewModel, mainViewModel.getChosenDayIndex(), scheduleViewModel.getChosenBaseSchedule()!!) }
         }
         binding.resetButton.setOnClickListener {
             createPopupWindow(APP_ADMIN_WARNING_RESET_CHANGES) {
-                val resetSchedule = changeSingleScheduleDay(
-                    dateId = mainViewModel.getChosenDayIndex(),
-                    baseSchedule = scheduleViewModel.getSavedBaseSchedule()!!,
-                    newSchedule = mainViewModel.getBaseSchedule(),
-                    nameId = scheduleViewModel.getChosenBaseSchedule()!!
-                )
-                scheduleViewModel.saveBaseSchedule(resetSchedule)
-                mainViewModel.performTimerEvent(
-                    { setupViewPager2() },
-                    50L) }
+                mainViewModel.resetStagedChangesToScheduleBase(currentUploadStatus, scheduleViewModel, mainViewModel.getChosenDayIndex(), scheduleViewModel.getChosenBaseSchedule()!!) }
         }
 
         binding.chooseScheduleSpinner.isEnabled = false
         binding.chooseScheduleSpinnerDefaultText.text = scheduleViewModel.getBaseScheduleName()
         binding.dayName.text = mainViewModel.getDayToTab()
+
+        if (mainViewModel.shouldDataBeUploaded()) {
+            mainViewModel.setNextUpload(false)
+            val groupId = getItemId(mainViewModel.getParameters().groupList, scheduleViewModel.getChosenGroup())
+            mainViewModel.stageBaseSchedulePair(currentUploadStatus, scheduleViewModel, groupId = groupId!!, dayNum = mainViewModel.getChosenDayIndex(), pairNum = scheduleViewModel.getChosenPairNum()!!, nameId = scheduleViewModel.getChosenBaseSchedule()!!, scheduleViewModel.getChosenScheduleItem()!!)
+        }
     }
 
     @SuppressLint("SetTextI18n")
     private fun setupViewPager2() {
-        val groupArray = mainViewModel.getParametersList(APP_BD_PATHS_GROUP_LIST)
+        val groupArray = mainViewModel.getParametersList(APP_ADMIN_PARAMETERS_GROUP_NAME)
 
         mainScreenAdapter = MainScreenAdapter(this, groupArray.size)
         binding.fragmentViewPager2.adapter = mainScreenAdapter
@@ -174,8 +149,6 @@ class FragmentContainer : Fragment() {
         for (i in 0 until groupArray.size) {
             binding.tabLayout.getTabAt(i)?.text = groupArray[i]
         }
-
-        initUploadObservers()
     }
 
     private fun createPopupWindow(warning: String, alwaysDisableButtons: Boolean = false, noButtonDisabled: Boolean = false, yesFunc: ()->Unit) {
@@ -239,10 +212,18 @@ class FragmentContainer : Fragment() {
                         Toast.LENGTH_LONG
                     ).show()
                     mainViewModel.performTimerEvent({
+                        setupViewPager2()
                         updateResetAndSaveButtons()
                     }, 50L)
                 }
             }
+        }
+    }
+
+    fun clearChosenPair(currentDayId: Int, currentGroup: Int, number: Int) {
+        when (mainViewModel.getEditMode()) {
+            APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> mainViewModel.stageCurrentSchedulePair(currentUploadStatus, scheduleViewModel, currentGroup, currentDayId, number, null)
+            APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> mainViewModel.stageBaseSchedulePair(currentUploadStatus, scheduleViewModel, currentGroup, currentDayId, number, scheduleViewModel.getChosenBaseSchedule()!!, null)
         }
     }
 
@@ -251,35 +232,19 @@ class FragmentContainer : Fragment() {
             .navigate(FragmentContainerDirections.actionFragmentContainerToAddPairFragment())
     }
 
-    private fun showDayMissingWarning() {
-        if (dontEverShowDayWarning) { dontEverShowDayWarning = false; return }
-        createPopupWindow(APP_ADMIN_WARNING_MISSING_DAY, noButtonDisabled = true) {
-            dontEverShowDayWarning = true
-            requireView().findNavController()
-                .navigate(FragmentContainerDirections.actionFragmentContainerToSettingsFragment())
-        }
-    }
-
     fun updateResetAndSaveButtons(forcedBool: Boolean? = null) {
         Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "")
 
         val comparisonResult: Boolean?
         if (forcedBool == null) {
             comparisonResult = performTheoreticalUploadCheck()
-            if (comparisonResult == null) {
-                when(mainViewModel.getEditMode()) {
-                    APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> {
-                        showDayMissingWarning()
-                        return
-                    }
-                    APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> {
-                        throw(Exception("Theoretical upload check result and edit mode mismatch."))
-                    }
-                }
-            }
         } else {
             comparisonResult = !forcedBool
             Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "Forced boolean = $forcedBool")
+        }
+
+        if (comparisonResult == null) {
+            throw(AssertionError("Null comparison result when updating save&reset buttons."))
         }
 
         if (forcedBool == null) {
@@ -292,28 +257,10 @@ class FragmentContainer : Fragment() {
     private fun performTheoreticalUploadCheck(): Boolean? {
         when (mainViewModel.getEditMode()) {
             APP_ADMIN_CURRENT_SCHEDULE_EDIT_MODE -> {
-                val theoreticalUploadSchedule: FlatScheduleDetailed
-                try {
-                    theoreticalUploadSchedule = changeSingleScheduleDay(
-                        mainViewModel.getParameters().dayList,
-                        baseSchedule = mainViewModel.getCurrentSchedule(),
-                        newSchedule = scheduleViewModel.getSavedCurrentSchedule()!!,
-                        mainViewModel.getDateWithOffset()
-                    )
-                } catch (e: Exception) {
-                    Log.d("ADMIN_RESET&UPLOAD_BUTTONS_CHECK", "The day ID was missing!")
-                    return null
-                }
-                return checkIfFlatScheduleDetailedEquals(mainViewModel.getCurrentSchedule(), theoreticalUploadSchedule)
+                return scheduleViewModel.isStagedScheduleCurrentSame().second
             }
             APP_ADMIN_BASE_SCHEDULE_EDIT_MODE -> {
-                val theoreticalUploadSchedule = changeSingleScheduleDay(
-                    mainViewModel.getChosenDayIndex(),
-                    baseSchedule = mainViewModel.getBaseSchedule(),
-                    newSchedule = scheduleViewModel.getSavedBaseSchedule()!!,
-                    scheduleViewModel.getChosenBaseSchedule()!!
-                )
-                return checkIfFlatScheduleBaseEquals(mainViewModel.getBaseSchedule(), theoreticalUploadSchedule, false)
+                return scheduleViewModel.isStagedScheduleBaseSame().second
             }
             else -> {
                 return null

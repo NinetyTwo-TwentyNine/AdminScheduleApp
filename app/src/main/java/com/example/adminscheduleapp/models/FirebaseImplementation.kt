@@ -8,17 +8,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.FirebaseDatabase
 
 class FirebaseImplementation(
-    private val fDatabase: FirebaseDatabase,
     private val fAuth: FirebaseAuth
 ) : FirebaseRepository {
-    override fun downloadByReference(reference: String): Task<DataSnapshot> {
-        return fDatabase.getReference(reference).get()
-    }
-
-    override fun <T> uploadByReference(reference: String, info: T): Task<Void> {
-        return fDatabase.getReference(reference).setValue(info)
-    }
-
     override fun getCurrentUser(): FirebaseUser? {
         return fAuth.currentUser
     }
@@ -34,18 +25,6 @@ class FirebaseImplementation(
     override fun sendResetMessage(email: String): Task<Void> {
         return fAuth.sendPasswordResetEmail(email)
     }
-
-    /*fun something()
-    {
-        fDatabase.getReference("FlatScheduleDetailed303/schedule_test1").setValue(null).addOnCompleteListener {
-            if (it.isSuccessful) {
-                Log.d("UPLOAD_TEST", "uploaded data successfully")
-            }
-            else {
-                Log.d("UPLOAD_TEST", "data upload error: " + it.exception!!.message.toString())
-            }
-        }
-    }*/
 
     override fun signOut() {
         fAuth.signOut()

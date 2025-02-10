@@ -7,19 +7,7 @@ object Constants {
 
     const val APP_PREFERENCES = "APP_PREFERENCES"
     const val APP_PREFERENCES_STAY = "APP_PREFERENCES_STAY_BOOL"
-    const val APP_PREFERENCES_AUTOUPDATE = "APP_PREFERENCES_AUTOUPDATE_BOOL"
     const val APP_PREFERENCES_PUSHES = "APP_PREFERENCES_PUSHES_BOOL"
-
-    const val APP_BD_PATHS_BASE = "FlatSchedule"
-    const val APP_BD_PATHS_BASE_PARAMETERS = "${APP_BD_PATHS_BASE}/BaseParameters"
-    const val APP_BD_PATHS_SCHEDULE_BASE = "${APP_BD_PATHS_BASE}/BaseSchedules"
-    const val APP_BD_PATHS_SCHEDULE_CURRENT = "${APP_BD_PATHS_BASE}/CurrentSchedules"
-    const val APP_BD_PATHS_SCHEDULE_BASE_NAME_LIST = "${APP_BD_PATHS_SCHEDULE_BASE}/nameList"
-    const val APP_BD_PATHS_GROUP_LIST = "${APP_BD_PATHS_BASE_PARAMETERS}/groupList"
-    const val APP_BD_PATHS_TEACHER_LIST = "${APP_BD_PATHS_BASE_PARAMETERS}/teacherList"
-    const val APP_BD_PATHS_CABINET_LIST = "${APP_BD_PATHS_BASE_PARAMETERS}/cabinetList"
-    const val APP_BD_PATHS_DISCIPLINE_LIST = "${APP_BD_PATHS_BASE_PARAMETERS}/lessonList"
-    const val APP_BD_PATHS_DATE_LIST = "${APP_BD_PATHS_BASE_PARAMETERS}/dayList"
 
     const val APP_ADMIN_TABLE_EDIT_OPTIONS_OFF = "Выключить изменение названия"
     const val APP_ADMIN_TABLE_EDIT_OPTIONS_ON = "Включить изменение названия"
@@ -53,10 +41,7 @@ object Constants {
     const val APP_ADMIN_TOAST_SHOULD_UPLOAD_SCHEDULE = "The schedule should be uploaded first, before it can be edited."
     const val APP_ADMIN_TOAST_DATA_UPLOAD_FAILED = "Failed to upload the data"
     const val APP_ADMIN_TOAST_DATA_UPLOAD_SUCCESS = "Succeeded in uploading the data"
-    const val APP_ADMIN_TOAST_DAY_LIST_UPLOAD_FAILED = "Failed to upload the day list"
-    const val APP_ADMIN_TOAST_DAY_LIST_UPLOAD_SUCCESS = "Succeeded in updating the day list"
 
-    const val APP_ADMIN_WARNING_MISSING_DAY = "Внимание! Для данной даты не было найдено ID!\nВозможно, стоит обновить список дней."
     const val APP_ADMIN_WARNING_SAVE_CHANGES = "Вы уверены, что хотите сохранить эти изменения?"
     const val APP_ADMIN_WARNING_RESET_CHANGES = "Вы уверены, что хотите отменить эти изменения?"
     const val APP_ADMIN_WARNING_ID_DELETION = "Некоторые ID были удалены."

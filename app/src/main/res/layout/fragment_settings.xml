@@ -28,7 +28,7 @@
         android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/autoUpdateTextView" />
+        app:layout_constraintTop_toBottomOf="@id/enablePushesTextView" />
 
     <ImageView
         android:id="@+id/icon_stay_signet"
@@ -49,21 +49,22 @@
         android:thumb="@drawable/switch_custom_thumb"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/enableAutoUpdateCheckBox"
+        app:layout_constraintTop_toBottomOf="@id/enablePushesCheckBox"
         app:track="@drawable/switch_custom_track" />
 
 
     <TextView
-        android:id="@+id/autoUpdateTextView"
+        android:id="@+id/enablePushesTextView"
         android:layout_width="wrap_content"
         android:layout_height="23dp"
-        android:layout_marginTop="99dp"
+        android:layout_marginTop="100dp"
         android:layout_marginEnd="110dp"
         android:fontFamily="@font/roboto_medium"
-        android:text="Автообновлять даты"
+        android:text="Включить уведомления"
         android:textColor="#FFFFFF"
         android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.689"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView1" />
 
@@ -73,13 +74,13 @@
         android:layout_height="23dp"
         android:layout_marginStart="3dp"
         android:layout_marginTop="102dp"
-        app:layout_constraintEnd_toStartOf="@+id/autoUpdateTextView"
+        app:layout_constraintEnd_toStartOf="@+id/enablePushesTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView1"
         app:srcCompat="@drawable/icon_notification" />
 
     <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/enableAutoUpdateCheckBox"
+        android:id="@+id/enablePushesCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="260dp"
@@ -114,30 +115,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/icon_stay_signet"
         app:srcCompat="@drawable/icon_logout" />
-
-    <ImageView
-        android:id="@+id/icon_manualUpdate"
-        android:layout_width="23dp"
-        android:layout_height="23dp"
-        android:layout_marginStart="3dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintEnd_toStartOf="@+id/logoutTrigger"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/icon_logout"
-        app:srcCompat="@drawable/icon_contact" />
-
-    <TextView
-        android:id="@+id/manual_update_trigger"
-        android:layout_width="300dp"
-        android:layout_height="23dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="10dp"
-        android:text="Обновить список дней сейчас"
-        android:textColor="@color/white"
-        android:textSize="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/logoutTrigger" />
 
     <ProgressBar
         android:id="@+id/progressBar"
